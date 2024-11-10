@@ -7,7 +7,7 @@ import { isAuthenticated } from '../utils/isAuthenticated';
 const routes = [
   { path: '/', component: Login },
   { path: '/recovery', component: Recovery },
-  { path: '/admin', component: AdminPage},
+  { path: '/admin', component: AdminPage, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

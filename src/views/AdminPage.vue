@@ -5,7 +5,7 @@
       <div class="logo">Farmaceutica S.A</div>
       <div class="top-menu">
         <button class="user-btn"><i class="fas fa-user"></i> Admin</button>
-        <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout </button>
       </div>
     </header>
 
@@ -122,6 +122,10 @@ export default {
     };
   },
   methods: {
+    logOut(){
+      document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'; 
+      this.$router.push("/");
+    },
     toggleView() {
       this.isFormVisible = !this.isFormVisible;
     },
