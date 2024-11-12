@@ -2,20 +2,24 @@
   <div class="app-container">
     <!-- Barra superior -->
     <header class="top-bar">
-      <div class="logo">Farmaceutica S.A</div>
-      <div class="top-menu">
-        <button class="user-btn"><i class="fas fa-user"></i> Admin</button>
-        <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout </button>
-      </div>
-    </header>
-
-    <!-- Menú lateral -->
+  <div class="logo">Farmaceutica S.A</div>
+  <div class="top-menu">
+    <!-- Botón de Admin con menú desplegable -->
+    <div class="dropdown">
+      <button class="user-btn" @click="toggleDropdown"><i class="fas fa-user"></i> Admin</button>
+      <ul v-if="isDropdownVisible" class="dropdown-menu">
+        <li @click="showChangePasswordForm">Cambiar Contraseña</li>
+      </ul>
+    </div>
+    <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</header>
     <aside class="sidebar">
       <nav class="menu">
         <ul>
           <li><i class="fas fa-home"></i> Home</li>
           <li><i class="fas fa-box"></i> Stock</li>
-          <li class="active"><i class="fas fa-users"></i> Users</li>
+          <li class="active" @click="viewUsers"><i class="fas fa-users"></i> Users</li>
           <li><i class="fas fa-cogs"></i> Control Panel</li>
           <li><i class="fas fa-chart-bar"></i> Reports</li>
           <li><i class="fas fa-tools"></i> Tools</li>
@@ -24,81 +28,95 @@
       </nav>
     </aside>
 
-    <!-- Contenido principal -->
-    <div class="main-content">
-      <header class="header">
+    <div  class="main-content">
+      <header v-if="isUserHeaderVisible" class="header">
         <div class="header-title">Users</div>
         <div class="search-bar">
           <input type="text" placeholder="Search Users" />
-          <button class="search-btn"><i class="fas fa-search"></i> Search</button>
+          <button class="search-btn">
+            <i class="fas fa-search"></i> Search
+          </button>
         </div>
-        <button class="add-btn" @click="toggleView">{{ isFormVisible ? 'Back to List' : 'Add New' }}</button>
+        <button class="add-btn" @click="toggleView">
+          {{ isFormVisible ? 'Back to List' : 'Add New' }}
+        </button>
       </header>
-
-      <!-- Vista condicional: Formulario o Tabla -->
+  <div v-if="isChangePasswordFormVisible" class="change-password-form">
+    <form @submit.prevent="changePassword">
+      <div class="form-group">
+        <label>Contraseña Actual</label>
+        <input type="password" v-model="currentPassword" required />
+      </div>
+      <div class="form-group">
+        <label>Nueva Contraseña</label>
+        <input type="password" v-model="newPassword" required />
+      </div>
+      <button type="submit" class="submit-btn">Actualizar Contraseña</button>
+    </form>
+  </div>
       <div v-if="isFormVisible">
-        <!-- Formulario de registro de usuario -->
         <form @submit.prevent="submitForm" class="user-form">
           <div class="form-group">
             <label>Tipo de Documento</label>
-            <select v-model="user.tipoDocumento">
+            <select v-model="infoPerson.typeDocument">
               <option value="CC">Cédula de Ciudadanía</option>
               <option value="CE">Cédula de Extranjería</option>
             </select>
           </div>
           <div class="form-group">
             <label>Documento</label>
-            <input type="text" v-model="user.documento" required />
+            <input type="text" v-model="infoPerson.document" required />
           </div>
           <div class="form-group">
             <label>Nombres</label>
-            <input type="text" v-model="user.nombres" required />
+            <input type="text" v-model="infoPerson.namePerson" required />
           </div>
           <div class="form-group">
             <label>Apellidos</label>
-            <input type="text" v-model="user.apellidos" required />
+            <input type="text" v-model="infoPerson.lastNamePerson" required />
           </div>
           <div class="form-group">
             <label>Tipo de Usuario</label>
-            <select v-model="user.tipoUsuario">
-              <option value="admin">Administrador</option>
-              <option value="manager">Gerente</option>
-              <option value="user">Vendedor</option>
+            <select v-model="infoPerson.typeUser">
+              <option value="Administrador">Administrador</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Vendedor">Vendedor</option>
             </select>
           </div>
           <div class="form-group">
             <label>Teléfono</label>
-            <input type="tel" v-model="user.telefono" required />
+            <input type="tel" v-model="infoPerson.phone" required />
           </div>
           <div class="form-group">
             <label>Email</label>
-            <input type="email" v-model="user.email" required />
+            <input type="email" v-model="infoPerson.email" required />
           </div>
           <button type="submit" class="submit-btn">Guardar</button>
         </form>
       </div>
 
-      <div v-else>
-        <!-- Tabla de usuarios -->
-        <table class="user-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Document</th>
-              <th>Email</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>admin1</td>
-              <td>############</td>
-              <td>john@example.com</td>
-              <td>Administrator</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<!-- Tabla de usuarios (oculta cuando se muestra el formulario para cambiar la contraseña) -->
+<div v-if="isUserHeaderVisible && !isFormVisible && !isChangePasswordFormVisible" class="user-table-container">
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Documento</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Rol</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(user, index) in users" :key="index">
+        <td>{{ user.document }}</td>
+        <td>{{ user.fullName }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.typeUser }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
     </div>
   </div>
 </template>
@@ -108,44 +126,110 @@ import axios from 'axios';
 
 export default {
   data() {
-    return {
-      isFormVisible: false,
-      user: {
-        tipoDocumento: '',
-        documento: '',
-        nombres: '',
-        apellidos: '',
-        tipoUsuario: '',
-        telefono: '',
-        email: '',
-      },
-    };
-  },
+  return {
+    isDropdownVisible: false,
+    isChangePasswordFormVisible: false,
+    isFormVisible: false,
+    isUserHeaderVisible: false, 
+    currentPassword: '',
+    newPassword: '',
+    infoPerson: {
+      typeDocument: '',
+      document: '',
+      namePerson: '',
+      lastNamePerson: '',
+      typeUser: '',
+      phone: '',
+      email: '',
+    },
+    users: [],
+  };
+},
+
   methods: {
-    logOut(){
-      document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'; 
+    viewUsers() {
+    this.isUserHeaderVisible = true;
+    this.isFormVisible = false;
+    this.isUserHeaderVisible=true;
+    this.isChangePasswordFormVisible = false;
+    this.fetchUsers();
+  },
+    logOut() {
+      document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
       this.$router.push("/");
     },
     toggleView() {
       this.isFormVisible = !this.isFormVisible;
+      this.isChangePasswordFormVisible = false;
     },
-    clearForm() {
-      this.user = {
-        tipoDocumento: '',
-        documento: '',
-        nombres: '',
-        apellidos: '',
-        tipoUsuario: '',
-        telefono: '',
-        email: '',
-      };
+    toggleDropdown() {
+      this.isDropdownVisible = !this.isDropdownVisible;
     },
-    // Método para obtener el token de las cookies
-    getTokenFromCookies() {
-      const cookieName = 'jwt=';
-      const cookies = document.cookie.split('; ');
-      const tokenCookie = cookies.find((cookie) => cookie.startsWith(cookieName));
-      return tokenCookie ? tokenCookie.split('=')[1] : null;
+    showChangePasswordForm() {
+      this.isUserHeaderVisible=false;
+      this.isDropdownVisible = false;
+      this.isChangePasswordFormVisible = true;
+      this.isFormVisible=false;
+    },
+    async fetchUsers() {
+      try {
+        const token = this.getTokenFromCookies();
+
+        if (!token) {
+          alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+        const response = await axios.get('http://localhost:3000/person', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          withCredentials: true,
+        });
+        console.log(response)
+        if (response.data && response.data.users) {
+          this.users = response.data.users; 
+        } else {
+          alert('No se encontraron usuarios.');
+        }
+      } catch (error) {
+        console.error('Error al obtener los usuarios:', error);
+        alert('Ocurrió un error al cargar los usuarios.');
+      }
+    },
+    async changePassword() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          alert('Por favor, inicia sesión de nuevo.');
+          return;
+        }
+
+        const response = await axios.post(
+          'http://localhost:8080/api/users/change-password',
+          {
+            currentPassword: this.currentPassword,
+            newPassword: this.newPassword,
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            withCredentials: true,
+          }
+        );
+
+        if (response.data.success) {
+          alert('Contraseña actualizada exitosamente.');
+          this.currentPassword = '';
+          this.newPassword = '';
+          this.isChangePasswordFormVisible = false;
+        } else {
+          alert('Error al actualizar la contraseña.');
+        }
+      } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        alert('Ocurrió un error al cambiar la contraseña.');
+      }
     },
     async submitForm() {
       try {
@@ -157,8 +241,8 @@ export default {
         }
 
         const response = await axios.post(
-          'http://localhost:8080/api/users/add',
-          this.user,
+          'http://localhost:3000/person',
+          this.infoPerson,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -178,15 +262,18 @@ export default {
         alert('Ocurrió un error al guardar el usuario.');
       }
     },
+    getTokenFromCookies() {
+      const cookieName = 'jwt=';
+      const cookies = document.cookie.split('; ');
+      const tokenCookie = cookies.find((cookie) => cookie.startsWith(cookieName));
+      return tokenCookie ? tokenCookie.split('=')[1] : null;
+    },
+    
   },
 };
 </script>
 
-
-
-
 <style scoped>
-/* Estilos generales */
 * {
   margin: 0;
   padding: 0;
@@ -293,6 +380,59 @@ body {
   font-weight: bold;
 }
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #444;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dropdown-menu li:hover {
+  background-color: #555;
+}
+
+/* Formulario de cambio de contraseña */
+.change-password-form {
+  background-color: #fff;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.change-password-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.change-password-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.change-password-form input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -333,27 +473,36 @@ body {
   background-color: #0056b3;
 }
 
-/* Tabla de usuarios */
+.user-table-container {
+  padding: 1rem;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
 .user-table {
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .user-table th,
 .user-table td {
   padding: 0.75rem;
-  border-bottom: 1px solid #ccc;
   text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 .user-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background-color: #444;
+  color: white;
 }
 
 .user-table tr:hover {
-  background-color: #f0f0f0;
+  background-color: #e0e0e0;
+}
+
+.user-table td {
+  color: #333;
 }
 
 .user-form {

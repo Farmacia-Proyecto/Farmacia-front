@@ -62,7 +62,7 @@ export default {
     async login() {
       try {
         const response = await auth.login(this.email, this.password);
-        sessionStorage.setItem("jwt", response);
+        document.cookie = `jwt=${response}; path=/; secure; samesite=strict`;
         this.$router.push("/admin");
       } catch (error) {
         console.log(error);
