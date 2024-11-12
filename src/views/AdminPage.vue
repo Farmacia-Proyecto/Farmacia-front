@@ -4,7 +4,6 @@
     <header class="top-bar">
   <div class="logo">Farmaceutica S.A</div>
   <div class="top-menu">
-    <!-- Botón de Admin con menú desplegable -->
     <div class="dropdown">
       <button class="user-btn" @click="toggleDropdown"><i class="fas fa-user"></i> Admin</button>
       <ul v-if="isDropdownVisible" class="dropdown-menu">
@@ -32,8 +31,8 @@
       <header v-if="isUserHeaderVisible" class="header">
         <div class="header-title">Users</div>
         <div class="search-bar">
-          <input type="text" placeholder="Search Users" />
-          <button class="search-btn">
+          <input type="text" placeholder="Search Users" v-model="search" />
+          <button class="search-btn" @click="searchUsers(search)">
             <i class="fas fa-search"></i> Search
           </button>
         </div>
@@ -95,26 +94,92 @@
         </form>
       </div>
 
-<!-- Tabla de usuarios (oculta cuando se muestra el formulario para cambiar la contraseña) -->
 <div v-if="isUserHeaderVisible && !isFormVisible && !isChangePasswordFormVisible" class="user-table-container">
   <table class="user-table">
-    <thead>
-      <tr>
-        <th>Documento</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Rol</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(user, index) in users" :key="index">
-        <td>{{ user.document }}</td>
-        <td>{{ user.fullName }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.typeUser }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+      <th>Documento</th>
+      <th>Nombres</th>
+      <th>Apellidos</th>
+      <th>Correo</th>
+      <th>Rol</th>
+      <th>Estado</th>
+      <th>Acciones</th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="(user, index) in users" :key="index">
+  <td>
+    <span>{{ user.document }}</span>
+  </td>
+  <td>
+    <input
+      v-if="editIndex === index"
+      v-model="editableUser.name"
+      type="text"
+      class="edit-input"
+    />
+    <span v-else>{{user.name}}</span>
+  </td>
+  <td>
+    <input
+      v-if="editIndex === index"
+      v-model="editableUser.lastName"
+      type="text"
+      class="edit-input"
+    />
+    <span v-else>{{ user.lastName }}</span>
+  </td>
+  <td>
+    <input
+      v-if="editIndex === index"
+      v-model="editableUser.email"
+      type="text"
+      class="edit-input"
+    />
+    <span v-else>{{ user.email }}</span>
+  </td>
+  <td>
+    <input
+      v-if="editIndex === index"
+      v-model="editableUser.typeUser"
+      type="text"
+      class="edit-input"
+    />
+    <span v-else>{{ user.typeUser }}</span>
+  </td>
+  <td>
+    <input
+      v-if="editIndex === index"
+      v-model="editableUser.state"
+      type="text"
+      class="edit-input"
+    />
+    <span v-else>{{ user.state}}</span>
+  </td>
+  <td class="action-buttons">
+  <!-- Botón de editar (solo cambia a confirmar durante edición) -->
+  <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
+    <i class="fas fa-check"></i>
+  </button>
+  <button v-else class="edit-btn" @click="startEdit(user, index)">
+    <i class="fas fa-pencil-alt"></i>
+  </button>
+  
+
+<button v-if="user.state === 'ACTIVO'" class="deactivate-btn" @click="deactivateUser(user,index)">
+  <i class="fas fa-ban"></i> <!-- Icono de cancelar para usuario activo -->
+</button>
+
+
+<button v-else class="activate-btn" @click="activateUser(user,index)">
+  <i class="fas fa-thumbs-up"></i> <!-- Icono de like para usuario inactivo -->
+</button>
+</td>
+</tr>
+
+  </tbody>
+</table>
 </div>
 
     </div>
@@ -123,7 +188,6 @@
 
 <script>
 import axios from 'axios';
-
 export default {
   data() {
   return {
@@ -132,6 +196,7 @@ export default {
     isFormVisible: false,
     isUserHeaderVisible: false, 
     currentPassword: '',
+    search:'',
     newPassword: '',
     infoPerson: {
       typeDocument: '',
@@ -143,6 +208,8 @@ export default {
       email: '',
     },
     users: [],
+    editIndex: null, // Almacena el índice de la fila en modo de edición
+    editableUser: {}, // Almacena temporalmente los datos del usuario en edición
   };
 },
 
@@ -174,7 +241,6 @@ export default {
     async fetchUsers() {
       try {
         const token = this.getTokenFromCookies();
-
         if (!token) {
           alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
@@ -196,6 +262,7 @@ export default {
         alert('Ocurrió un error al cargar los usuarios.');
       }
     },
+    
     async changePassword() {
       try {
         const token = this.getTokenFromCookies();
@@ -203,9 +270,8 @@ export default {
           alert('Por favor, inicia sesión de nuevo.');
           return;
         }
-
         const response = await axios.post(
-          'http://localhost:8080/api/users/change-password',
+          'http://localhost:3000/api/users/change-password',
           {
             currentPassword: this.currentPassword,
             newPassword: this.newPassword,
@@ -268,7 +334,110 @@ export default {
       const tokenCookie = cookies.find((cookie) => cookie.startsWith(cookieName));
       return tokenCookie ? tokenCookie.split('=')[1] : null;
     },
-    
+
+   startEdit(user, index) {
+    this.editIndex = index;
+    this.editableUser = { ...user };
+   },
+   async confirmEdit(index) {
+      try {
+        const token = this.getTokenFromCookies();
+
+        if (!token) {
+          alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+
+        const updatedUser = {
+          namePerson: this.editableUser.name,
+          lastNamePerson: this.editableUser.lastName,
+          email: this.editableUser.email,
+        };
+        const response = await axios.put(`http://localhost:3000/person/${this.editableUser.document}`, updatedUser, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+      if (!response.data.success) {
+        alert('Usuario actualizado exitosamente.');
+          this.users[index] = { ...this.editableUser };
+         this.editIndex = null; 
+        } else {
+          alert('No se pudo actualizar el usuario.');
+       }
+      } catch (error) {
+        console.error('Error al actualizar el usuario:', error);
+        alert('Ocurrió un error al actualizar el usuario.');
+      }
+    },
+    async activateUser(user) {
+      this.changeUserStatus(user,true)
+  },
+
+  async deactivateUser(user) {
+    this.changeUserStatus(user,false)
+  },
+
+  async changeUserStatus(user,newStatus) {
+    try {
+      const token = this.getTokenFromCookies();
+
+      if (!token) {
+        alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
+        return;
+      }
+      console.log(user.document)
+      const response = await axios.patch(
+        `http://localhost:3000/person/${user.document}`,
+        { state: newStatus },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
+
+      // Confirmar el cambio de estado
+      if (response.data.success) {
+        alert(`Usuario ${newStatus ? 'activado' : 'desactivado'} exitosamente.`);
+      } else {
+        alert('No se pudo cambiar el estado del usuario.');
+      }
+    } catch (error) {
+      console.error('Error al cambiar el estado del usuario:', error);
+      alert('Ocurrió un error al cambiar el estado del usuario.');
+    }
+  },
+  async searchUsers() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+        const response = await axios.post('http://localhost:3000/person/search', {
+          namePerson:this.search,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          withCredentials: true,
+        });
+        console.log(response.data)
+        if (response.data && response.data.users) {
+          this.users = response.data.users;
+        } else {
+          this.users = [];
+          alert('No se encontraron usuarios con ese criterio de búsqueda.');
+        }
+      } catch (error) {
+        console.error('Error en la búsqueda de usuarios:', error);
+        alert('Ocurrió un error al buscar los usuarios.');
+      }
+    },
   },
 };
 </script>
@@ -544,4 +713,75 @@ body {
 .submit-btn:hover {
   background-color: #218838;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn, .delete-btn, .confirm-btn {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+.edit-btn i {
+  color: #007bff; 
+}
+
+.delete-btn i {
+  color: #dc3545; 
+}
+
+.edit-btn:hover, .delete-btn:hover {
+  transform: scale(1.1);
+  background-color: #e0e0e0;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.confirm-btn i {
+  color: #28a745; /* Color del botón de confirmación */
+}
+
+.confirm-btn:hover {
+  transform: scale(1.1);
+  background-color: #e0f5e0;
+}
+
+.deactivate-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.deactivate-btn:hover {
+  background-color: #c82333;
+}
+
+.activate-btn {
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.activate-btn:hover {
+  background-color: #e0a800;
+}
+
 </style>
