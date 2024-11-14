@@ -181,7 +181,7 @@
   
   .form-group input,
   .form-group select {
-    padding: 8px 8px 8px 30px; /* Asegura espacio para el ícono */
+    padding: 8px 8px 8px 30px; 
     margin-top: 5px;
     margin-bottom: 5px;
     width: 100%;
@@ -201,10 +201,10 @@
   
   .icon {
     position: absolute;
-    top: 32px; /* Fijar posición vertical */
+    top: 32px; 
     left: 10px;
     color: #888;
-    pointer-events: none; /* Asegura que el ícono no bloquee el texto del input */
+    pointer-events: none; 
   }
   
   .submit-btn {
@@ -225,22 +225,20 @@
     background-color: #218838;
   }
 
-/* Fondo del Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  background-color: rgba(0, 0, 0, 0.5); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Asegura que el modal esté por encima del contenido */
+  z-index: 1000;
   transition: opacity 0.3s ease;
 }
 
-/* Estilo del Modal */
 .modal {
   margin-left: 15%;
   background-color: #fff;
@@ -250,10 +248,9 @@
   width: 100%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  animation: fadeIn 0.3s ease-in-out; /* Efecto de animación de aparición */
+  animation: fadeIn 0.3s ease-in-out; 
 }
 
-/* Título del Modal */
 .modal h2 {
   font-size: 24px;
   margin-bottom: 20px;
@@ -261,7 +258,6 @@
   font-weight: 600;
 }
 
-/* Contenido del Modal */
 .modal p {
   font-size: 16px;
   margin-bottom: 20px;
@@ -281,7 +277,6 @@
   margin: 8px 0;
 }
 
-/* Botones de Confirmación */
 .modal-buttons {
   display: flex;
   justify-content: space-around;
@@ -298,7 +293,7 @@
 }
 
 .modal-buttons button:first-child {
-  background-color: #4CAF50; /* Botón de Sí */
+  background-color: #4CAF50; 
   color: white;
 }
 
@@ -307,7 +302,7 @@
 }
 
 .modal-buttons button:last-child {
-  background-color: #f44336; /* Botón de No */
+  background-color: #f44336; 
   color: white;
 }
 
@@ -315,7 +310,6 @@
   background-color: #e53935;
 }
 
-/* Efecto de animación al aparecer el modal */
 @keyframes fadeIn {
   from {
     opacity: 0;
