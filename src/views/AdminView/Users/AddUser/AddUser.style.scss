@@ -7,6 +7,7 @@
   p{
     left: 0;
     padding-bottom: 10px;
+    opacity: 0.5;
   }
   
   body {
@@ -14,13 +15,13 @@
     background-color: #f0f2f5;
   }
   
+
   .app-container {
     display: flex;
     height: 95vh;
     color: #333;
   }
   
-  /* Barra superior */
   .top-bar {
     position: absolute;
     width: 100%;
@@ -56,6 +57,7 @@
   
   .sidebar {
     width: 250px;
+    height: 100vh;
     background-color: #444;
     color: white;
     padding-top: 60px;
@@ -94,28 +96,9 @@
     padding-top: 80px;
   }
   
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-  
-  .header-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
   .dropdown {
     position: relative;
     display: inline-block;
-  }
-  
-  .title-form-user{
-    text-align: center;
-    padding-bottom: 10px;
-    height: 10%;
-    width: 100%;
   }
   
   .dropdown-menu {
@@ -139,116 +122,106 @@
   .dropdown-menu li:hover {
     background-color: #555;
   }
-  .search-bar {
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-bar input {
-    padding: 0.5rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  .search-btn {
+
+  .form-title {
+    font-size: medium;
+    font-weight: bold;
     background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
+    color: black;
+    padding: 0.5rem 1.5rem;
     border-radius: 5px;
-    margin-left: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    position: relative;
+    left: -25px; 
+    max-width: calc(100% - 20px);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    z-index: 1;
   }
   
-  .search-btn:hover {
-    background-color: #218838;
+  .form-title::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -19px; 
+    transform: translateY(-50%);
+    border: 10px solid transparent;
+    border-left-color: #28a745;
+    z-index: -1;
   }
-  
-  .add-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .add-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .user-table-container {
-    padding: 1rem;
-    background-color: #f8f8f8;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .user-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .user-table th,
-  .user-table td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .user-table th {
-    background-color: #444;
-    color: white;
-  }
-  
-  .user-table tr:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .user-table td {
-    color: #333;
-  }
-  
+ 
   .user-form {
-    background-color: #fff;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    max-width: 500px;
+    background: linear-gradient(135deg, #ffffff, #f7f7f7);
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    max-width: 600px;
+    max-height: 600px;
     margin: auto;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .user-form:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
   }
   
   .form-group {
-    margin-bottom: 1rem;
+    position: relative;
   }
   
   .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #555;
   }
   
   .form-group input,
   .form-group select {
+    margin-top: 5px;
+    margin-bottom: 5px;
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 5px;
+    padding: 0.6rem;
+    padding-left: 2.5rem;
+    border-radius: 6px;
     border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    font-size: medium;
+    color: #333;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #4a90e2;
+  }
+  
+  .form-group .icon {
+    padding: 2px;
+    margin-top: 8px;
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: #999;
   }
   
   .submit-btn {
+    margin-top: 2%;
+    width: 100%;
     background-color: #28a745;
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
+    padding: 0.8rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-size: 1rem;
   }
   
   .submit-btn:hover {
     background-color: #218838;
   }
+  
   
   

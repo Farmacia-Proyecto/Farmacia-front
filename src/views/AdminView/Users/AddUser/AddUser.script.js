@@ -4,9 +4,7 @@ export default {
   return {
     isDropdownVisible: false,
     isUserHeaderVisible: false, 
-    currentPassword: '',
     search:'',
-    newPassword: '',
     infoPerson: {
       typeDocument: '',
       document: '',
@@ -17,8 +15,6 @@ export default {
       email: '',
     },
     users: [],
-    editIndex: null, 
-    editableUser: {}, 
   };
 },
 
