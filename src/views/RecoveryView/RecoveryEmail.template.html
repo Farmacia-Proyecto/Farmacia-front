@@ -1,0 +1,16 @@
+<div class="recovery-container">
+    <div class="recovery">
+        <div class="title-container">
+            <h1 class="title">Recuperar Contraseña</h1>
+        </div>
+        <form class="form" @submit.prevent="updatePassword">
+            <label class="form-label" for="newPassword">Nueva Contraseña:</label>
+            <input v-model="newPassword" class="form-input" type="password" id="newPassword" required placeholder="Ingresa tu nueva contraseña" />
+
+            <label class="form-label" for="confirmPassword">Confirmar Contraseña:</label>
+            <input v-model="confirmPassword" class="form-input" type="password" id="confirmPassword" required placeholder="Confirma tu nueva contraseña" />
+            
+            <input class="form-submit" type="submit" value="Actualizar Contraseña">
+        </form>
+    </div>
+</div>

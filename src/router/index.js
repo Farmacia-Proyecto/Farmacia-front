@@ -5,6 +5,7 @@ import AdminPage from '../views/AdminView/Users/AdminPage.vue';
 import AddUser from '../views/AdminView/Users/AddUser/AddUser.vue';
 import TableUsers from '../views/AdminView/Users/TableUsers/TableUsers.vue';
 import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePasword.vue';
+import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
 import { isAuthenticated } from '../utils/isAuthenticated';
 
 const routes = [
@@ -14,6 +15,7 @@ const routes = [
   { path: '/add-user', component: AddUser, meta: { requiresAuth: true }},
   { path: '/table-user', component: TableUsers, meta: { requiresAuth: true }},
   { path: '/pasword-admin', component: ChangePaswordAdmin, meta: { requiresAuth: true }},
+  { path: '/recovery-password', component: RecoveryPassword, meta: { requiresAuth: true }},
 ];
 
 const router = createRouter({

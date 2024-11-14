@@ -71,9 +71,9 @@
             </td>
             <td>
               <select v-if="editIndex === index" v-model="editableUser.typeUser" class="edit-input">
-                <option value="Administrador">Administrador</option>
-                <option value="Gerente">Gerente</option>
-                <option value="Vendedor">Vendedor</option>
+                <option value="ADMINISTRADOR">Administrador</option>
+                <option value="GERENTE">Gerente</option>
+                <option value="VENDEDOR">Vendedor</option>
               </select>
               <span v-else>{{ user.typeUser }}</span>
             </td>

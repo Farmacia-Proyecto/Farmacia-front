@@ -6,7 +6,6 @@ import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 import { jwtDecode } from 'jwt-decode';
 
-
 function getUserFromToken(token) {
   try {
     const decodedToken = jwtDecode(token);
@@ -30,24 +29,24 @@ app.mount('#app');
 
 export default {
   data() {
-  return {
-    isDropdownVisible: false,
-    currentPassword: '',
-    newPassword: '',
-    infoPerson: {
-      typeDocument: '',
-      document: '',
-      namePerson: '',
-      lastNamePerson: '',
-      typeUser: '',
-      phone: '',
-      email: '',
-    },
-    users: [],
-    editIndex: null, 
-    editableUser: {}, 
-  };
-},
+    return {
+      isDropdownVisible: false,
+      currentPassword: '',
+      newPassword: '',
+      infoPerson: {
+        typeDocument: '',
+        document: '',
+        namePerson: '',
+        lastNamePerson: '',
+        typeUser: '',
+        phone: '',
+        email: '',
+      },
+      users: [],
+      editIndex: null, 
+      editableUser: {}, 
+    };
+  },
   methods: {
     logOut() {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
@@ -61,13 +60,21 @@ export default {
     },  
     async changePassword() {
       const toast = useToast(); 
+      
+      // Validar la nueva contraseña
+      if (this.newPassword.length < 8 || !/[A-Z]/.test(this.newPassword)) {
+        toast.error("La nueva contraseña debe tener al menos 8 caracteres y una letra mayúscula.");
+        return;
+      }
+
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
           toast.error('Por favor, inicia sesión de nuevo.');
           return;
         }
-       const user = getUserFromToken(token);
+        
+        const user = getUserFromToken(token);
         const response = await axios.put(
           `http://localhost:3000/user`,
           {
@@ -92,7 +99,7 @@ export default {
           toast.error("La contraseña actual no coincide");
         }
       } catch (error) {
-        toast.error("Ocurrio un error al cambiar la contraseña");
+        toast.error("Ocurrió un error al cambiar la contraseña");
       }
     },
     getTokenFromCookies() {
@@ -101,5 +108,5 @@ export default {
       const tokenCookie = cookies.find((cookie) => cookie.startsWith(cookieName));
       return tokenCookie ? tokenCookie.split('=')[1] : null;
     },
-},
+  },
 };
