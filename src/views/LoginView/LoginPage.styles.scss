@@ -1,36 +1,43 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Evita el scroll */
+}
+
 .login-container {
-    height: 95vh;
-    width: 98%;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .login-container::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 55%;
-    height: 100%;
-    background-image: url('../../assets/Fondo-login.png');
-    background-size: cover;
-    background-position: center;
-    z-index: 0;
-  }
-  
-  .login {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 40%;
-    background: rgba(19, 35, 47, 0.9);
-    border-radius: 5px;
-    padding: 40px;
-    box-shadow: 0 4px 10px 4px rgba(0, 0, 0, 0.7);
-    position: relative;
-    z-index: 1;
-  }
+  height: 100vh; /* Usa 100vh para ocupar toda la pantalla */
+  width: 100vw; /* Asegura que ocupe el 100% del ancho */
+  display: flex;
+  position: relative;
+  justify-content: flex-end;
+}
+
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background-image: url('../../assets/Fondo-login.png');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+  background: rgba(19, 35, 47, 0.9);
+  border-radius: 5px;
+  padding: 40px;
+  box-shadow: 0 4px 10px 4px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 1;
+}
   
   .title-container {
     width: 100%;
