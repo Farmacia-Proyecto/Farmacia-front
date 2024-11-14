@@ -28,15 +28,12 @@
     </nav>
   </aside>
 
-  <!-- Contenido principal -->
   <div class="main-content">
     <div class="form-container">
-      <!-- Cinta de Título -->
       <div class="form-title">
         <h1>Nuevo Usuario</h1>
       </div>
 
-      <!-- Formulario -->
       <form @submit.prevent="showConfirmationModal" class="user-form">
         <p class="form-note">Los campos marcados con (*) son obligatorios</p>
       
@@ -56,7 +53,7 @@
             <input type="text" v-model="infoPerson.document" required 
                    :class="{'error-input': documentError}" 
                    @blur="validateDocument"/>
-            <span v-if="documentError" class="error-message">El documento debe ser solo números y entre 8 y 10 dígitos</span>
+            <span v-if="documentError" class="error">El documento debe ser solo números y entre 8 y 10 dígitos</span>
           </div>
         </div>
       
@@ -67,7 +64,7 @@
             <input type="text" v-model="infoPerson.namePerson" required 
                    :class="{'error-input': nameError}" 
                    @blur="validateName"/>
-            <span v-if="nameError" class="error-message">El nombre no puede contener números</span>
+            <span v-if="nameError" class="error">El nombre no puede contener números</span>
           </div>
       
           <div class="form-group">
@@ -76,7 +73,7 @@
             <input type="text" v-model="infoPerson.lastNamePerson" required 
                    :class="{'error-input': lastNameError}" 
                    @blur="validateLastName"/>
-            <span v-if="lastNameError" class="error-message">El apellido no puede contener números</span>
+            <span v-if="lastNameError" class="error">El apellido no puede contener números</span>
           </div>
         </div>
       
@@ -97,7 +94,7 @@
             <input type="tel" v-model="infoPerson.phone" required 
                    :class="{'error-input': phoneError}" 
                    @blur="validatePhone"/>
-            <span v-if="phoneError" class="error-message">El teléfono no puede contener letras</span>
+            <span v-if="phoneError" class="error">El teléfono no puede contener letras</span>
           </div>
         </div>
       

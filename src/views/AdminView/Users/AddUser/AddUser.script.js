@@ -1,4 +1,20 @@
 import axios from 'axios';
+import { createApp } from 'vue';
+import { useToast } from 'vue-toastification';
+import App from '../../../../App.vue';
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
+
+const app = createApp(App);
+const options = {
+  position: 'top-right',
+  timeout: 2000,
+  closeOnClick: true,
+  pauseOnHover: true,
+};
+
+app.use(Toast, options);
+app.mount('#app');
 
 export default {
   data() {
@@ -73,14 +89,13 @@ export default {
     confirmSubmission() {
       this.submitForm();
       this.isModalVisible = false;
-      this.$router.push("/table-user");
     },
     cancelSubmission() {
       this.isModalVisible = false; 
     },
 
     async submitForm() {
-      try {
+      const toast = useToast(); 
         const token = this.getTokenFromCookies();
 
         if (!token) {
@@ -88,7 +103,7 @@ export default {
           return;
         }
 
-        await axios.post(
+       const response = await axios.post(
           'http://localhost:3000/person',
           this.infoPerson,
           {
@@ -99,10 +114,12 @@ export default {
             withCredentials: true,
           }
         );
-        alert('Usuario guardado exitosamente');
-      } catch (error) {
-        console.error('Error al enviar los datos:', error);
-        alert('Ocurrió un error al guardar el usuario.');
+        if(response.data.success){
+          toast.success("Usuario agregado exitosamente");
+          this.$router.push("/table-user");
+        }
+       else {
+        toast.error("El usuario ya existe.");
       }
     },
     getTokenFromCookies() {
