@@ -33,7 +33,6 @@ export default {
   return {
     isDropdownVisible: false,
     currentPassword: '',
-    search:'',
     newPassword: '',
     infoPerson: {
       typeDocument: '',
@@ -65,15 +64,16 @@ export default {
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
-          alert('Por favor, inicia sesión de nuevo.');
+          toast.error('Por favor, inicia sesión de nuevo.');
           return;
         }
        const user = getUserFromToken(token);
         const response = await axios.put(
-          `http://localhost:3000/user/${user}`,
+          `http://localhost:3000/user`,
           {
             currentPassword: this.currentPassword,
             newPassword: this.newPassword,
+            userName: user
           },
           {
             headers: {
@@ -85,9 +85,9 @@ export default {
 
         if (response.data.success) {
           toast.success("Contraseña actualizada correctamente");
-          this.currentPassword = '';
-          this.newPassword = '';
-          this.isChangePasswordFormVisible = false;
+          setTimeout(() => {
+            this.logOut();
+          }, 2000);  
         } else {
           toast.error("La contraseña actual no coincide");
         }

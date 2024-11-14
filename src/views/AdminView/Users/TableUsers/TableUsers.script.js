@@ -48,7 +48,6 @@ export default {
     logOut() {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
       this.$router.push("/");
-      this.$toast.success("Sesión cerrada exitosamente");
     },
     toggleView() {
       this.$router.push("/add-user");
