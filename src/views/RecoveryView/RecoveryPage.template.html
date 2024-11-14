@@ -1,0 +1,13 @@
+<div class="recovery-container">
+    <div class="recovery">
+        <div class="title-container">
+            <h1 class="title">Recuperar Contraseña</h1>
+        </div>
+        <p class="message">Ingrese su usuario para recibir una clave provicional</p>
+        <form class="form" @submit.prevent="login">
+            <label class="form-label" for="email">Usuario:</label>
+            <input v-model="email" class="form-input" type="email" id="email" required placeholder="Usuario" />
+            <input class="form-submit" type="submit" value="Enviar">
+        </form>
+    </div>
+</div>

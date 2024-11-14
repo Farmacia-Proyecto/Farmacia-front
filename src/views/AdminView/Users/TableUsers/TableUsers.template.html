@@ -1,0 +1,96 @@
+<div class="app-container">
+    <header class="top-bar">
+      <div class="logo">Farmaceutica S.A</div>
+      <div class="top-menu">
+        <div class="dropdown">
+          <button class="user-btn" @click="toggleDropdown"><i class="fas fa-user"></i> Admin</button>
+          <ul v-if="isDropdownVisible" class="dropdown-menu">
+            <li @click="showChangePasswordForm">Cambiar Contraseña</li>
+          </ul>
+        </div>
+        <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </header>
+    <aside class="sidebar">
+      <nav class="menu">
+        <ul>
+          <li><i class="fas fa-home"></i> Home</li>
+          <li><i class="fas fa-box"></i> Stock</li>
+          <li class="active"><i class="fas fa-users"></i> Users</li>
+          <li><i class="fas fa-cogs"></i> Control Panel</li>
+          <li><i class="fas fa-chart-bar"></i> Reports</li>
+          <li><i class="fas fa-tools"></i> Tools</li>
+          <li><i class="fas fa-cog"></i> Config</li>
+        </ul>
+      </nav>
+    </aside>
+  
+    <div class="main-content">
+      <header v-if="isUserHeaderVisible" class="header">
+        <div class="header-title">Users</div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search Users" v-model="search" />
+          <button class="search-btn" @click="searchUsers(search)">
+            <i class="fas fa-search"></i> Search
+          </button>
+        </div>
+        <button  class="add-btn" @click="toggleView">Add New</button>
+      </header>
+      <div v-if="isUserHeaderVisible" class="user-table-container">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Nombres</th>
+              <th>Apellidos</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in users" :key="index">
+              <td>
+                <span>{{ user.document }}</span>
+              </td>
+              <td>
+                <input v-if="editIndex === index" v-model="editableUser.name" type="text" class="edit-input" />
+                <span v-else>{{user.name}}</span>
+              </td>
+              <td>
+                <input v-if="editIndex === index" v-model="editableUser.lastName" type="text" class="edit-input" />
+                <span v-else>{{ user.lastName }}</span>
+              </td>
+              <td>
+                <input v-if="editIndex === index" v-model="editableUser.email" type="text" class="edit-input" />
+                <span v-else>{{ user.email }}</span>
+              </td>
+              <td>
+                <input v-if="editIndex === index" v-model="editableUser.typeUser" type="text" class="edit-input" />
+                <span v-else>{{ user.typeUser }}</span>
+              </td>
+              <td>
+                <input v-if="editIndex === index" v-model="editableUser.state" type="text" class="edit-input" />
+                <span v-else>{{ user.state}}</span>
+              </td>
+              <td class="action-buttons">
+                <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button v-else class="edit-btn" @click="startEdit(user, index)">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button v-if="user.state === 'ACTIVO'" class="deactivate-btn" @click="deactivateUser(user,index)">
+                  <i class="fas fa-ban"></i>
+                </button>
+                <button v-else class="activate-btn" @click="activateUser(user,index)">
+                  <i class="fas fa-thumbs-up"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
