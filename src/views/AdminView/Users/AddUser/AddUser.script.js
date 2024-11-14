@@ -45,8 +45,7 @@ export default {
           alert('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
-
-        const response = await axios.post(
+        await axios.post(
           'http://localhost:3000/person',
           this.infoPerson,
           {
@@ -57,8 +56,6 @@ export default {
             withCredentials: true,
           }
         );
-
-        console.log('Respuesta del servidor:', response.data);
         alert('Usuario guardado exitosamente');
       } catch (error) {
         console.error('Error al enviar los datos:', error);
