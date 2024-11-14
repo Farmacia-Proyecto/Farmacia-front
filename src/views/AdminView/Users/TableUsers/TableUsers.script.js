@@ -8,7 +8,7 @@ import 'vue-toastification/dist/index.css';
 const app = createApp(App);
 const options = {
   position: 'top-right',
-  timeout: 3000,
+  timeout: 2000,
   closeOnClick: true,
   pauseOnHover: true,
 };
@@ -53,6 +53,9 @@ export default {
     toggleView() {
       this.$router.push("/add-user");
     },
+    reloadPage() {
+      window.location.reload();  
+    },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
@@ -93,7 +96,7 @@ export default {
       this.editableUser = { ...user };
     },
     async confirmEdit(index) {
-      const toast = useToast(); // Declarar `useToast` aquí
+      const toast = useToast(); 
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
@@ -155,7 +158,9 @@ export default {
     
         if (response.data.success) {
           toast.success(`Usuario ${newStatus ? 'activado' : 'desactivado'} exitosamente.`);
-          this.fetchUsers();
+          setTimeout(() => {
+           this.reloadPage();
+         }, 2000);  
         } else {
           toast.error("No se pudo cambiar el estado del usuario.");
         }
@@ -164,10 +169,11 @@ export default {
       }
     },
     async searchUsers() {
+      const toast = useToast(); 
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
-          this.toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
+          toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
         const response = await axios.post('http://localhost:3000/person/search', {
@@ -180,13 +186,13 @@ export default {
         });
         if (response.data && response.data.users) {
           this.users = response.data.users;
-          this.toast.success("Búsqueda completada.");
+          toast.success("Búsqueda completada.");
         } else {
           this.users = [];
-          this.toast.info("No se encontraron usuarios con ese criterio de búsqueda.");
+          toast.info("No se encontraron usuarios con ese criterio de búsqueda.");
         }
       } catch (error) {
-        this.toast.error("Ocurrió un error al buscar los usuarios.");
+        toast.error("Ocurrió un error al buscar los usuarios.");
       }
     },
   },
