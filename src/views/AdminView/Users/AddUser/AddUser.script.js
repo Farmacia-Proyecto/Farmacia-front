@@ -52,7 +52,7 @@ export default {
       this.$router.push('table-user');
     },
     showChangePasswordForm() {
-      this.$router.push('password-admin');
+      this.$router.push('pasword-admin');
     },
     validateDocument() {
       const docRegex = /^[0-9]{8,10}$/;
