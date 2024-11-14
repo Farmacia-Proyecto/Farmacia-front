@@ -1,7 +1,20 @@
 import auth from "../../logic/auth";
 import { jwtDecode } from 'jwt-decode';
+import { createApp } from 'vue';
+import { useToast } from 'vue-toastification';
+import App from '../../App.vue';
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 
-
+const app = createApp(App);
+const options = {
+  position: 'top-right',
+  timeout: 2000,
+  closeOnClick: true,
+  pauseOnHover: true,
+};
+app.use(Toast, options);
+app.mount('#app');
 function getRoleFromToken(token) {
   try {
     const decodedToken = jwtDecode(token);
@@ -26,20 +39,21 @@ export default {
   },
   methods: {
     async login() {
+      const toast = useToast(); 
       try {
         const response = await auth.login(this.email, this.password);
         document.cookie = `jwt=${response}; path=/; secure; samesite=strict`;
         const role = getRoleFromToken(response);
-        console.log(role);
         if (role === 'Administrador') {
           this.$router.push('/admin');
         } else if (role === 'Grente') {
           this.$router.push('/user-dashboard');
         } else {
-          this.$router.push('/login'); 
+          toast.error("Ingresa con un usario valido");
         }
+
       } catch (error) {
-        console.log(error);
+        toast.error("Usuario o contraseña incorrecta");
         this.error = true;
       }
     },

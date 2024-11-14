@@ -69,12 +69,11 @@ export default {
           return;
         }
        const user = getUserFromToken(token);
-        const response = await axios.post(
-          'http://localhost:3000/api/users/change-password',
+        const response = await axios.put(
+          `http://localhost:3000/user/${user}`,
           {
             currentPassword: this.currentPassword,
             newPassword: this.newPassword,
-            userName: user
           },
           {
             headers: {
