@@ -44,11 +44,15 @@ export default {
         const response = await auth.login(this.email, this.password);
         document.cookie = `jwt=${response}; path=/; secure; samesite=strict`;
         const role = getRoleFromToken(response);
+        console.log(role);
         if (role === 'Administrador') {
           this.$router.push('/admin');
-        } else if (role === 'Grente') {
+        } else if (role === 'Gerente') {
           this.$router.push('/user-dashboard');
-        } else {
+        } else if (role ==='Vendedor'){
+          this.$router.push('/user-dashboard');
+        }
+         else {
           toast.error("Ingresa con un usario valido");
         }
 

@@ -1,19 +1,7 @@
-import { createApp } from 'vue';
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-import App from '../../App.vue';
-import Toast from 'vue-toastification';
-import 'vue-toastification/dist/index.css';
 
-const app = createApp(App);
-const options = {
-  position: 'top-right',
-  timeout: 2000,
-  closeOnClick: true,
-  pauseOnHover: true,
-};
-app.use(Toast, options);
-app.mount('#app');
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 export default {
   data() {
@@ -23,19 +11,32 @@ export default {
   },
   methods: {
     async login() {
-      const toast = useToast();
       try {
-        const response = await axios.post('http://localhost:3000/api/recover-password', {
-          email: this.email,
+        const response = await axios.post('http://localhost:3000/person/recover-password', {
+          userName: this.email,
         });
-
         if (response.data.success) {
-          toast.success('Se ha enviado un email para recuperar la contraseña');
+          Swal.fire({
+            icon: 'success',
+            title: 'Correo enviado exitosamente',
+            text: `Se ha enviado un email para recuperar la contraseña a: ${response.data.email}`,
+            confirmButtonText: 'Aceptar'
+          });
         } else {
-          toast.error('No se encontró un usuario con ese email');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontró un usuario con ese email',
+            confirmButtonText: 'Aceptar'
+          });
         }
       } catch (error) {
-        toast.error('Ocurrió un error al enviar el correo de recuperación');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un error al enviar el correo de recuperación',
+          confirmButtonText: 'Aceptar'
+        });
         console.error(error);
       }
     },

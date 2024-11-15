@@ -15,7 +15,7 @@ const routes = [
   { path: '/add-user', component: AddUser, meta: { requiresAuth: true }},
   { path: '/table-user', component: TableUsers, meta: { requiresAuth: true }},
   { path: '/pasword-admin', component: ChangePaswordAdmin, meta: { requiresAuth: true }},
-  { path: '/recovery-password', component: RecoveryPassword, meta: { requiresAuth: true }},
+  { path: '/recovery-password/:userName', component: RecoveryPassword},
 ];
 
 const router = createRouter({

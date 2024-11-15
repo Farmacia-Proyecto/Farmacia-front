@@ -107,6 +107,7 @@ export default {
           namePerson: this.editableUser.name,
           lastNamePerson: this.editableUser.lastName,
           email: this.editableUser.email,
+          typeUser:this.editableUser.typeUser
         };
     
         const response = await axios.put(`http://localhost:3000/person/${this.editableUser.document}`, updatedUser, {
@@ -116,7 +117,6 @@ export default {
           },
           withCredentials: true,
         });
-    
         if (response.data.success) {
           toast.success("Usuario actualizado exitosamente");
           this.users[index] = { ...this.editableUser };
