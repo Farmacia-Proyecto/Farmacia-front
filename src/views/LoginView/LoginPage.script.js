@@ -55,7 +55,6 @@ export default {
          else {
           toast.error("Ingresa con un usario valido");
         }
-
       } catch (error) {
         toast.error("Usuario o contraseña incorrecta");
         this.error = true;
