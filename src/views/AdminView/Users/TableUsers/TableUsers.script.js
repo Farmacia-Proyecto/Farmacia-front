@@ -50,7 +50,7 @@ export default {
       this.$router.push("/");
     },
     toggleView() {
-      this.$router.push("/add-user");
+      this.$router.push("add-user");
     },
     reloadPage() {
       window.location.reload();  
@@ -59,7 +59,7 @@ export default {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
     showChangePasswordForm() {
-      this.$router.push("/pasword-admin");
+      this.$router.push("pasword");
     },
     async fetchUsers() {
       this.isUserHeaderVisible = true;

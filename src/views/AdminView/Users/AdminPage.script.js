@@ -10,16 +10,16 @@ export default {
       this.$router.push("/");
     },
     toggleView() {
-      this.$router.push("/add-user");
+      this.$router.push("admin/add-user");
     },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
     showChangePasswordForm() {
-      this.$router.push("/pasword-admin");
+      this.$router.push("admin/pasword");
     },
     viewUsers(){
-      this.$router.push("/table-user");
+      this.$router.push("admin/table-user");
     },
     getTokenFromCookies() {
       const cookieName = 'jwt=';

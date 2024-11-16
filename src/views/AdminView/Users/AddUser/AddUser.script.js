@@ -52,7 +52,7 @@ export default {
       this.$router.push('table-user');
     },
     showChangePasswordForm() {
-      this.$router.push('pasword-admin');
+      this.$router.push('pasword');
     },
     validateDocument() {
       const docRegex = /^[0-9]{8,10}$/;
@@ -116,7 +116,7 @@ export default {
         );
         if(response.data.success){
           toast.success("Usuario agregado exitosamente");
-          this.$router.push("/table-user");
+          this.$router.push("table-user");
         }
        else {
         toast.error("El usuario ya existe.");

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { jwtDecode } from 'jwt-decode';
 import Login from '../views/LoginView/LoginPage.vue';
 import Recovery from '../views/RecoveryView/RecoveryPage.vue';
 import AdminPage from '../views/AdminView/Users/AdminPage.vue';
@@ -6,16 +7,32 @@ import AddUser from '../views/AdminView/Users/AddUser/AddUser.vue';
 import TableUsers from '../views/AdminView/Users/TableUsers/TableUsers.vue';
 import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePasword.vue';
 import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
-import { isAuthenticated } from '../utils/isAuthenticated';
+
+// Función para obtener el token de las cookies
+function getTokenFromCookies() {
+  const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
+  return cookie ? cookie.split('=')[1] : null;
+}
+
+// Función para obtener el rol del token
+function getRoleFromToken(token) {
+  try {
+    const decodedToken = jwtDecode(token);
+    return decodedToken.typeUser; // Asegúrate de que "typeUser" sea el campo que contiene el rol
+  } catch (error) {
+    console.error('Error al decodificar el token:', error);
+    return null;
+  }
+}
 
 const routes = [
   { path: '/', component: Login },
   { path: '/recovery', component: Recovery },
-  { path: '/admin', component: AdminPage, meta: { requiresAuth: true } },
-  { path: '/add-user', component: AddUser, meta: { requiresAuth: true }},
-  { path: '/table-user', component: TableUsers, meta: { requiresAuth: true }},
-  { path: '/pasword-admin', component: ChangePaswordAdmin, meta: { requiresAuth: true }},
-  { path: '/recovery-password/:userName', component: RecoveryPassword},
+  { path: '/admin', component: AdminPage, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/add-user', component: AddUser, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/table-user', component: TableUsers, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/pasword', component: ChangePaswordAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/recovery-password/:userName', component: RecoveryPassword },
 ];
 
 const router = createRouter({
@@ -24,11 +41,20 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !isAuthenticated()) {
-    next('/');
-  } else {
-    next();
+  const token = getTokenFromCookies();
+  if (to.meta.requiresAuth) {
+    if (!token) {
+      next('/');
+      return;
+    }
+    const userRole = getRoleFromToken(token);
+    if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(userRole)) {
+      next('/');
+      return;
+    }
   }
+
+  next(); 
 });
 
 export default router;

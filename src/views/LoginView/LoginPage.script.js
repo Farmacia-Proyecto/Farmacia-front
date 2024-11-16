@@ -44,7 +44,6 @@ export default {
         const response = await auth.login(this.email, this.password);
         document.cookie = `jwt=${response}; path=/; secure; samesite=strict`;
         const role = getRoleFromToken(response);
-        console.log(role);
         if (role === 'Administrador') {
           this.$router.push('/admin');
         } else if (role === 'Gerente') {

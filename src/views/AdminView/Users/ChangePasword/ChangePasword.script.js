@@ -53,7 +53,7 @@ export default {
       this.$router.push("/");
     },
     viewUsers() {
-      this.$router.push("/table-user");
+      this.$router.push("table-user");
     },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
@@ -61,7 +61,6 @@ export default {
     async changePassword() {
       const toast = useToast(); 
       
-      // Validar la nueva contraseña
       if (this.newPassword.length < 8 || !/[A-Z]/.test(this.newPassword)) {
         toast.error("La nueva contraseña debe tener al menos 8 caracteres y una letra mayúscula.");
         return;
@@ -92,9 +91,7 @@ export default {
 
         if (response.data.success) {
           toast.success("Contraseña actualizada correctamente");
-          setTimeout(() => {
-            this.logOut();
-          }, 2000);  
+            this.logOut(); 
         } else {
           toast.error("La contraseña actual no coincide");
         }
