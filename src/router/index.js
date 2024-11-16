@@ -8,17 +8,16 @@ import TableUsers from '../views/AdminView/Users/TableUsers/TableUsers.vue';
 import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePasword.vue';
 import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
 
-// Función para obtener el token de las cookies
 function getTokenFromCookies() {
   const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
   return cookie ? cookie.split('=')[1] : null;
 }
 
-// Función para obtener el rol del token
+
 function getRoleFromToken(token) {
   try {
     const decodedToken = jwtDecode(token);
-    return decodedToken.typeUser; // Asegúrate de que "typeUser" sea el campo que contiene el rol
+    return decodedToken.typeUser; 
   } catch (error) {
     console.error('Error al decodificar el token:', error);
     return null;
