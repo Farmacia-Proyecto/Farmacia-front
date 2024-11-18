@@ -61,6 +61,9 @@ export default {
     showChangePasswordForm() {
       this.$router.push("pasword");
     },
+    viewStock(){
+      this.$router.push("view-product");
+    },
     async fetchUsers() {
       this.isUserHeaderVisible = true;
       try {

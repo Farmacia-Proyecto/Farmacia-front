@@ -55,6 +55,9 @@ export default {
     viewUsers() {
       this.$router.push("table-user");
     },
+    viewStock(){
+      this.$router.push("view-product");
+    },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },  

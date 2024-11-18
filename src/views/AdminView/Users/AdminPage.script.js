@@ -15,6 +15,9 @@ export default {
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
+    viewStock(){
+      this.$router.push("admin/view-product");
+    },
     showChangePasswordForm() {
       this.$router.push("admin/pasword");
     },

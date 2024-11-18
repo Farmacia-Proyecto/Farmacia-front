@@ -7,6 +7,7 @@ import AddUser from '../views/AdminView/Users/AddUser/AddUser.vue';
 import TableUsers from '../views/AdminView/Users/TableUsers/TableUsers.vue';
 import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePasword.vue';
 import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
+import ViewProductAdmin from '../views/AdminView/Stock/ViewProducts/ViewProducts.vue';
 
 function getTokenFromCookies() {
   const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
@@ -31,6 +32,7 @@ const routes = [
   { path: '/admin/add-user', component: AddUser, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/table-user', component: TableUsers, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/pasword', component: ChangePaswordAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/view-product', component: ViewProductAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/recovery-password/:userName', component: RecoveryPassword },
 ];
 
