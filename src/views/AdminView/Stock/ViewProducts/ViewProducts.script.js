@@ -109,6 +109,7 @@ export default {
       const productToUpdate = {
         ...this.selectedProduct,
         newLot: this.newLot,
+        addedDate: new Date().toISOString(), 
       };
 
       try {
@@ -187,12 +188,17 @@ export default {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
-
-        await axios.post('http://localhost:3000/products', this.newProduct, {
+        const productWithDate = {
+          ...this.newProduct,
+          addedDate: new Date().toISOString(), 
+        };
+    
+        await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+    
         this.toast.success('Producto agregado exitosamente.');
         this.fetchProducts();
         this.closeAddProductModal();
@@ -201,6 +207,7 @@ export default {
         console.error(error);
       }
     },
+    
     formatExpirationDate(date) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       const expirationDate = new Date(date);
