@@ -15,6 +15,9 @@ export default {
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
+    viewLaboratory(){
+      this.$router.push("admin/view-laboratory");
+    },
     viewStock(){
       this.$router.push("admin/view-product");
     },
