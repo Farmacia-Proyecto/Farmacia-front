@@ -152,7 +152,7 @@ export default {
           emailLaboratory: this.editableLaboratory.emailLaboratory,
         };
     
-        const response = await axios.put(`http://localhost:3000/person/${this.editableUser.document}`, updatedLaboratory, {
+        const response = await axios.put(`http://localhost:3000/person/${this.editableLaboratory.nit}`, updatedLaboratory, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export default {
         });
         if (response.data.success) {
           toast.success("Laboratorio actualizado exitosamente");
-          this.users[index] = { ...this.editableUser };
+          this.laboratory[index] = { ...this.editableLaboratory };
           this.editIndex = null;
         } else {
           toast.error("No se pudo actualizar el usuario.");
