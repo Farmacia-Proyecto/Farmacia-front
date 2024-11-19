@@ -72,7 +72,7 @@ export default {
     },
     async submitLaboratory() {
       const toast = useToast();
-      const token = this.getTokenFromCookies(); 
+      const token = this.getTokenFromCookies();
     
       if (!token) {
         toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
@@ -81,17 +81,20 @@ export default {
       try {
         const response = await axios.post(
           'http://localhost:3000/laboratory',
-          this.newLaboratory, 
+          this.newLaboratory,
           {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            withCredentials: true, 
+            withCredentials: true,
           }
         );
+    
         if (response.data.success) {
           toast.success('Laboratorio agregado exitosamente');
+          this.closeAddLaboratoryModal(); 
+          this.fetchLaboratory(); 
         } else {
           toast.error('El laboratorio ya existe.');
         }

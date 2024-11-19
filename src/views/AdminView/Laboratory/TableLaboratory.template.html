@@ -112,13 +112,14 @@
     <div class="modal">
       <div class="modal-content">
         <h3>Agregar Laboratorio</h3>
-        <form>
+        <form @submit.prevent="submitLaboratory">
           <div class="form-group">
             <label for="nit">NIT</label>
             <i class="fas fa-id-card"></i>
             <input
               type="text"
               id="nit"
+              v-model="newLaboratory.nit"
               placeholder="Ingrese el NIT del laboratorio"
             />
           </div>
@@ -128,6 +129,7 @@
             <input
               type="text"
               id="lab-name"
+              v-model="newLaboratory.name"
               placeholder="Ingrese el nombre del laboratorio"
             />
           </div>
@@ -137,6 +139,7 @@
             <input
               type="text"
               id="phone"
+              v-model="newLaboratory.phone"
               placeholder="Ingrese el número de teléfono"
             />
           </div>
@@ -146,6 +149,7 @@
             <input
               type="email"
               id="email"
+              v-model="newLaboratory.email"
               placeholder="Ingrese el correo electrónico"
             />
           </div>
@@ -153,12 +157,12 @@
             <button type="submit" class="btn-submit">
               <i class="fas fa-check"></i> Guardar
             </button>
-            <button @click="closeAddLaboratoryModal" type="button" class="btn-cancel">
+            <button type="button" class="btn-cancel" @click="closeAddLaboratoryModal">
               <i class="fas fa-times"></i> Cancelar
             </button>
           </div>
         </form>
       </div>
-    </div>    
-  </div>
+    </div>
+  </div> 
 </div>
