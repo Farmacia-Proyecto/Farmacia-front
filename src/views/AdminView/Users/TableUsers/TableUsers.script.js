@@ -84,7 +84,18 @@ export default {
           toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
-
+        if (
+          !this.infoPerson.typeDocument ||
+          !this.infoPerson.document ||
+          !this.infoPerson.namePerson ||
+          !this.infoPerson.lastNamePerson ||
+          !this.infoPerson.typeUser ||
+          !this.infoPerson.phone ||
+          !this.infoPerson.email
+        ) {
+          toast.error("Por favor, completa todos los campos antes de agregar un usuario.");
+          return;
+        }
         const response = await axios.post("http://localhost:3000/person", this.infoPerson, {
           headers: {
             Authorization: `Bearer ${token}`,
