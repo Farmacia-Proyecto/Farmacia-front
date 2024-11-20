@@ -22,7 +22,7 @@
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li><i class="fas fa-tools"></i> Tools</li>
+        <li @click="viewLaboratory"><i class="fas fa-tools"></i>Laboratorios</li>
         <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
@@ -31,218 +31,209 @@
     <div class="actions-container">
       <div class="search-container">
         <button @click="toggleSearchBar"><i class="fas fa-search"></i></button>
-        <input 
-          type="text" 
-          class="search-bar" 
-          v-bind:class="{ active: isSearchBarVisible }" 
-          v-model="search" 
-          @keyup.enter="searchProduct" 
-          placeholder="Buscar producto..."
-        />
+        <input type="text" class="search-bar" v-bind:class="{ active: isSearchBarVisible }" v-model="search"
+          @keyup.enter="searchProduct" placeholder="Buscar producto..." />
       </div>
       <button class="add-product-btn" @click="showAddProductModal">+ Nuevo Producto</button>
     </div>
-  
-<div class="products-grid">
-  <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
-    <img :src="product.image" :alt="`Imagen de ${product.name}`" class="product-image" />
-    <div class="product-info">
-      <p class="product-name">{{ product.name }}</p>
-      <p class="product-description">
-        {{ (product.description && product.description.length > 0) ? (product.description.length > 100 ? product.description.slice(0, 100) + '...' : product.description) : 'No disponible' }}
-      </p>
-      <!-- Fecha de vencimiento -->
-      <p class="product-expiration">
-        Vencimiento: {{ formatExpirationDate(product.expirationDate) }}
-      </p>
+
+    <div class="products-grid">
+      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
+        <img :src="product.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+        <div class="product-info">
+          <p class="product-name">{{ product.name }}</p>
+          <p class="product-description">
+            {{ (product.description && product.description.length > 0) ? (product.description.length > 100 ?
+            product.description.slice(0, 100) + '...' : product.description) : 'No disponible' }}
+          </p>
+          <!-- Fecha de vencimiento -->
+          <p class="product-expiration">
+            Vencimiento: {{ formatExpirationDate(product.expirationDate) }}
+          </p>
+        </div>
+        <div class="product-actions">
+          <button class="edit-btn" @click="editProduct(product)">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+        </div>
+        <button class="add-lot-btn" @click="openProductDetailsModal(product)">
+          <i class="fas fa-plus-circle"></i> Ver Detalles
+        </button>
+      </div>
     </div>
-    <div class="product-actions">
-      <button class="edit-btn" @click="editProduct(product)">
-        <i class="fas fa-pencil-alt"></i>
+
+    <div v-if="isEditProductModalVisible" class="modal">
+      <div class="modal-content">
+        <h3>Editar Producto</h3>
+        <form @submit.prevent="updateProduct">
+          <div class="form-group">
+            <label for="edit-product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
+            <input id="edit-product-code" type="text" v-model="selectedProduct.code"
+              placeholder="Código del Producto" />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
+            <input id="edit-product-name" type="text" v-model="selectedProduct.name"
+              placeholder="Nombre del Producto" />
+          </div>
+          <div class="form-group">
+            <label for="edit-product-description"> Descripción:</label>
+            <textarea id="product-description" v-model="selectedProduct.description"
+              placeholder="Descripción del Producto" maxlength="200"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+            <select id="product-laboratory" v-model="newProduct.nameLaboratory" required>
+              <option value="" disabled>Seleccione un laboratorio</option>
+              <option v-for="(lab,index) in laboratory" :key="index" :value="index">
+                {{ lab.nameLaboratoy }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
+            <input id="edit-product-expiry" type="date" v-model="selectedProduct.expiryDate" required />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
+            <input id="edit-product-quantity" type="number" v-model="selectedProduct.quantity" placeholder="Cantidad" />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
+            <input id="edit-product-price" type="number" step="0.01" v-model="selectedProduct.price"
+              placeholder="Precio de Venta" />
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Actualizar</button>
+            <button type="button" class="btn-cancel" @click="closeEditProductModal"><i class="fas fa-times"></i>
+              Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <div class="pagination">
+      <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{'active': currentPage === page}">
+        {{ page }}
       </button>
     </div>
-    <button class="add-lot-btn" @click="openAddLotModal(product)">
-      <i class="fas fa-plus-circle"></i> Agregar Lote
-    </button>
-  </div>
-</div>
-
-<div v-if="isEditProductModalVisible" class="modal">
-  <div class="modal-content">
-    <h3>Editar Producto</h3>
-    <form @submit.prevent="updateProduct">
-      <div class="form-group">
-        <label for="edit-product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
-        <input 
-          id="edit-product-code" 
-          type="text" 
-          v-model="selectedProduct.code" 
-          placeholder="Código del Producto" 
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="edit-product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
-        <input 
-          id="edit-product-name" 
-          type="text" 
-          v-model="selectedProduct.name" 
-          placeholder="Nombre del Producto" 
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="edit-product-description"> Descripción:</label>
-        <textarea 
-          id="product-description" 
-          v-model="selectedProduct.description" 
-          placeholder="Descripción del Producto" 
-          maxlength="200"
-        ></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="edit-product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
-        <input 
-          id="edit-product-expiry" 
-          type="date" 
-          v-model="selectedProduct.expiryDate"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="edit-product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
-        <input 
-          id="edit-product-quantity" 
-          type="number" 
-          v-model="selectedProduct.quantity" 
-          placeholder="Cantidad" 
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="edit-product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
-        <input 
-          id="edit-product-price" 
-          type="number" 
-          step="0.01" 
-          v-model="selectedProduct.price" 
-          placeholder="Precio de Venta" 
-        />
-      </div>
-
-      <div class="modal-actions">
-        <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Actualizar</button>
-        <button type="button" class="btn-cancel" @click="closeEditProductModal"><i class="fas fa-times"></i> Cancelar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<div class="pagination">
-  <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{'active': currentPage === page}">
-    {{ page }}
-  </button>
-</div>
 
     <!-- Add Product Modal -->
-    <div v-if="isAddProductModalVisible" class="modal">
-      <div class="modal">
-        <div class="modal-content">
-          <h3>Agregar Producto</h3>
-          <form @submit.prevent="addProduct">
+    <div class="modal" v-if="isAddProductModalVisible">
+      <div class="modal-content">
+        <h3>Agregar Producto - Paso {{ currentStep }} de {{ totalSteps }}</h3>
+
+        <form @submit.prevent="submitForm">
+          <!-- Paso 1 -->
+          <div v-if="currentStep === 1">
             <div class="form-group">
               <label for="product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
-              <input 
-                id="product-code" 
-                type="text" 
-                v-model="newProduct.code" 
-                placeholder="Código del Producto" 
-              />
+              <input id="product-code" type="text" v-model="newProduct.code" placeholder="Código del Producto" />
             </div>
-    
-            <div class="form-group">
+            <div class="form-group autocomplete">
               <label for="product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
-              <input 
-                id="product-name" 
-                type="text" 
-                v-model="newProduct.name" 
-                placeholder="Nombre del Producto" 
+              <input
+                id="product-name"
+                type="text"
+                v-model="newProduct.name"
+                placeholder="Nombre del Producto"
+                @input="fetchSuggestions"
+                @keydown.down="highlightNext"
+                @keydown.up="highlightPrev"
+                @keydown.enter.prevent="selectSuggestion"
               />
+              <!-- Sugerencias -->
+              <ul v-if="filteredSuggestions.length" class="suggestions-list">
+                <li
+                  v-for="(suggestion, index) in filteredSuggestions"
+                  :key="suggestion.id"
+                  :class="{ 'highlighted': highlightedIndex === index }"
+                  @click="selectSuggestion(suggestion.name)"
+                  @mouseenter="highlightedIndex = index"
+                >
+                  {{ suggestion.name }}
+                </li>
+              </ul>
             </div>
-    
             <div class="form-group">
-              <label for="product-description"> Descripción:</label>
-              <textarea 
-                id="product-description" 
-                v-model="newProduct.description" 
-                placeholder="Descripción del Producto" 
-                maxlength="200"
-              ></textarea>
+              <label for="product-description">Descripción:</label>
+              <textarea id="product-description" v-model="newProduct.description" placeholder="Descripción del Producto"
+                maxlength="200"></textarea>
             </div>
-    
+          </div>
+
+          <!-- Paso 2 -->
+          <div v-if="currentStep === 2">
             <div class="form-group">
               <label for="product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
-              <input 
-                id="product-expiry" 
-                type="date" 
-                v-model="newProduct.expiryDate"
-                required
-              />
+              <input id="product-expiry" type="date" v-model="newProduct.expiryDate" required />
             </div>
-    
             <div class="form-group">
               <label for="product-lot"><i class="fas fa-box"></i> Lote:</label>
-              <input 
-                id="product-lot" 
-                type="text" 
-                v-model="newProduct.lot" 
-                placeholder="Lote del Producto" 
-              />
+              <input id="product-lot" type="text" v-model="newProduct.lot" placeholder="Lote del Producto" />
             </div>
-    
             <div class="form-group">
               <label for="product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
-              <input 
-                id="product-quantity" 
-                type="number" 
-                v-model="newProduct.quantity" 
-                placeholder="Cantidad" 
-              />
+              <input id="product-quantity" type="number" v-model="newProduct.quantity" placeholder="Cantidad" />
             </div>
-    
+          </div>
+
+          <!-- Paso 3 -->
+          <div v-if="currentStep === 3">
             <div class="form-group">
               <label for="product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
-              <input 
-                id="product-price" 
-                type="number" 
-                step="0.01" 
-                v-model="newProduct.price" 
-                placeholder="Precio de Venta" 
-              />
+              <input id="product-price" type="number" step="0.01" v-model="newProduct.price"
+                placeholder="Precio de Venta" />
             </div>
-    
             <div class="form-group">
               <label for="product-purchase-price"><i class="fas fa-dollar-sign"></i> Precio de Compra:</label>
-              <input 
-                id="product-purchase-price" 
-                type="number" 
-                step="0.01" 
-                v-model="newProduct.purchasePrice" 
-                placeholder="Precio de Compra" 
-              />
+              <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.purchasePrice"
+                placeholder="Precio de Compra" />
             </div>
-    
-            <div class="modal-actions">
-              <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> Agregar</button>
-              <button type="button" class="btn-cancel" @click="closeAddProductModal"><i class="fas fa-times"></i> Cancelar</button>
+
+            <div class="form-group">
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+              <select id="product-laboratory" v-model="newProduct.nameLaboratory" required>
+                <option value="" disabled>Seleccione un laboratorio</option>
+                <option v-for="(lab,index) in laboratory" :key="index" :value="index">
+                  {{ lab.nameLaboratoy }}
+                </option>
+              </select>
             </div>
-          </form>
-        </div>
+          </div>
+          <!-- Botones de navegación -->
+          <div class="form-navigation">
+            <button class="navigation" type="button" @click="prevStep" v-if="currentStep > 1">Anterior</button>
+            <button class="navigation" type="button" @click="nextStep"
+              v-if="currentStep < totalSteps">Siguiente</button>
+            <button class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
+            <button type="button" @click="closeAddProductModal" class="btn-cancel">Cancelar</button>
+          </div>
+        </form>
       </div>
     </div>
-    
-  </div> 
+    <div class="modal modal-details" v-if="isProductDetailsModalVisible">
+      <div class="modal-content">
+        <h3>Detalles del Producto</h3>
+        <div class="product-details">
+          <p><strong>Código:</strong> {{ selectedProduct.code }}</p>
+          <p><strong>Nombre:</strong> {{ selectedProduct.name }}</p>
+          <p><strong>Descripción:</strong> {{ selectedProduct.description }}</p>
+          <p><strong>Fecha de Expiración:</strong> {{ formatExpirationDate(selectedProduct.expiryDate) }}</p>
+          <p><strong>Lote:</strong> {{ selectedProduct.lot }}</p>
+          <p><strong>Cantidad:</strong> {{ selectedProduct.quantity }}</p>
+          <p><strong>Precio:</strong> ${{ selectedProduct.price }}</p>
+          <p><strong>Precio de Compra:</strong> ${{ selectedProduct.purchasePrice }}</p>
+          <p><strong>Laboratorio:</strong> {{ selectedProduct.laboratorioNombre }}</p>
+        </div>
+        <button @click="closeProductDetailsModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
 </div>

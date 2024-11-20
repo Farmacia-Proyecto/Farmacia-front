@@ -25,9 +25,9 @@ export default {
       search: '',
       newLaboratory: {
         nit: '',
-        name: '',
-        email: '',
-        phone: '',
+        nameLaboratory: '',
+        emailLaboratory: '',
+        phoneLaboratory: '',
       },
       laboratory: [],
       editIndex: null,
@@ -68,7 +68,7 @@ export default {
       this.resetNewLaboratory();
     },
     resetNewLaboratory() {
-      this.newLaboratory = { nit: '', name: '', email: '', phone: '' };
+      this.newLaboratory = { nit: '', nameLaboratory: '', emailLaboratory: '', phoneLaboratory: '' };
     },
     async submitLaboratory() {
       const toast = useToast();
@@ -79,6 +79,7 @@ export default {
         return;
       }
       try {
+        console.log(this.newLaboratory)
         const response = await axios.post(
           'http://localhost:3000/laboratory',
           this.newLaboratory,
@@ -95,6 +96,7 @@ export default {
           toast.success('Laboratorio agregado exitosamente');
           this.closeAddLaboratoryModal(); 
           this.fetchLaboratory(); 
+          this.reloadPage();
         } else {
           toast.error('El laboratorio ya existe.');
         }
@@ -115,12 +117,13 @@ export default {
           useToast().error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
-        const response = await axios.get('http://localhost:3000/person', {
+        const response = await axios.get('http://localhost:3000/laboratory', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
           withCredentials: true,
         });
+        console.log(response.data)
         if (response.data && response.data.laboratory) {
           this.laboratory = response.data.laboratory;
         } else {
@@ -141,38 +144,46 @@ export default {
       this.editableLaboratory = { ...laboratory };
     },
     async confirmEdit(index) {
-      const toast = useToast(); 
-      try {
-        const token = this.getTokenFromCookies();
-        if (!token) {
-          toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
-          return;
-        }
+      const toast = useToast();
+      const token = this.getTokenFromCookies();
     
+      if (!token) {
+        toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
+        return;
+      }
+    
+      try {
         const updatedLaboratory = {
           nameLaboratory: this.editableLaboratory.nameLaboratory,
           phoneLaboratory: this.editableLaboratory.phoneLaboratory,
           emailLaboratory: this.editableLaboratory.emailLaboratory,
         };
     
-        const response = await axios.put(`http://localhost:3000/person/${this.editableLaboratory.nit}`, updatedLaboratory, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true,
-        });
+        const response = await axios.put(
+          `http://localhost:3000/laboratory/${this.editableLaboratory.nit}`,
+          updatedLaboratory,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+    
         if (response.data.success) {
           toast.success("Laboratorio actualizado exitosamente");
           this.laboratory[index] = { ...this.editableLaboratory };
+    
           this.editIndex = null;
         } else {
-          toast.error("No se pudo actualizar el usuario.");
+          toast.error("No se pudo actualizar el laboratorio.");
         }
       } catch (error) {
-        toast.error("Ocurrió un error al actualizar el usuario.");
+        toast.error("Ocurrió un error al actualizar el laboratorio.");
+        console.error(error);
       }
-    },
+    },    
     async searchLaboratory() {
       const toast = useToast(); 
       try {
@@ -181,7 +192,7 @@ export default {
           toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
-        const response = await axios.post('http://localhost:3000/person/search', {
+        const response = await axios.post('http://localhost:3000/laboratory/search', {
           nameLaboratory: this.search,
         }, {
           headers: {
@@ -193,7 +204,7 @@ export default {
           this.laboratory = response.data.laboratory;
           toast.success("Búsqueda completada.");
         } else {
-          this.users = [];
+          this.laboratory = [];
           toast.info("No se encontraron laboratorios con ese criterio de búsqueda.");
         }
       } catch (error) {

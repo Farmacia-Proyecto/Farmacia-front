@@ -35,9 +35,7 @@
     </nav>
   </aside>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Header with Search -->
     <header class="header">
       <div class="header-title">Laboratorios</div>
       <div class="search-bar">
@@ -64,34 +62,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(laboratory, index) in laboratories" :key="index">
+          <tr v-for="(laboratory, index) in laboratory" :key="index">
             <td>{{ laboratory.nit }}</td>
             <td>
               <input
                 v-if="editIndex === index"
-                v-model="editableLaboratory.name"
+                v-model="editableLaboratory.nameLaboratory"
                 type="text"
                 class="edit-input"
               />
-              <span v-else>{{ laboratory.name }}</span>
+              <span v-else>{{ laboratory.nameLaboratory }}</span>
             </td>
             <td>
               <input
                 v-if="editIndex === index"
-                v-model="editableLaboratory.email"
+                v-model="editableLaboratory.emailLaboratory"
                 type="text"
                 class="edit-input"
               />
-              <span v-else>{{ laboratory.email }}</span>
+              <span v-else>{{ laboratory.emailLaboratory }}</span>
             </td>
             <td>
               <input
                 v-if="editIndex === index"
-                v-model="editableLaboratory.phone"
+                v-model="editableLaboratory.phoneLaboratory"
                 type="text"
                 class="edit-input"
               />
-              <span v-else>{{ laboratory.phone }}</span>
+              <span v-else>{{ laboratory.phoneLaboratory }}</span>
             </td>
             <td>
               <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
@@ -129,7 +127,7 @@
             <input
               type="text"
               id="lab-name"
-              v-model="newLaboratory.name"
+              v-model="newLaboratory.nameLaboratory"
               placeholder="Ingrese el nombre del laboratorio"
             />
           </div>
@@ -139,7 +137,7 @@
             <input
               type="text"
               id="phone"
-              v-model="newLaboratory.phone"
+              v-model="newLaboratory.phoneLaboratory"
               placeholder="Ingrese el número de teléfono"
             />
           </div>
@@ -149,7 +147,7 @@
             <input
               type="email"
               id="email"
-              v-model="newLaboratory.email"
+              v-model="newLaboratory.emailLaboratory"
               placeholder="Ingrese el correo electrónico"
             />
           </div>

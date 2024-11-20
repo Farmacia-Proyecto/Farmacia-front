@@ -55,6 +55,9 @@ export default {
     viewUsers() {
       this.$router.push("table-user");
     },
+    viewLaboratory(){
+      this.$router.push("view-laboratory");
+    },
     viewStock(){
       this.$router.push("view-product");
     },

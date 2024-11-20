@@ -26,8 +26,11 @@ export default {
       itemsPerPage: 10,
       isLoading: false,
       currentPage: 1,
+      currentStep: 1,
+      totalSteps: 3,
       isAddProductModalVisible: false,
       isEditProductModalVisible: false,
+      isProductDetailsModalVisible:false,
       newProduct: {
         code: '',
         name: '',
@@ -37,9 +40,15 @@ export default {
         quantity: 0,
         price: 0.0,
         purchasePrice: 0.0, 
+        nameLaboratory: '', 
       },
       isAddLotModalVisible: false,
       selectedProduct: null,
+      laboratory: [], 
+      selectedLaboratory: null, 
+      suggestions: [], 
+      filteredSuggestions: [], 
+      highlightedIndex: -1, 
       newLot: {
         lot: '',
         quantity: '',
@@ -59,15 +68,117 @@ export default {
     },
   },
   mounted() {
+    this.fetchLaboratories();
     this.fetchProducts();
     this.toast = useToast();
+    this.suggestions = [
+      { id: 1, name: "Paracetamol" },
+      { id: 2, name: "Ibuprofeno" },
+      { id: 3, name: "Amoxicilina" },
+      { id: 4, name: "Diclofenaco" },
+    ];
   },
   methods: {
+    fetchSuggestions() {
+      const query = this.newProduct.name.toLowerCase();
+      this.filteredSuggestions = this.suggestions.filter((product) =>
+        product.name.toLowerCase().includes(query)
+      );
+      this.highlightedIndex = -1; 
+    },
+    selectSuggestion(name) {
+      if (name) {
+        this.newProduct.name = name;
+      } else if (this.highlightedIndex >= 0) {
+        this.newProduct.name = this.filteredSuggestions[this.highlightedIndex].name;
+      }
+      this.filteredSuggestions = []; 
+    },
+    highlightNext() {
+      if (this.filteredSuggestions.length > 0) {
+        this.highlightedIndex =
+          (this.highlightedIndex + 1) % this.filteredSuggestions.length;
+      }
+    },
+    highlightPrev() {
+      if (this.filteredSuggestions.length > 0) {
+        this.highlightedIndex =
+          (this.highlightedIndex - 1 + this.filteredSuggestions.length) %
+          this.filteredSuggestions.length;
+      }
+    },
     viewUsers() {
       this.$router.push("table-user");
     },
+    viewLaboratory(){
+      this.$router.push("view-laboratory");
+    },
     getProductImage(product) {
       return product.image ? product.image : this.defaultImageUrl;
+    },
+    openProductDetailsModal(product) {
+      this.selectedProduct = product;
+      this.isProductDetailsModalVisible = true; 
+    },
+    closeProductDetailsModal() {
+      this.isProductDetailsModalVisible = false;
+      this.selectedProduct = null;
+    },
+    getDefaultProducts() {
+      return [
+        {
+          id: 1,
+          code: 'P001',
+          name: 'Paracetamol 500mg',
+          description: 'Analgésico y antipirético',
+          expiryDate: '2025-12-31',
+          lot: 'L001',
+          quantity: 100,
+          price: 1.5,
+          purchasePrice: 1.0,
+          laboratorioNombre: 'Laboratorio Alfa',
+          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+        },
+        {
+          id: 2,
+          code: 'P002',
+          name: 'Ibuprofeno 400mg',
+          description: 'Antiinflamatorio no esteroideo',
+          expiryDate: '2024-10-15',
+          lot: 'L002',
+          quantity: 50,
+          price: 2.0,
+          purchasePrice: 1.2,
+          laboratorioNombre: 'Laboratorio Beta',
+          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+        },
+        {
+          id: 3,
+          code: 'P003',
+          name: 'Amoxicilina 500mg',
+          description: 'Antibiótico de amplio espectro',
+          expiryDate: '2026-01-20',
+          lot: 'L003',
+          quantity: 75,
+          price: 3.5,
+          purchasePrice: 2.0,
+          laboratorioNombre: 'Laboratorio Gamma',
+          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+        },
+        {
+          id: 4,
+          code: 'P004',
+          name: 'Diclofenaco 50mg',
+          description: 'Antiinflamatorio y analgésico',
+          expiryDate: '2025-06-18',
+          lot: 'L004',
+          quantity: 200,
+          price: 1.8,
+          purchasePrice: 1.0,
+          laboratorioNombre: 'Laboratorio Delta',
+          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+        },
+      ];
     },
     toggleSearchBar() {
       this.isSearchBarVisible = !this.isSearchBarVisible;
@@ -88,6 +199,41 @@ export default {
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
+    nextStep() {
+      if (this.currentStep < this.totalSteps) {
+        this.currentStep++;
+      }
+    },
+    prevStep() {
+      if (this.currentStep > 1) {
+        this.currentStep--;
+      }
+    },
+    async fetchLaboratories() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/laboratory/namesLaboratory', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    
+        if (response.data && response.data.laboratory) {
+          this.laboratory = response.data.laboratory;
+          this.toast.success('Laboratorios cargados correctamente.');
+        } else {
+          this.toast.info('No se encontraron laboratorios.');
+        }
+      } catch (error) {
+        this.toast.error('Error al obtener laboratorios del servidor.');
+        console.error('Error en fetchLaboratories:', error);
+      }
+    },    
     openAddLotModal(product) {
       this.selectedProduct = product;
       this.newLot = { lot: '', quantity: '', price: '' };
@@ -103,46 +249,42 @@ export default {
       this.selectedProduct = { ...product }; 
       this.isEditProductModalVisible = true;
     },
-    async addProductLot() {
-      if (!this.selectedProduct) return;
-
-      this.selectedProduct.quantity += parseInt(this.newLot.quantity, 10);
-
-      const productToUpdate = {
-        ...this.selectedProduct,
-        newLot: this.newLot,
-        addedDate: new Date().toISOString(), 
-      };
-
-      try {
-        await axios.put(`/api/products/${this.selectedProduct.id}/add-lot`, productToUpdate);
-        this.toast.success('Lote agregado exitosamente.');
-        this.closeAddLotModal();
-      } catch (error) {
-        this.toast.error('Error al agregar el lote al producto.');
-        console.error('Error al actualizar el producto:', error);
-      }
-    },
     async updateProduct() {
+      if (!this.selectedProduct) {
+        this.toast.error('No se seleccionó ningún producto para editar.');
+        return;
+      }
+    
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
-        await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, this.selectedProduct, {
+    
+        const productToUpdate = {
+          ...this.selectedProduct,
+          laboratorioNombre: this.selectedProduct.laboratorioNombre,
+        };
+    
+        const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        this.toast.success('Producto actualizado exitosamente.');
-        this.fetchProducts();
-        this.isEditProductModalVisible = false;
+    
+        if (response.status === 200) {
+          this.toast.success('Producto actualizado exitosamente.');
+          this.fetchProducts();
+          this.isEditProductModalVisible = false;
+        } else {
+          this.toast.error('Error al actualizar el producto. Inténtalo nuevamente.');
+        }
       } catch (error) {
         this.toast.error('Ocurrió un error al actualizar el producto.');
-        console.error(error);
+        console.error('Error en updateProduct:', error);
       }
-    },
+    },    
     async fetchProducts() {
       this.isLoading = true;
       try {
@@ -151,22 +293,28 @@ export default {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
-
+    
         const response = await axios.get('http://localhost:3000/products', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        this.products = response.data;
-        this.toast.success('Productos cargados correctamente.');
+    
+        if (response.data && response.data.length > 0) {
+          this.products = response.data;
+          this.toast.success('Productos cargados correctamente.');
+        } else {
+          this.products = this.getDefaultProducts();
+          this.toast.info('No se encontraron productos. Mostrando productos de ejemplo.');
+        }
       } catch (error) {
-        this.toast.error('Error al obtener productos del servidor.');
-        console.error(error);
+        this.products = this.getDefaultProducts();
+        this.toast.error('Error al obtener productos del servidor. Mostrando productos de ejemplo.');
+        console.error('Error en fetchProducts:', error);
       } finally {
         this.isLoading = false;
       }
-    },
+    },    
     showAddProductModal() {
       this.isAddProductModalVisible = true;
     },
@@ -190,26 +338,36 @@ export default {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
+    
+        if (!this.selectedLaboratory) {
+          this.toast.error('Por favor, selecciona un laboratorio.');
+          return;
+        }
+    
         const productWithDate = {
           ...this.newProduct,
-          addedDate: new Date().toISOString(), 
+          addedDate: new Date().toISOString(),
+          laboratorioNombre: this.selectedLaboratory,
         };
     
-        await axios.post('http://localhost:3000/products', productWithDate, {
+        const response = await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
     
-        this.toast.success('Producto agregado exitosamente.');
-        this.fetchProducts();
-        this.closeAddProductModal();
+        if (response.status === 201) {
+          this.toast.success('Producto agregado exitosamente.');
+          this.fetchProducts();
+          this.closeAddProductModal();
+        } else {
+          this.toast.error('Error al agregar el producto. Inténtalo nuevamente.');
+        }
       } catch (error) {
         this.toast.error('Ocurrió un error al agregar el producto.');
-        console.error(error);
+        console.error('Error en addProduct:', error);
       }
-    },
-    
+    },    
     formatExpirationDate(date) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       const expirationDate = new Date(date);

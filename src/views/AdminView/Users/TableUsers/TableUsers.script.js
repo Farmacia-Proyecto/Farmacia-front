@@ -55,6 +55,9 @@ export default {
     reloadPage() {
       window.location.reload();  
     },
+    viewLaboratory(){
+      this.$router.push("view-laboratory");
+    },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
