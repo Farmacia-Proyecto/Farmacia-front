@@ -37,7 +37,7 @@
           <i class="fas fa-search"></i> Search
         </button>
       </div>
-      <button class="add-btn" @click="toggleView">Add New</button>
+      <button class="add-btn"  @click="openAddUserModal">Add New</button>
     </header>
     <div v-if="isUserHeaderVisible" class="user-table-container">
       <table class="user-table">
@@ -99,6 +99,57 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div v-if="isModalVisible" class="modal">
+      <div class="modal-content">
+        <h3><i class="fas fa-user"></i> Agregar Nuevo Usuario</h3>
+        <form @submit.prevent="addUser">
+          <div class="form-group">
+            <label for="typeDocument"><i class="fas fa-id-card"></i> Tipo de Documento</label>
+            <select v-model="infoPerson.typeDocument" id="typeDocument" required>
+              <option value="CC">Cédula de Ciudadanía</option>
+              <option value="TI">Tarjeta de Identidad</option>
+              <option value="CE">Cédula de Extranjería</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="document"><i class="fas fa-file-alt"></i> Documento</label>
+            <input type="text" v-model="infoPerson.document" id="document" required />
+          </div>
+          <div class="form-group">
+            <label for="namePerson"><i class="fas fa-user"></i> Nombre</label>
+            <input type="text" v-model="infoPerson.namePerson" id="namePerson" required />
+          </div>
+          <div class="form-group">
+            <label for="lastNamePerson"><i class="fas fa-user"></i> Apellido</label>
+            <input type="text" v-model="infoPerson.lastNamePerson" id="lastNamePerson" required />
+          </div>
+          <div class="form-group">
+            <label for="typeUser"><i class="fas fa-user-tag"></i> Tipo de Usuario</label>
+            <select v-model="infoPerson.typeUser" id="typeUser" required>
+              <option value="Administrador">Administrador</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Vendedor">Vendedor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="phone"><i class="fas fa-phone"></i> Teléfono</label>
+            <input type="text" v-model="infoPerson.phone" id="phone" required />
+          </div>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+            <input type="email" v-model="infoPerson.email" id="email" required />
+          </div>
+          <div class="modal-actions">
+            <button @click="addNewUser" type="submit" class="btn-green">
+              <i class="fas fa-check"></i> Guardar
+            </button>
+            <button type="button" class="btn-cancel" @click="closeAddUserModal">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

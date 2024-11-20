@@ -21,7 +21,7 @@ export default {
     return {
       isDropdownVisible: false,
       isUserHeaderVisible: false,
-      currentPassword: '',
+      isModalVisible: false,
       search: '',
       newPassword: '',
       infoPerson: {
@@ -57,6 +57,52 @@ export default {
     },
     viewLaboratory(){
       this.$router.push("view-laboratory");
+    },
+    openAddUserModal() {
+      this.isModalVisible = true;
+    },
+    closeAddUserModal() {
+      this.isModalVisible = false;
+      this.resetForm();
+    },
+    resetForm() {
+      this.infoPerson = {
+        typeDocument: '',
+        document: '',
+        namePerson: '',
+        lastNamePerson: '',
+        typeUser: '',
+        phone: '',
+        email: '',
+      };
+    },
+    async addNewUser() {
+      const toast = useToast();
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
+          return;
+        }
+
+        const response = await axios.post("http://localhost:3000/person", this.infoPerson, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          toast.success("Usuario agregado exitosamente");
+          this.fetchUsers(); 
+          this.closeAddUserModal();
+        } else {
+          toast.error("No se pudo agregar el usuario.");
+        }
+      } catch (error) {
+        toast.error("Ocurrió un error al agregar el usuario.");
+      }
     },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
