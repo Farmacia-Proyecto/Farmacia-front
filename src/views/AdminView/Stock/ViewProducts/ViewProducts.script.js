@@ -44,16 +44,10 @@ export default {
       },
       isAddLotModalVisible: false,
       selectedProduct: null,
-      laboratory: [], 
-      selectedLaboratory: null, 
+      laboratory: [],  
       suggestions: [], 
       filteredSuggestions: [], 
       highlightedIndex: -1, 
-      newLot: {
-        lot: '',
-        quantity: '',
-        price: '',
-      },
       defaultImageUrl: 'https://example.com/default-image.jpg', 
     };
   },
@@ -137,7 +131,7 @@ export default {
           price: 1.5,
           purchasePrice: 1.0,
           laboratorioNombre: 'Laboratorio Alfa',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+          image: 'https://via.placeholder.com/150', 
         },
         {
           id: 2,
@@ -150,7 +144,7 @@ export default {
           price: 2.0,
           purchasePrice: 1.2,
           laboratorioNombre: 'Laboratorio Beta',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
+          image: 'https://via.placeholder.com/150', 
         },
         {
           id: 3,
@@ -234,14 +228,6 @@ export default {
         console.error('Error en fetchLaboratories:', error);
       }
     },    
-    openAddLotModal(product) {
-      this.selectedProduct = product;
-      this.newLot = { lot: '', quantity: '', price: '' };
-      this.isAddLotModalVisible = true;
-    },
-    closeAddLotModal() {
-      this.isAddLotModalVisible = false;
-    },
     closeEditProductModal() {
       this.isEditProductModalVisible = false;
     },
@@ -264,7 +250,6 @@ export default {
     
         const productToUpdate = {
           ...this.selectedProduct,
-          laboratorioNombre: this.selectedProduct.laboratorioNombre,
         };
     
         const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
@@ -326,9 +311,13 @@ export default {
       this.newProduct = {
         code: '',
         name: '',
-        lot: '',
-        quantity: '',
-        price: '',
+        description: '',
+        expiryDate: '',
+        lot: '', 
+        quantity: 0,
+        price: 0.0,
+        purchasePrice: 0.0, 
+        nameLaboratory: '', 
       };
     },
     async addProduct() {
@@ -338,25 +327,17 @@ export default {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
-    
-        if (this.selectedLaboratory) {
-          this.toast.error('Por favor, selecciona un laboratorio.');
-          return;
-        }
-    
         const productWithDate = {
           ...this.newProduct,
           addedDate: new Date().toISOString(),
-          laboratorioNombre: this.selectedLaboratory,
         };
-    
+        console.log(productWithDate.nameLaboratory);
         const response = await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-    
-        if (response.status === 201) {
+        if (response.data.success) {
           this.toast.success('Producto agregado exitosamente.');
           this.fetchProducts();
           this.closeAddProductModal();
