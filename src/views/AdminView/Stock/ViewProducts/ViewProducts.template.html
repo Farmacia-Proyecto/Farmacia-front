@@ -46,9 +46,8 @@
             {{ (product.description && product.description.length > 0) ? (product.description.length > 100 ?
             product.description.slice(0, 100) + '...' : product.description) : 'No disponible' }}
           </p>
-          <!-- Fecha de vencimiento -->
           <p class="product-expiration">
-            Vencimiento: {{ formatExpirationDate(product.expirationDate) }}
+            Vencimiento: {{ formatExpirationDate(product.expirationDate)}}
           </p>
         </div>
         <div class="product-actions">
@@ -86,7 +85,7 @@
             <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
             <select id="product-laboratory" v-model="newProduct.nameLaboratory" required>
               <option value="" disabled>Seleccione un laboratorio</option>
-              <option v-for="(lab,index) in laboratory" :key="index" :value="index">
+              <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratoy">
                 {{ lab.nameLaboratoy }}
               </option>
             </select>
@@ -201,7 +200,7 @@
               <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
               <select id="product-laboratory" v-model="newProduct.nameLaboratory" required>
                 <option value="" disabled>Seleccione un laboratorio</option>
-                <option v-for="(lab,index) in laboratory" :key="index" :value="index">
+                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratoy">
                   {{ lab.nameLaboratoy }}
                 </option>
               </select>
@@ -212,7 +211,7 @@
             <button class="navigation" type="button" @click="prevStep" v-if="currentStep > 1">Anterior</button>
             <button class="navigation" type="button" @click="nextStep"
               v-if="currentStep < totalSteps">Siguiente</button>
-            <button class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
+            <button @click="addProduct" class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
             <button type="button" @click="closeAddProductModal" class="btn-cancel">Cancelar</button>
           </div>
         </form>
