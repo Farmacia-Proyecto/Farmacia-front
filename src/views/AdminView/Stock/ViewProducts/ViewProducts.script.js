@@ -339,7 +339,7 @@ export default {
           return;
         }
     
-        if (!this.selectedLaboratory) {
+        if (this.selectedLaboratory) {
           this.toast.error('Por favor, selecciona un laboratorio.');
           return;
         }

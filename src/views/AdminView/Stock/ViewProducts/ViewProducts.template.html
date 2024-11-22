@@ -212,7 +212,7 @@
             <button class="navigation" type="button" @click="prevStep" v-if="currentStep > 1">Anterior</button>
             <button class="navigation" type="button" @click="nextStep"
               v-if="currentStep < totalSteps">Siguiente</button>
-            <button class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
+            <button @click="addProduct" class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
             <button type="button" @click="closeAddProductModal" class="btn-cancel">Cancelar</button>
           </div>
         </form>
