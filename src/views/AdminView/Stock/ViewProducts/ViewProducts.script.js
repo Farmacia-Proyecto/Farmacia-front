@@ -208,6 +208,10 @@ export default {
     closeLotDetailsModal() {
       this.isLotDetailsModalVisible = false;
     },
+    backLotDetailsModal(){
+      this.isLotDetailsModalVisible = false;
+      this.isProductDetailsModalVisible = true
+    },
     prevStep() {
       if (this.currentStep > 1) {
         this.currentStep--;
@@ -262,13 +266,11 @@ export default {
           ...this.selectedProduct,
           nameLaboratory:this.newProduct.nameLaboratory
         };
-        console.log(productToUpdate.nameLaboratory)
         const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-    
         if (response.status === 200) {
           this.toast.success('Producto actualizado exitosamente.');
           this.fetchProducts();
@@ -372,7 +374,6 @@ export default {
           ...this.newProduct,
           addedDate: new Date().toISOString(),
         };
-        console.log(productWithDate.nameLaboratory);
         const response = await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
