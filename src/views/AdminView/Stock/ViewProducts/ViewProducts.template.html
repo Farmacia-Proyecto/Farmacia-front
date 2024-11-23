@@ -136,23 +136,23 @@
                 v-model="newProduct.nameProduct"
                 placeholder="Nombre del Producto"
                 @input="fetchSuggestions"
-                @keydown.down="highlightNext"
-                @keydown.up="highlightPrev"
-                @keydown.enter.prevent="selectSuggestion"
+                @keydown.down.prevent="highlightNext"
+                @keydown.up.prevent="highlightPrev"
+                @keydown.enter.prevent="selectSuggestion()"
               />
-              <!-- Sugerencias -->
+              <!-- Lista de sugerencias -->
               <ul v-if="filteredSuggestions.length" class="suggestions-list">
                 <li
                   v-for="(suggestion, index) in filteredSuggestions"
-                  :key="suggestion.id"
-                  :class="{ 'highlighted': highlightedIndex === index }"
-                  @click="selectSuggestion(suggestion.nameProduct)"
+                  :key="index" 
+                  :class="{ highlighted: highlightedIndex === index }"
+                  @click="selectSuggestion(suggestion)"
                   @mouseenter="highlightedIndex = index"
                 >
-                  {{ suggestion.nameProduct }}
+                  {{ suggestion }}
                 </li>
               </ul>
-            </div>
+            </div>            
             <div class="form-group">
               <label for="product-description">Descripción:</label>
               <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"

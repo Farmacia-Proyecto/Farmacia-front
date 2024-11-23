@@ -68,26 +68,29 @@ export default {
     this.fetchLaboratories();
     this.fetchProducts();
     this.toast = useToast();
-    this.suggestions = [
-      { id: 1, nameProduct: "Paracetamol" },
-      { id: 2, nameProduct: "Ibuprofeno" },
-      { id: 3, nameProduct: "Amoxicilina" },
-      { id: 4, nameProduct: "Diclofenaco" },
-    ];
   },
   methods: {
     fetchSuggestions() {
-      const query = this.newProduct.nameProduct.toLowerCase();
-      this.filteredSuggestions = this.suggestions.filter((product) =>
-        product.nameProduct.toLowerCase().includes(query)
-      );
+      const query = this.newProduct.nameProduct.trim().toLowerCase(); 
+      if (!query) {
+        this.filteredSuggestions = [];
+        return;
+      }
+    
+      this.filteredSuggestions = this.products
+        .filter((product) =>
+          product.nameProduct && product.nameProduct.toLowerCase().includes(query)
+        )
+        .map((product) => product.nameProduct); 
+      
       this.highlightedIndex = -1; 
-    },
+      console.log('Sugerencias filtradas:', this.filteredSuggestions); // Verifica los resultados aquí
+    },  
     selectSuggestion(nameProduct) {
       if (nameProduct) {
         this.newProduct.nameProduct = nameProduct;
       } else if (this.highlightedIndex >= 0) {
-        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex].nameProduct;
+        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex];
       }
       this.filteredSuggestions = []; 
     },
@@ -120,62 +123,6 @@ export default {
     closeProductDetailsModal() {
       this.isProductDetailsModalVisible = false;
       this.selectedProduct = null;
-    },
-    getDefaultProducts() {
-      return [
-        {
-          id: 1,
-          codProduct: 'P001',
-          nameProduct: 'Paracetamol 500mg',
-          describeProduct: 'Analgésico y antipirético',
-          expirationDate: '2025-12-31',
-          codLot: 'L001',
-          quantity: 100,
-          priceSell: 1.5,
-          priceBuy: 1.0,
-          laboratory: 'Laboratorio Alfa',
-          image: 'https://via.placeholder.com/150', 
-        },
-        {
-          id: 2,
-          codProduct: 'P002',
-          nameProduct: 'Ibuprofeno 400mg',
-          describeProduct: 'Antiinflamatorio no esteroideo',
-          expirationDate: '2024-10-15',
-          codLot: 'L002',
-          quantity: 50,
-          priceSell: 2.0,
-          priceBuy: 1.2,
-          laboratory: 'Laboratorio Beta',
-          image: 'https://via.placeholder.com/150', 
-        },
-        {
-          id: 3,
-          codProduct: 'P003',
-          nameProduct: 'Amoxicilina 500mg',
-          describeProduct: 'Antibiótico de amplio espectro',
-          expirationDate: '2026-01-20',
-          codLot: 'L003',
-          quantity: 75,
-          priceSell: 3.5,
-          priceBuy: 2.0,
-          laboratory: 'Laboratorio Gamma',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
-        },
-        {
-          id: 4,
-          codProduct: 'P004',
-          nameProduct: 'Diclofenaco 50mg',
-          describeProduct: 'Antiinflamatorio y analgésico',
-          expirationDate: '2025-06-18',
-          codLot: 'L004',
-          quantity: 200,
-          priceSell: 1.8,
-          priceBuy: 1.0,
-          laboratory: 'Laboratorio Delta',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
-        },
-      ];
     },
     toggleSearchBar() {
       this.isSearchBarVisible = !this.isSearchBarVisible;
@@ -333,11 +280,9 @@ export default {
           this.products = response.data.products;
           this.toast.success('Productos cargados correctamente.');
         } else {
-          this.products = this.getDefaultProducts();
           this.toast.info('No se encontraron productos. Mostrando productos de ejemplo.');
         }
       } catch (error) {
-        this.products = this.getDefaultProducts();
         this.toast.error('Error al obtener productos del servidor. Mostrando productos de ejemplo.');
         console.error('Error en fetchProducts:', error);
       } finally {
@@ -362,6 +307,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         nameLaboratory: '', 
+        image: 'https://via.placeholder.com/150'
       };
     },
     async addProduct() {
