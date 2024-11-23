@@ -406,12 +406,10 @@ export default {
           return;
         }
 
-        const response = await axios.get('http://localhost:3000/products', {
+        const response = await axios.post('http://localhost:3000/products/search', {
+          nameProduct: this.search,
           headers: {
             Authorization: `Bearer ${token}`,
-          },
-          params: {
-            search: this.search,
           },
         });
 
