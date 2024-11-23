@@ -32,15 +32,15 @@ export default {
       isEditProductModalVisible: false,
       isProductDetailsModalVisible:false,
       newProduct: {
-        code: '',
-        name: '',
-        description: '',
-        expiryDate: '',
-        lot: '', 
+        codProduct: '',
+        nameProduct: '',
+        describeProduct: '',
+        expirationDate: '',
+        codLot: '', 
         quantity: 0,
-        price: 0.0,
-        purchasePrice: 0.0, 
-        nameLaboratory: '', 
+        priceSell: 0.0,
+        priceBuy: 0.0, 
+        laboratory: '', 
       },
       isAddLotModalVisible: false,
       selectedProduct: null,
@@ -66,25 +66,25 @@ export default {
     this.fetchProducts();
     this.toast = useToast();
     this.suggestions = [
-      { id: 1, name: "Paracetamol" },
-      { id: 2, name: "Ibuprofeno" },
-      { id: 3, name: "Amoxicilina" },
-      { id: 4, name: "Diclofenaco" },
+      { id: 1, nameProduct: "Paracetamol" },
+      { id: 2, nameProduct: "Ibuprofeno" },
+      { id: 3, nameProduct: "Amoxicilina" },
+      { id: 4, nameProduct: "Diclofenaco" },
     ];
   },
   methods: {
     fetchSuggestions() {
-      const query = this.newProduct.name.toLowerCase();
+      const query = this.newProduct.nameProduct.toLowerCase();
       this.filteredSuggestions = this.suggestions.filter((product) =>
-        product.name.toLowerCase().includes(query)
+        product.nameProduct.toLowerCase().includes(query)
       );
       this.highlightedIndex = -1; 
     },
-    selectSuggestion(name) {
-      if (name) {
-        this.newProduct.name = name;
+    selectSuggestion(nameProduct) {
+      if (nameProduct) {
+        this.newProduct.nameProduct = nameProduct;
       } else if (this.highlightedIndex >= 0) {
-        this.newProduct.name = this.filteredSuggestions[this.highlightedIndex].name;
+        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex].nameProduct;
       }
       this.filteredSuggestions = []; 
     },
@@ -122,54 +122,54 @@ export default {
       return [
         {
           id: 1,
-          code: 'P001',
-          name: 'Paracetamol 500mg',
-          description: 'Analgésico y antipirético',
-          expiryDate: '2025-12-31',
-          lot: 'L001',
+          codProduct: 'P001',
+          nameProduct: 'Paracetamol 500mg',
+          describeProduct: 'Analgésico y antipirético',
+          expirationDate: '2025-12-31',
+          codLot: 'L001',
           quantity: 100,
-          price: 1.5,
-          purchasePrice: 1.0,
-          laboratorioNombre: 'Laboratorio Alfa',
+          priceSell: 1.5,
+          priceBuy: 1.0,
+          laboratory: 'Laboratorio Alfa',
           image: 'https://via.placeholder.com/150', 
         },
         {
           id: 2,
-          code: 'P002',
-          name: 'Ibuprofeno 400mg',
-          description: 'Antiinflamatorio no esteroideo',
-          expiryDate: '2024-10-15',
-          lot: 'L002',
+          codProduct: 'P002',
+          nameProduct: 'Ibuprofeno 400mg',
+          describeProduct: 'Antiinflamatorio no esteroideo',
+          expirationDate: '2024-10-15',
+          codLot: 'L002',
           quantity: 50,
-          price: 2.0,
-          purchasePrice: 1.2,
-          laboratorioNombre: 'Laboratorio Beta',
+          priceSell: 2.0,
+          priceBuy: 1.2,
+          laboratory: 'Laboratorio Beta',
           image: 'https://via.placeholder.com/150', 
         },
         {
           id: 3,
-          code: 'P003',
-          name: 'Amoxicilina 500mg',
-          description: 'Antibiótico de amplio espectro',
-          expiryDate: '2026-01-20',
-          lot: 'L003',
+          codProduct: 'P003',
+          nameProduct: 'Amoxicilina 500mg',
+          describeProduct: 'Antibiótico de amplio espectro',
+          expirationDate: '2026-01-20',
+          codLot: 'L003',
           quantity: 75,
-          price: 3.5,
-          purchasePrice: 2.0,
-          laboratorioNombre: 'Laboratorio Gamma',
+          priceSell: 3.5,
+          priceBuy: 2.0,
+          laboratory: 'Laboratorio Gamma',
           image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
         },
         {
           id: 4,
-          code: 'P004',
-          name: 'Diclofenaco 50mg',
-          description: 'Antiinflamatorio y analgésico',
-          expiryDate: '2025-06-18',
-          lot: 'L004',
+          codProduct: 'P004',
+          nameProduct: 'Diclofenaco 50mg',
+          describeProduct: 'Antiinflamatorio y analgésico',
+          expirationDate: '2025-06-18',
+          codLot: 'L004',
           quantity: 200,
-          price: 1.8,
-          purchasePrice: 1.0,
-          laboratorioNombre: 'Laboratorio Delta',
+          priceSell: 1.8,
+          priceBuy: 1.0,
+          laboratory: 'Laboratorio Delta',
           image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
         },
       ];
@@ -309,14 +309,14 @@ export default {
     },
     resetNewProduct() {
       this.newProduct = {
-        code: '',
-        name: '',
-        description: '',
-        expiryDate: '',
-        lot: '', 
+        codProduct: '',
+        nameProduct: '',
+        describeProduct: '',
+        expirationDate: '',
+        codLot: '', 
         quantity: 0,
-        price: 0.0,
-        purchasePrice: 0.0, 
+        priceSell: 0.0,
+        priceBuy: 0.0, 
         nameLaboratory: '', 
       };
     },
