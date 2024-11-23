@@ -409,12 +409,12 @@ export default {
         }
 
         const response = await axios.post('http://localhost:3000/products/search', {
-          nameProduct: this.search,
+          nameProduct: this.search,},{
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials:true,
         });
-        console.log(response)
         if (response.data.length > 0) {
           this.products = response.data;
           this.toast.success("Búsqueda completada.");
