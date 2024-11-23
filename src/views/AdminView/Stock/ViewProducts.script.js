@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
-import App from '../../../../App.vue';
+import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import axios from 'axios';
 import 'vue-toastification/dist/index.css';
@@ -8,7 +8,7 @@ import 'vue-toastification/dist/index.css';
 const app = createApp(App);
 const options = {
   position: 'top-right',
-  timeout: 2000,
+  timeout: 3000,
   closeOnClick: true,
   pauseOnHover: true,
 };
@@ -21,6 +21,7 @@ export default {
     return {
       isSearchBarVisible: false,
       isDropdownVisible:false,
+      isCodeEditable: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -64,6 +65,22 @@ export default {
       return Math.ceil(this.products.length / this.itemsPerPage);
     },
   },
+  watch: {
+    'newProduct.laboratory': function (newLaboratory) {
+      const matchesProduct = this.products.some(
+        (product) => product.laboratory === newLaboratory
+      );
+      if (matchesProduct) {
+        this.toast.info(
+          'El código del producto no se puede editar porque el laboratorio ya está vinculado a un producto existente.'
+        );
+        this.isCodeEditable = false;
+      } else {
+        this.isCodeEditable = true; 
+      }
+    },
+  },
+  
   mounted() {
     this.fetchLaboratories();
     this.fetchProducts();
@@ -76,7 +93,7 @@ export default {
         this.filteredSuggestions = [];
         return;
       }
-    
+
       this.filteredSuggestions = this.products
         .filter((product) =>
           product.nameProduct && product.nameProduct.toLowerCase().includes(query)
@@ -84,15 +101,22 @@ export default {
         .map((product) => product.nameProduct); 
       
       this.highlightedIndex = -1; 
-      console.log('Sugerencias filtradas:', this.filteredSuggestions); // Verifica los resultados aquí
+      console.log('Sugerencias filtradas:', this.filteredSuggestions); 
     },  
     selectSuggestion(nameProduct) {
-      if (nameProduct) {
-        this.newProduct.nameProduct = nameProduct;
-      } else if (this.highlightedIndex >= 0) {
-        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex];
+      const selectedProduct = this.products.find(
+        (product) => product.nameProduct === nameProduct
+      );
+    
+      if (selectedProduct) {
+        this.newProduct.nameProduct = selectedProduct.nameProduct;
+        this.newProduct.describeProduct = selectedProduct.describeProduct;
+        this.newProduct.codProduct = selectedProduct.codProduct;
+        this.newProduct.laboratory = selectedProduct.laboratory;
+        this.isCodeEditable = false;
       }
-      this.filteredSuggestions = []; 
+    
+      this.filteredSuggestions = [];
     },
     highlightNext() {
       if (this.filteredSuggestions.length > 0) {
@@ -181,7 +205,6 @@ export default {
     
         if (response.data && response.data.laboratory) {
           this.laboratory = response.data.laboratory;
-          this.toast.success('Laboratorios cargados correctamente.');
         } else {
           this.toast.info('No se encontraron laboratorios.');
         }
@@ -249,7 +272,6 @@ export default {
         console.log(response.data)
         if (response.data && response.data.length > 0) {
           this.Lot = response.data;
-          this.toast.success(`Lotes del producto ${nameProduct} cargados correctamente.`);
         } else {
           this.toast.info(`No se encontraron lotes para el producto ${nameProduct}.`);
         }
@@ -278,7 +300,6 @@ export default {
     
         if (response.data.products && response.data.products.length > 0) {
           this.products = response.data.products;
-          this.toast.success('Productos cargados correctamente.');
         } else {
           this.toast.info('No se encontraron productos. Mostrando productos de ejemplo.');
         }

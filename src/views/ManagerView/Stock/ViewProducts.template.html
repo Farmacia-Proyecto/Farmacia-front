@@ -1,0 +1,257 @@
+<div class="app-container">
+  <header class="top-bar">
+    <div class="logo">
+      <img src="../../../assets/Logo.png" alt="Farmaceutica S.A Logo" class="logo-img">
+      <span>Farmaceutica S.A</span>
+    </div>
+    <div class="top-menu">
+      <div class="dropdown">
+        <button class="user-btn" @click="toggleDropdown"><i class="fas fa-user"></i> Admin</button>
+        <ul v-if="isDropdownVisible" class="dropdown-menu">
+          <li @click="showChangePasswordForm">Cambiar Contraseña</li>
+        </ul>
+      </div>
+      <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </header>
+  <aside class="sidebar">
+    <nav class="menu">
+      <ul>
+        <li><i class="fa-solid fa-cart-shopping"></i>Vender</li>
+        <li class="active" @click="viewStock"><i class="fas fa-box"></i> Stock</li>
+        <li><i class="fas fa-chart-bar"></i> Reports</li>
+        <li><i class="fas fa-cog"></i> Config</li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="main-content">
+    <div class="actions-container">
+      <div class="search-container">
+        <button @click="toggleSearchBar"><i class="fas fa-search"></i></button>
+        <input type="text" class="search-bar" v-bind:class="{ active: isSearchBarVisible }" v-model="search"
+          @keyup.enter="searchProduct" placeholder="Buscar producto..." />
+      </div>
+      <button class="add-product-btn" @click="showAddProductModal">+ Nuevo Producto</button>
+    </div>
+
+    <div class="products-grid">
+      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
+        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+        <div class="product-info">
+          <p class="product-name">{{ product.nameProduct }}</p>
+          <p class="product-description">
+            {{ product.describeProduct }}
+          </p>
+          <p class="product-expiration">
+          {{ product.priceSell}}
+          </p>
+        </div>
+        <div class="product-actions">
+          <button class="edit-btn" @click="editProduct(product)">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+        </div>
+        <button class="add-lot-btn" @click="openProductDetailsModal(product)">
+          <i class="fas fa-plus-circle"></i> Ver Detalles
+        </button>
+      </div>
+    </div>
+
+    <div v-if="isEditProductModalVisible" class="modal">
+      <div class="modal-content">
+        <h3>Editar Producto</h3>
+        <form @submit.prevent="updateProduct">
+          <div class="form-group">
+            <label for="edit-product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
+            <input id="edit-product-code" type="text" v-model="selectedProduct.codProduct"
+              placeholder="Código del Producto" readonly/>
+          </div>
+          <div class="form-group">
+            <label for="edit-product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
+            <input id="edit-product-name" type="text" v-model="selectedProduct.nameProduct"
+              placeholder="Nombre del Producto" />
+          </div>
+          <div class="form-group">
+            <label for="edit-product-description"> Descripción:</label>
+            <textarea id="product-description" v-model="selectedProduct.describeProduct"
+              placeholder="Descripción del Producto" maxlength="200"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+            <select id="product-laboratory" v-model="selectedProduct.laboratory" required>
+              <option value="" disabled>Seleccione un laboratorio</option>
+              <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
+                {{ lab.nameLaboratory }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
+            <input id="edit-product-quantity" type="number" v-model="selectedProduct.quantity" placeholder="Cantidad" readonly/>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
+            <input id="edit-product-price" type="number" step="0.01" v-model="selectedProduct.priceSell"
+              placeholder="Precio de Venta" />
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Actualizar</button>
+            <button type="button" class="btn-cancel" @click="closeEditProductModal"><i class="fas fa-times"></i>
+              Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <div class="pagination">
+      <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{'active': currentPage === page}">
+        {{ page }}
+      </button>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" v-if="isAddProductModalVisible">
+      <div class="modal-content">
+        <h3>Agregar Producto - Paso {{ currentStep }} de {{ totalSteps }}</h3>
+
+        <form @submit.prevent="submitForm">
+          <!-- Paso 1 -->
+          <div v-if="currentStep === 1">
+            <div class="form-group">
+              <label for="product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
+              <input id="product-code" type="text" v-model="newProduct.codProduct" placeholder="Código del Producto" />
+            </div>
+            <div class="form-group autocomplete">
+              <label for="product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
+              <input
+                id="product-name"
+                type="text"
+                v-model="newProduct.nameProduct"
+                placeholder="Nombre del Producto"
+                @input="fetchSuggestions"
+                @keydown.down.prevent="highlightNext"
+                @keydown.up.prevent="highlightPrev"
+                @keydown.enter.prevent="selectSuggestion()"
+              />
+              <!-- Lista de sugerencias -->
+              <ul v-if="filteredSuggestions.length" class="suggestions-list">
+                <li
+                  v-for="(suggestion, index) in filteredSuggestions"
+                  :key="index" 
+                  :class="{ highlighted: highlightedIndex === index }"
+                  @click="selectSuggestion(suggestion)"
+                  @mouseenter="highlightedIndex = index"
+                >
+                  {{ suggestion }}
+                </li>
+              </ul>
+            </div>            
+            <div class="form-group">
+              <label for="product-description">Descripción:</label>
+              <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"
+                maxlength="200"></textarea>
+            </div>
+          </div>
+
+          <!-- Paso 2 -->
+          <div v-if="currentStep === 2">
+            <div class="form-group">
+              <label for="product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
+              <input id="product-expiry" type="date" v-model="newProduct.expirationDate" required />
+            </div>
+            <div class="form-group">
+              <label for="product-lot"><i class="fas fa-box"></i> Lote:</label>
+              <input id="product-lot" type="text" v-model="newProduct.codLot" placeholder="Lote del Producto" />
+            </div>
+            <div class="form-group">
+              <label for="product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
+              <input id="product-quantity" type="number" v-model="newProduct.quantity" placeholder="Cantidad" />
+            </div>
+          </div>
+
+          <!-- Paso 3 -->
+          <div v-if="currentStep === 3">
+            <div class="form-group">
+              <label for="product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
+              <input id="product-price" type="number" step="0.01" v-model="newProduct.priceSell"
+                placeholder="Precio de Venta" />
+            </div>
+            <div class="form-group">
+              <label for="product-purchase-price"><i class="fas fa-dollar-sign"></i> Precio de Compra:</label>
+              <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.priceBuy"
+                placeholder="Precio de Compra" />
+            </div>
+
+            <div class="form-group">
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+              <select id="product-laboratory" v-model="newProduct.laboratory" required>
+                <option value="" disabled>Seleccione un laboratorio</option>
+                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
+                  {{ lab.nameLaboratory }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <!-- Botones de navegación -->
+          <div class="form-navigation">
+            <button class="navigation" type="button" @click="prevStep" v-if="currentStep > 1">Anterior</button>
+            <button class="navigation" type="button" @click="nextStep"
+              v-if="currentStep < totalSteps">Siguiente</button>
+            <button @click="addProduct" class="btn-submit btn-green" type="submit" v-if="currentStep === totalSteps">Guardar</button>
+            <button type="button" @click="closeAddProductModal" class="btn-cancel">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal modal-details" v-if="isProductDetailsModalVisible">
+      <div class="modal-content">
+        <h3>Detalles del Producto</h3>
+        <div class="product-details">
+          <p><strong>Código:</strong> {{ selectedProduct.codProduct }}</p>
+          <p><strong>Nombre:</strong> {{ selectedProduct.nameProduct }}</p>
+          <p><strong>Descripción:</strong> {{ selectedProduct.describeProduct }}</p>
+          <p><strong>Cantidad:</strong> {{ selectedProduct.quantity }}</p>
+          <p><strong>Precio de venta:</strong> ${{ selectedProduct.priceSell }}</p>
+          <p><strong>Laboratorio:</strong> {{ selectedProduct.laboratory }}</p>
+        </div>
+        <div class="modal-actions">
+          <button @click="closeProductDetailsModal">Cerrar</button>
+          <button @click="openLotDetailsModal">Ver Lotes</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal modal-lot-details" v-if="isLotDetailsModalVisible">
+      <div class="modal-content">
+        <h3>Lotes del Producto: {{ selectedProduct.nameProduct }}</h3>
+        <table class="lot-table">
+          <thead>
+            <tr>
+              <th>Código del Lote</th>
+              <th>Cantidad</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Precio de compra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="lot in Lot" :key="lot.codLot">
+              <td>{{ lot.codLot }}</td>
+              <td>{{ lot.quantity }}</td>
+              <td>{{ formatExpirationDate(lot.expirationDate) }}</td>
+              <td>{{ lot.price }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button @click="backLotDetailsModal">Volver</button>
+          <button @click="closeLotDetailsModal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

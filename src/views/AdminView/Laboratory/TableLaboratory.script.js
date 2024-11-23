@@ -48,6 +48,9 @@ export default {
     viewUsers(){
       this.$router.push("table-user")
     },
+    viewSell(){
+      this.$router.push("/admin")
+    },
     reloadPage() {
       window.location.reload();  
     },

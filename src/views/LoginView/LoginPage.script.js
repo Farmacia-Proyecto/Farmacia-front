@@ -47,7 +47,7 @@ export default {
         if (role === 'Administrador') {
           this.$router.push('/admin');
         } else if (role === 'Gerente') {
-          this.$router.push('/user-dashboard');
+          this.$router.push('/manager/sell');
         } else if (role ==='Vendedor'){
           this.$router.push('/user-dashboard');
         }
