@@ -292,20 +292,20 @@ export default {
           return;
         }
     
-        const response = await axios.get(`http://localhost:3000/lots/${codProduct}`, {
+        const response = await axios.get(`http://localhost:3000/productslot/${codProduct}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
     
+        console.log(response.data)
         if (response.data && response.data.length > 0) {
-          this.lot = response.data;
+          this.Lot = response.data;
           this.toast.success(`Lotes del producto ${nameProduct} cargados correctamente.`);
         } else {
           this.toast.info(`No se encontraron lotes para el producto ${nameProduct}.`);
         }
       } catch (error) {
-        this.lotes = [];
         this.toast.error(`Error al obtener lotes para el producto ${nameProduct}.`);
         console.error('Error en fetchLotesByProducto:', error);
       } finally {
@@ -328,8 +328,8 @@ export default {
           },
         });
     
-        if (response.data && response.data.length > 0) {
-          this.products = response.data;
+        if (response.data.products && response.data.products.length > 0) {
+          this.products = response.data.products;
           this.toast.success('Productos cargados correctamente.');
         } else {
           this.products = this.getDefaultProducts();
