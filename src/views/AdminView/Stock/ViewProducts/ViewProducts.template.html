@@ -224,15 +224,43 @@
           <p><strong>Código:</strong> {{ selectedProduct.codProduct }}</p>
           <p><strong>Nombre:</strong> {{ selectedProduct.nameProduct }}</p>
           <p><strong>Descripción:</strong> {{ selectedProduct.describeProduct }}</p>
-          <p><strong>Fecha de Expiración:</strong> {{ formatExpirationDate(selectedProduct.expirationDate) }}</p>
-          <p><strong>Lote:</strong> {{ selectedProduct.codLot }}</p>
           <p><strong>Cantidad:</strong> {{ selectedProduct.quantity }}</p>
-          <p><strong>Precio:</strong> ${{ selectedProduct.priceSell }}</p>
-          <p><strong>Precio de Compra:</strong> ${{ selectedProduct.priceBuy }}</p>
+          <p><strong>Precio de venta:</strong> ${{ selectedProduct.priceSell }}</p>
           <p><strong>Laboratorio:</strong> {{ selectedProduct.laboratory }}</p>
         </div>
-        <button @click="closeProductDetailsModal">Cerrar</button>
+        <div class="modal-actions">
+          <button @click="closeProductDetailsModal">Cerrar</button>
+          <button @click="openLotDetailsModal">Ver Lotes</button>
+        </div>
       </div>
     </div>
+    
+    <div class="modal modal-lot-details" v-if="isLotDetailsModalVisible">
+      <div class="modal-content">
+        <h3>Lotes del Producto: {{ selectedProduct.nameProduct }}</h3>
+        <table class="lot-table">
+          <thead>
+            <tr>
+              <th>Código del Lote</th>
+              <th>Cantidad</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Precio de compra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="lot in productLots" :key="lot.codLot">
+              <td>{{ lot.codLot }}</td>
+              <td>{{ lot.quantity }}</td>
+              <td>{{ formatExpirationDate(lot.expirationDate) }}</td>
+              <td>{{ lot.priceBuyUnit }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button @click="closeLotDetailsModal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    
   </div>
 </div>

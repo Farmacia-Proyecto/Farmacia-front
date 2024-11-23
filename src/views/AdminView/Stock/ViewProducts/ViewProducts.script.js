@@ -30,6 +30,7 @@ export default {
       totalSteps: 3,
       isAddProductModalVisible: false,
       isEditProductModalVisible: false,
+      isLotDetailsModalVisible: false,
       isProductDetailsModalVisible:false,
       newProduct: {
         codProduct: '',
@@ -47,6 +48,7 @@ export default {
       laboratory: [],  
       suggestions: [], 
       filteredSuggestions: [], 
+      Lot: [],
       highlightedIndex: -1, 
       defaultImageUrl: 'https://example.com/default-image.jpg', 
     };
@@ -198,6 +200,14 @@ export default {
         this.currentStep++;
       }
     },
+    openLotDetailsModal() {
+      this.fetchLots(this.selectedProduct.nameProduct,this.selectedProduct.codProduct);
+      this.isLotDetailsModalVisible = true;
+      this.isProductDetailsModalVisible = false;
+    },
+    closeLotDetailsModal() {
+      this.isLotDetailsModalVisible = false;
+    },
     prevStep() {
       if (this.currentStep > 1) {
         this.currentStep--;
@@ -271,6 +281,36 @@ export default {
         console.error('Error en updateProduct:', error);
       }
     },    
+    async fetchLots(nameProduct, codProduct) {
+      this.isLoading = true;
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get(`http://localhost:3000/lots/${codProduct}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    
+        if (response.data && response.data.length > 0) {
+          this.lot = response.data;
+          this.toast.success(`Lotes del producto ${nameProduct} cargados correctamente.`);
+        } else {
+          this.toast.info(`No se encontraron lotes para el producto ${nameProduct}.`);
+        }
+      } catch (error) {
+        this.lotes = [];
+        this.toast.error(`Error al obtener lotes para el producto ${nameProduct}.`);
+        console.error('Error en fetchLotesByProducto:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
     async fetchProducts() {
       this.isLoading = true;
       try {

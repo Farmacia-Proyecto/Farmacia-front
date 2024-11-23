@@ -756,6 +756,75 @@ select {
   transform: scale(1.05); 
 }
 
+.modal-lot-details .modal-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.modal-lot-details .modal-content h3 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
+  border-bottom: 2px solid #bdc3c7;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+}
+
+.modal-lot-details .lot-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.modal-lot-details .lot-table th, 
+.modal-lot-details .lot-table td {
+  padding: 10px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.modal-lot-details .lot-table th {
+  background-color: #34495e;
+  color: #ecf0f1;
+  font-weight: bold;
+  border-bottom: 2px solid #7f8c8d;
+}
+
+.modal-lot-details .lot-table td {
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  border-bottom: 1px solid #bdc3c7;
+}
+
+.modal-lot-details .lot-table tr:hover td {
+  background-color: #d5d8dc;
+}
+
+.modal-lot-details .modal-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.modal-lot-details .modal-actions button {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 5px;
+}
+
+.modal-lot-details .modal-actions button:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
 
 
 
