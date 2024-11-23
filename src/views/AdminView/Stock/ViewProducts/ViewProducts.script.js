@@ -42,6 +42,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         laboratory: '', 
+        image: 'https://via.placeholder.com/150'
       },
       isAddLotModalVisible: false,
       selectedProduct: null,
@@ -50,7 +51,7 @@ export default {
       filteredSuggestions: [], 
       Lot: [],
       highlightedIndex: -1, 
-      defaultImageUrl: 'https://example.com/default-image.jpg', 
+      defaultImageUrl: 'https://via.placeholder.com/150', 
     };
   },
   computed: {
@@ -264,9 +265,9 @@ export default {
     
         const productToUpdate = {
           ...this.selectedProduct,
-          nameLaboratory:this.newProduct.nameLaboratory
         };
-        const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
+        console.log(productToUpdate);
+        const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.codProduct}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
