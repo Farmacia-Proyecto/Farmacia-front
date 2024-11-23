@@ -79,9 +79,7 @@ export default {
         return;
       }
       try {
-        console.log(this.newLaboratory)
-        const response = await axios.post(
-          'http://localhost:3000/laboratory',
+        const response = await axios.post('http://localhost:3000/laboratory',
           this.newLaboratory,
           {
             headers: {
@@ -91,7 +89,7 @@ export default {
             withCredentials: true,
           }
         );
-    
+        console.log(response)
         if (response.data.success) {
           toast.success('Laboratorio agregado exitosamente');
           this.closeAddLaboratoryModal(); 
