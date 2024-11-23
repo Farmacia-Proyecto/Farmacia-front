@@ -266,11 +266,13 @@ export default {
           ...this.selectedProduct,
           nameLaboratory:this.newProduct.nameLaboratory
         };
+      
         const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+        
         if (response.status === 200) {
           this.toast.success('Producto actualizado exitosamente.');
           this.fetchProducts();
@@ -406,7 +408,7 @@ export default {
           return;
         }
 
-        const response = await axios.get('http://localhost:3000/products', {
+        const response = await axios.get('http://localhost:3000/products/search', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -414,7 +416,7 @@ export default {
             search: this.search,
           },
         });
-
+        console.log(response)
         if (response.data.length > 0) {
           this.products = response.data;
           this.toast.success("Búsqueda completada.");
