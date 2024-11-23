@@ -67,9 +67,8 @@
           <div class="form-group">
             <label for="edit-product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
             <input id="edit-product-code" type="text" v-model="selectedProduct.codProduct"
-              placeholder="Código del Producto" />
+              placeholder="Código del Producto" readonly/>
           </div>
-
           <div class="form-group">
             <label for="edit-product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
             <input id="edit-product-name" type="text" v-model="selectedProduct.nameProduct"
@@ -82,7 +81,7 @@
           </div>
           <div class="form-group">
             <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-            <select id="product-laboratory" v-model="newProduct.nameLaboratory" required>
+            <select id="product-laboratory" v-model="selectedProduct.laboratory" required>
               <option value="" disabled>Seleccione un laboratorio</option>
               <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
                 {{ lab.nameLaboratory }}
@@ -92,7 +91,7 @@
 
           <div class="form-group">
             <label for="edit-product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
-            <input id="edit-product-expiry" type="date" v-model="selectedProduct.expiryDate" required />
+            <input id="edit-product-expiry" type="date" v-model="selectedProduct.expirationDate" required readonly/>
           </div>
 
           <div class="form-group">
@@ -102,7 +101,7 @@
 
           <div class="form-group">
             <label for="edit-product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
-            <input id="edit-product-price" type="number" step="0.01" v-model="selectedProduct.price"
+            <input id="edit-product-price" type="number" step="0.01" v-model="selectedProduct.priceSell"
               placeholder="Precio de Venta" />
           </div>
 
