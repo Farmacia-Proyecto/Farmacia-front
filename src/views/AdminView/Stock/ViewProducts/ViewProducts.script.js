@@ -250,8 +250,9 @@ export default {
     
         const productToUpdate = {
           ...this.selectedProduct,
+          nameLaboratory:this.newProduct.nameLaboratory
         };
-    
+        console.log(productToUpdate.nameLaboratory)
         const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
