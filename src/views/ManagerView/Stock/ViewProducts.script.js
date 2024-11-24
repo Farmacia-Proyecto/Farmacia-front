@@ -21,6 +21,7 @@ export default {
     return {
       isSearchBarVisible: false,
       isDropdownVisible:false,
+      isCodeEditable: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -53,6 +54,21 @@ export default {
       highlightedIndex: -1, 
       defaultImageUrl: 'https://via.placeholder.com/150', 
     };
+  },
+  watch: {
+    'newProduct.laboratory': function (newLaboratory) {
+      const matchesProduct = this.products.some(
+        (product) => product.laboratory === newLaboratory
+      );
+      if (matchesProduct) {
+        this.toast.info(
+          'El código del producto no se puede editar porque el laboratorio ya está vinculado a un producto existente.'
+        );
+        this.isCodeEditable = false;
+      } else {
+        this.isCodeEditable = true; 
+      }
+    },
   },
   computed: {
     paginatedProducts() {
@@ -87,12 +103,19 @@ export default {
       console.log('Sugerencias filtradas:', this.filteredSuggestions); 
     },  
     selectSuggestion(nameProduct) {
-      if (nameProduct) {
-        this.newProduct.nameProduct = nameProduct;
-      } else if (this.highlightedIndex >= 0) {
-        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex];
+      const selectedProduct = this.products.find(
+        (product) => product.nameProduct === nameProduct
+      );
+    
+      if (selectedProduct) {
+        this.newProduct.nameProduct = selectedProduct.nameProduct;
+        this.newProduct.describeProduct = selectedProduct.describeProduct;
+        this.newProduct.codProduct = selectedProduct.codProduct;
+        this.newProduct.laboratory = selectedProduct.laboratory;
+        this.isCodeEditable = false;
       }
-      this.filteredSuggestions = []; 
+    
+      this.filteredSuggestions = [];
     },
     highlightNext() {
       if (this.filteredSuggestions.length > 0) {

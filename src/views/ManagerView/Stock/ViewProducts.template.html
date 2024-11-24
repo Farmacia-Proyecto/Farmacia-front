@@ -74,7 +74,7 @@
           <div class="form-group">
             <label for="edit-product-description"> Descripción:</label>
             <textarea id="product-description" v-model="selectedProduct.describeProduct"
-              placeholder="Descripción del Producto" maxlength="200"></textarea>
+              placeholder="Descripción del Producto" maxlength="100"></textarea>
           </div>
           <div class="form-group">
             <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
@@ -123,7 +123,8 @@
           <div v-if="currentStep === 1">
             <div class="form-group">
               <label for="product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
-              <input id="product-code" type="text" v-model="newProduct.codProduct" placeholder="Código del Producto" />
+              <input id="product-code" type="text" v-model="newProduct.codProduct" placeholder="Código del Producto"   
+              :disabled="!isCodeEditable"/>
             </div>
             <div class="form-group autocomplete">
               <label for="product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
@@ -137,7 +138,6 @@
                 @keydown.up.prevent="highlightPrev"
                 @keydown.enter.prevent="selectSuggestion()"
               />
-              <!-- Lista de sugerencias -->
               <ul v-if="filteredSuggestions.length" class="suggestions-list">
                 <li
                   v-for="(suggestion, index) in filteredSuggestions"
@@ -154,6 +154,15 @@
               <label for="product-description">Descripción:</label>
               <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"
                 maxlength="200"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+              <select id="product-laboratory" v-model="newProduct.laboratory" required>
+                <option value="" disabled>Seleccione un laboratorio</option>
+                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
+                  {{ lab.nameLaboratory }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -184,16 +193,6 @@
               <label for="product-purchase-price"><i class="fas fa-dollar-sign"></i> Precio de Compra:</label>
               <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.priceBuy"
                 placeholder="Precio de Compra" />
-            </div>
-
-            <div class="form-group">
-              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-              <select id="product-laboratory" v-model="newProduct.laboratory" required>
-                <option value="" disabled>Seleccione un laboratorio</option>
-                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
-                  {{ lab.nameLaboratory }}
-                </option>
-              </select>
             </div>
           </div>
           <!-- Botones de navegación -->
@@ -251,7 +250,6 @@
           <button @click="closeLotDetailsModal">Cerrar</button>
         </div>
       </div>
-    </div>
-    
+    </div> 
   </div>
 </div>
