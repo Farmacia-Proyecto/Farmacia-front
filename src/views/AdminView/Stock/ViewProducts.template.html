@@ -1,7 +1,7 @@
 <div class="app-container">
   <header class="top-bar">
     <div class="logo">
-      <img src="../../../../assets/Logo.png" alt="Farmaceutica S.A Logo" class="logo-img">
+      <img src="../../../assets/Logo.png" alt="Farmaceutica S.A Logo" class="logo-img">
       <span>Farmaceutica S.A</span>
     </div>
     <div class="top-menu">
@@ -17,7 +17,7 @@
   <aside class="sidebar">
     <nav class="menu">
       <ul>
-        <li><i class="fas fa-home"></i> Home</li>
+        <li><i class="fa-solid fa-cart-shopping"></i>Vender</li>
         <li class="active" @click="viewStock"><i class="fas fa-box"></i> Stock</li>
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
@@ -39,14 +39,14 @@
 
     <div class="products-grid">
       <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
-        <img :src="product.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
         <div class="product-info">
           <p class="product-name">{{ product.nameProduct }}</p>
           <p class="product-description">
             {{ product.describeProduct }}
           </p>
           <p class="product-expiration">
-            Vencimiento: {{ formatExpirationDate(product.expirationDate)}}
+          {{ product.priceSell}}
           </p>
         </div>
         <div class="product-actions">
@@ -77,7 +77,7 @@
           <div class="form-group">
             <label for="edit-product-description"> Descripción:</label>
             <textarea id="product-description" v-model="selectedProduct.describeProduct"
-              placeholder="Descripción del Producto" maxlength="200"></textarea>
+              placeholder="Descripción del Producto" maxlength="100"></textarea>
           </div>
           <div class="form-group">
             <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
@@ -91,7 +91,7 @@
 
           <div class="form-group">
             <label for="edit-product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
-            <input id="edit-product-quantity" type="number" v-model="selectedProduct.quantity" placeholder="Cantidad" />
+            <input id="edit-product-quantity" type="number" v-model="selectedProduct.quantity" placeholder="Cantidad" readonly/>
           </div>
 
           <div class="form-group">
@@ -126,7 +126,8 @@
           <div v-if="currentStep === 1">
             <div class="form-group">
               <label for="product-code"><i class="fas fa-barcode"></i> Código del Producto:</label>
-              <input id="product-code" type="text" v-model="newProduct.codProduct" placeholder="Código del Producto" />
+              <input id="product-code" type="text" v-model="newProduct.codProduct" placeholder="Código del Producto"   
+              :disabled="!isCodeEditable"/>
             </div>
             <div class="form-group autocomplete">
               <label for="product-name"><i class="fas fa-tag"></i> Nombre del Producto:</label>
@@ -136,27 +137,35 @@
                 v-model="newProduct.nameProduct"
                 placeholder="Nombre del Producto"
                 @input="fetchSuggestions"
-                @keydown.down="highlightNext"
-                @keydown.up="highlightPrev"
-                @keydown.enter.prevent="selectSuggestion"
+                @keydown.down.prevent="highlightNext"
+                @keydown.up.prevent="highlightPrev"
+                @keydown.enter.prevent="selectSuggestion()"
               />
-              <!-- Sugerencias -->
               <ul v-if="filteredSuggestions.length" class="suggestions-list">
                 <li
                   v-for="(suggestion, index) in filteredSuggestions"
-                  :key="suggestion.id"
-                  :class="{ 'highlighted': highlightedIndex === index }"
-                  @click="selectSuggestion(suggestion.nameProduct)"
+                  :key="index" 
+                  :class="{ highlighted: highlightedIndex === index }"
+                  @click="selectSuggestion(suggestion)"
                   @mouseenter="highlightedIndex = index"
                 >
-                  {{ suggestion.nameProduct }}
+                  {{ suggestion }}
                 </li>
               </ul>
-            </div>
+            </div>            
             <div class="form-group">
               <label for="product-description">Descripción:</label>
               <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"
                 maxlength="200"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
+              <select id="product-laboratory" v-model="newProduct.laboratory" required>
+                <option value="" disabled>Seleccione un laboratorio</option>
+                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
+                  {{ lab.nameLaboratory }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -187,16 +196,6 @@
               <label for="product-purchase-price"><i class="fas fa-dollar-sign"></i> Precio de Compra:</label>
               <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.priceBuy"
                 placeholder="Precio de Compra" />
-            </div>
-
-            <div class="form-group">
-              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-              <select id="product-laboratory" v-model="newProduct.laboratory" required>
-                <option value="" disabled>Seleccione un laboratorio</option>
-                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
-                  {{ lab.nameLaboratory }}
-                </option>
-              </select>
             </div>
           </div>
           <!-- Botones de navegación -->

@@ -2,12 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { jwtDecode } from 'jwt-decode';
 import Login from '../views/LoginView/LoginPage.vue';
 import Recovery from '../views/RecoveryView/RecoveryPage.vue';
-import AdminPage from '../views/AdminView/Users/AdminPage.vue';
+import AdminPage from '../views/AdminView/sells/AdminPage.vue';
 import TableUsers from '../views/AdminView/Users/TableUsers/TableUsers.vue';
 import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePasword.vue';
 import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
-import ViewProductAdmin from '../views/AdminView/Stock/ViewProducts/ViewProducts.vue';
+import ViewProductAdmin from '../views/AdminView/Stock/ViewProducts.vue';
 import TableLaboratory from '@/views/AdminView/Laboratory/TableLaboratory.vue';
+import ChangePaswordManager from  '@/views/ManagerView/changePassword/ChangePasword.vue';
+import ViewProductManager from  '../views/ManagerView/Stock/ViewProducts.vue';
+import ViewSellsManager from  '../views/ManagerView/sells/SellsPage.vue';
 
 function getTokenFromCookies() {
   const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
@@ -33,6 +36,9 @@ const routes = [
   { path: '/admin/pasword', component: ChangePaswordAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-product', component: ViewProductAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-laboratory', component: TableLaboratory, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/manager/password', component: ChangePaswordManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
+  { path: '/manager/view-product', component: ViewProductManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
+  { path: '/manager/sell', component: ViewSellsManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
   { path: '/recovery-password/:userName', component: RecoveryPassword },
 ];
 

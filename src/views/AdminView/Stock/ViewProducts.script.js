@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
-import App from '../../../../App.vue';
+import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import axios from 'axios';
 import 'vue-toastification/dist/index.css';
@@ -8,7 +8,7 @@ import 'vue-toastification/dist/index.css';
 const app = createApp(App);
 const options = {
   position: 'top-right',
-  timeout: 2000,
+  timeout: 3000,
   closeOnClick: true,
   pauseOnHover: true,
 };
@@ -21,6 +21,7 @@ export default {
     return {
       isSearchBarVisible: false,
       isDropdownVisible:false,
+      isCodeEditable: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -42,6 +43,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         laboratory: '', 
+        image: 'https://via.placeholder.com/150'
       },
       isAddLotModalVisible: false,
       selectedProduct: null,
@@ -50,7 +52,7 @@ export default {
       filteredSuggestions: [], 
       Lot: [],
       highlightedIndex: -1, 
-      defaultImageUrl: 'https://example.com/default-image.jpg', 
+      defaultImageUrl: 'https://via.placeholder.com/150', 
     };
   },
   computed: {
@@ -63,32 +65,58 @@ export default {
       return Math.ceil(this.products.length / this.itemsPerPage);
     },
   },
+  watch: {
+    'newProduct.laboratory': function (newLaboratory) {
+      const matchesProduct = this.products.some(
+        (product) => product.laboratory === newLaboratory
+      );
+      if (matchesProduct) {
+        this.toast.info(
+          'El código del producto no se puede editar porque el laboratorio ya está vinculado a un producto existente.'
+        );
+        this.isCodeEditable = false;
+      } else {
+        this.isCodeEditable = true; 
+      }
+    },
+  },
+  
   mounted() {
     this.fetchLaboratories();
     this.fetchProducts();
     this.toast = useToast();
-    this.suggestions = [
-      { id: 1, nameProduct: "Paracetamol" },
-      { id: 2, nameProduct: "Ibuprofeno" },
-      { id: 3, nameProduct: "Amoxicilina" },
-      { id: 4, nameProduct: "Diclofenaco" },
-    ];
   },
   methods: {
     fetchSuggestions() {
-      const query = this.newProduct.nameProduct.toLowerCase();
-      this.filteredSuggestions = this.suggestions.filter((product) =>
-        product.nameProduct.toLowerCase().includes(query)
-      );
-      this.highlightedIndex = -1; 
-    },
-    selectSuggestion(nameProduct) {
-      if (nameProduct) {
-        this.newProduct.nameProduct = nameProduct;
-      } else if (this.highlightedIndex >= 0) {
-        this.newProduct.nameProduct = this.filteredSuggestions[this.highlightedIndex].nameProduct;
+      const query = this.newProduct.nameProduct.trim().toLowerCase(); 
+      if (!query) {
+        this.filteredSuggestions = [];
+        return;
       }
-      this.filteredSuggestions = []; 
+
+      this.filteredSuggestions = this.products
+        .filter((product) =>
+          product.nameProduct && product.nameProduct.toLowerCase().includes(query)
+        )
+        .map((product) => product.nameProduct); 
+      
+      this.highlightedIndex = -1; 
+      console.log('Sugerencias filtradas:', this.filteredSuggestions); 
+    },  
+    selectSuggestion(nameProduct) {
+      const selectedProduct = this.products.find(
+        (product) => product.nameProduct === nameProduct
+      );
+    
+      if (selectedProduct) {
+        this.newProduct.nameProduct = selectedProduct.nameProduct;
+        this.newProduct.describeProduct = selectedProduct.describeProduct;
+        this.newProduct.codProduct = selectedProduct.codProduct;
+        this.newProduct.laboratory = selectedProduct.laboratory;
+        this.isCodeEditable = false;
+      }
+    
+      this.filteredSuggestions = [];
     },
     highlightNext() {
       if (this.filteredSuggestions.length > 0) {
@@ -119,62 +147,6 @@ export default {
     closeProductDetailsModal() {
       this.isProductDetailsModalVisible = false;
       this.selectedProduct = null;
-    },
-    getDefaultProducts() {
-      return [
-        {
-          id: 1,
-          codProduct: 'P001',
-          nameProduct: 'Paracetamol 500mg',
-          describeProduct: 'Analgésico y antipirético',
-          expirationDate: '2025-12-31',
-          codLot: 'L001',
-          quantity: 100,
-          priceSell: 1.5,
-          priceBuy: 1.0,
-          laboratory: 'Laboratorio Alfa',
-          image: 'https://via.placeholder.com/150', 
-        },
-        {
-          id: 2,
-          codProduct: 'P002',
-          nameProduct: 'Ibuprofeno 400mg',
-          describeProduct: 'Antiinflamatorio no esteroideo',
-          expirationDate: '2024-10-15',
-          codLot: 'L002',
-          quantity: 50,
-          priceSell: 2.0,
-          priceBuy: 1.2,
-          laboratory: 'Laboratorio Beta',
-          image: 'https://via.placeholder.com/150', 
-        },
-        {
-          id: 3,
-          codProduct: 'P003',
-          nameProduct: 'Amoxicilina 500mg',
-          describeProduct: 'Antibiótico de amplio espectro',
-          expirationDate: '2026-01-20',
-          codLot: 'L003',
-          quantity: 75,
-          priceSell: 3.5,
-          priceBuy: 2.0,
-          laboratory: 'Laboratorio Gamma',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
-        },
-        {
-          id: 4,
-          codProduct: 'P004',
-          nameProduct: 'Diclofenaco 50mg',
-          describeProduct: 'Antiinflamatorio y analgésico',
-          expirationDate: '2025-06-18',
-          codLot: 'L004',
-          quantity: 200,
-          priceSell: 1.8,
-          priceBuy: 1.0,
-          laboratory: 'Laboratorio Delta',
-          image: 'https://via.placeholder.com/150', // URL de imagen de ejemplo
-        },
-      ];
     },
     toggleSearchBar() {
       this.isSearchBarVisible = !this.isSearchBarVisible;
@@ -233,7 +205,6 @@ export default {
     
         if (response.data && response.data.laboratory) {
           this.laboratory = response.data.laboratory;
-          this.toast.success('Laboratorios cargados correctamente.');
         } else {
           this.toast.info('No se encontraron laboratorios.');
         }
@@ -264,15 +235,13 @@ export default {
     
         const productToUpdate = {
           ...this.selectedProduct,
-          nameLaboratory:this.newProduct.nameLaboratory
         };
-      
-        const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.id}`, productToUpdate, {
+        console.log(productToUpdate);
+        const response = await axios.put(`http://localhost:3000/products/${this.selectedProduct.codProduct}`, productToUpdate, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        
         if (response.status === 200) {
           this.toast.success('Producto actualizado exitosamente.');
           this.fetchProducts();
@@ -303,7 +272,6 @@ export default {
         console.log(response.data)
         if (response.data && response.data.length > 0) {
           this.Lot = response.data;
-          this.toast.success(`Lotes del producto ${nameProduct} cargados correctamente.`);
         } else {
           this.toast.info(`No se encontraron lotes para el producto ${nameProduct}.`);
         }
@@ -332,13 +300,10 @@ export default {
     
         if (response.data.products && response.data.products.length > 0) {
           this.products = response.data.products;
-          this.toast.success('Productos cargados correctamente.');
         } else {
-          this.products = this.getDefaultProducts();
           this.toast.info('No se encontraron productos. Mostrando productos de ejemplo.');
         }
       } catch (error) {
-        this.products = this.getDefaultProducts();
         this.toast.error('Error al obtener productos del servidor. Mostrando productos de ejemplo.');
         console.error('Error en fetchProducts:', error);
       } finally {
@@ -363,6 +328,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         nameLaboratory: '', 
+        image: 'https://via.placeholder.com/150'
       };
     },
     async addProduct() {
@@ -415,7 +381,6 @@ export default {
           },
           withCredentials:true,
         });
-        console.log(response.data)
         if (response.data.length > 0) {
           this.products = response.data;
           this.toast.success("Búsqueda completada.");

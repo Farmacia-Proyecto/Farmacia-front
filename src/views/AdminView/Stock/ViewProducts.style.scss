@@ -218,6 +218,10 @@
   line-height: 1.4; 
   text-transform: capitalize; 
 }
+.product-name::before {
+  content: "Nombre: "; 
+  font-weight: bold;
+}
 
 .modal-actions .btn-submit {
   background-color: #4CAF50; 
@@ -304,13 +308,19 @@
 .product-description {
   font-size: 0.9rem;
   color: #7f8c8d; 
+  text-overflow: ellipsis;
   margin-top: 8px;
   line-height: 1.4;
-  text-overflow: ellipsis; 
-  white-space: nowrap; 
   overflow: hidden;
+  white-space: normal; 
+  max-height: 50px; 
+  overflow: hidden; 
 }
 
+.product-description::before {
+  content: "Descripcion: "; 
+  font-weight: bold;
+}
 
 .add-lot-btn {
   display: inline-flex;
@@ -508,7 +518,7 @@
 }
 
 .product-expiration::before {
-  content: "Vencimiento: "; 
+  content: "Precio de venta: "; 
   font-weight: bold;
 }
 
