@@ -29,7 +29,7 @@
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li class="active"><i class="fas fa-tools"></i>Laboratorios</li>
+        <li class="active"><i class="fas fa-tools"></i>Proveedores</li>
         <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
@@ -37,65 +37,99 @@
 
   <div class="main-content">
     <header class="header">
-      <div class="header-title">Laboratorios</div>
+      <div class="header-title">Proveedores</div>
       <div class="search-bar">
-        <input type="text" placeholder="Buscar laboratorio" v-model="search" />
-        <button class="search-btn" @click="searchLaboratory(search)">
+        <input type="text" placeholder="Buscar proveedor" v-model="search" />
+        <button class="search-btn" @click="searchProvider(search)">
           <i class="fas fa-search"></i> Buscar
         </button>
       </div>
-      <button class="add-btn" @click="openAddLaboratoryModal">
-        <i class="fas fa-plus"></i> Agregar Laboratorio
+      <button class="add-btn" @click="openAddProviderModal">
+        <i class="fas fa-plus"></i> Agregar Proveedor
       </button>
     </header>
 
-    <!-- Table -->
     <div class="user-table-container">
       <table class="user-table">
         <thead>
           <tr>
             <th>NIT</th>
             <th>Nombre</th>
+            <th>Laboratorios</th>
             <th>Correo</th>
             <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(laboratory, index) in laboratory" :key="index">
-            <td>{{ laboratory.nit }}</td>
+          <tr v-for="(provider, index) in providers" :key="index">
+            <td>{{ provider.nit }}</td>
             <td>
               <input
                 v-if="editIndex === index"
-                v-model="editableLaboratory.nameLaboratory"
+                v-model="editableProvider.nameSupplier"
                 type="text"
                 class="edit-input"
               />
-              <span v-else>{{ laboratory.nameLaboratory }}</span>
+              <span v-else>{{ provider.nameSupplier }}</span>
+            </td>
+            <td>
+              <span v-if="editIndex !== index">
+                <ul>
+                  <li v-for="(lab, labIndex) in provider.laboratories" :key="labIndex">
+                    {{ lab.nameLaboratory }}
+                  </li>
+                </ul>
+              </span>
+              <div v-if="editIndex === index">
+                <input
+                  v-model="editableProvider.laboratories"
+                  type="text"
+                  class="edit-input"
+                  placeholder="Agregar laboratorios"
+                  @input="filterLaboratories"
+                />
+                <ul class="dropdown-list" v-if="filteredLaboratories.length > 0">
+                  <li
+                    v-for="laboratory in filteredLaboratories"
+                    :key="laboratory.id"
+                    @click="addLaboratory(laboratory)"
+                    class="dropdown-item"
+                  >
+                    {{ laboratory.name }}
+                  </li>
+                </ul>
+                <div class="selected-tags">
+                  <div class="tag" v-for="(lab, index) in editableProvider.laboratories" :key="lab.id">
+                    {{ lab.name }}
+                    <button class="remove-btn" @click="removeLaboratoryFromEdit(index)">✖</button>
+                  </div>
+                </div>
+              </div>
+            </td>            
+            <td>
+              <input
+                v-if="editIndex === index"
+                v-model="editableProvider.emailSupplier"
+                type="text"
+                class="edit-input"
+              />
+              <span v-else>{{ provider.emailSupplier }}</span>
             </td>
             <td>
               <input
                 v-if="editIndex === index"
-                v-model="editableLaboratory.emailLaboratory"
+                v-model="editableProvider.phoneSupplier"
                 type="text"
                 class="edit-input"
               />
-              <span v-else>{{ laboratory.emailLaboratory }}</span>
-            </td>
-            <td>
-              <input
-                v-if="editIndex === index"
-                v-model="editableLaboratory.phoneLaboratory"
-                type="text"
-                class="edit-input"
-              />
-              <span v-else>{{ laboratory.phoneLaboratory }}</span>
+              <span v-else>{{ provider.phoneSupplier }}</span>
             </td>
             <td>
               <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
                 <i class="fas fa-check"></i>
               </button>
-              <button v-else class="edit-btn" @click="startEdit(laboratory, index)">
+              <button v-else class="edit-btn" @click="startEdit(provider, index)">
                 <i class="fas fa-pencil-alt"></i>
               </button>
             </td>
@@ -105,62 +139,98 @@
     </div>
   </div>
 
-  <!-- Add Laboratory Modal -->
-  <div v-if="isAddLaboratoryModalVisible" class="modal">
+  <div v-if="isAddProviderModalVisible" class="modal">
     <div class="modal">
       <div class="modal-content">
-        <h3>Agregar Laboratorio</h3>
-        <form @submit.prevent="submitLaboratory">
+        <h3>Agregar Proveedor</h3>
+        <form @submit.prevent="submitProvider">
           <div class="form-group">
-            <label for="nit">NIT</label>
-            <i class="fas fa-id-card"></i>
+            <label for="nit"><i class="fas fa-id-card"></i> NIT</label>
             <input
               type="text"
               id="nit"
-              v-model="newLaboratory.nit"
-              placeholder="Ingrese el NIT del laboratorio"
+              v-model="newProvider.nit"
+              placeholder="Ingrese el NIT del proveedor"
             />
           </div>
           <div class="form-group">
-            <label for="lab-name">Nombre del Laboratorio</label>
-            <i class="fas fa-building"></i>
+            <label for="provider-name"><i class="fas fa-building"></i> Nombre del Proveedor</label>
             <input
               type="text"
-              id="lab-name"
-              v-model="newLaboratory.nameLaboratory"
-              placeholder="Ingrese el nombre del laboratorio"
+              id="provider-name"
+              v-model="newProvider.nameSupplier"
+              placeholder="Ingrese el nombre del proveedor"
             />
           </div>
           <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <i class="fas fa-phone"></i>
+            <label for="phone"><i class="fas fa-phone"></i> Teléfono</label>
             <input
               type="text"
               id="phone"
-              v-model="newLaboratory.phoneLaboratory"
+              v-model="newProvider.phoneSupplier"
               placeholder="Ingrese el número de teléfono"
             />
           </div>
           <div class="form-group">
-            <label for="email">Correo Electrónico</label>
-            <i class="fas fa-envelope"></i>
+            <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
             <input
               type="email"
               id="email"
-              v-model="newLaboratory.emailLaboratory"
+              v-model="newProvider.emailSupplier"
               placeholder="Ingrese el correo electrónico"
             />
+          </div>
+  
+          <div class="form-group">
+            <label for="laboratories">
+              <i class="fas fa-flask"></i> Seleccionar Laboratorios
+            </label>
+            <div class="dropdown-container">
+              <div class="input-wrapper">
+                <i class="fas fa-search input-icon"></i>
+                <input 
+                  type="text" 
+                  id="laboratories" 
+                  v-model="searchTerm" 
+                  placeholder="Buscar laboratorio..." 
+                  @input="filterLaboratories"
+                  class="dropdown-input"
+                  @blur="onBlur"
+                />
+              </div>
+              <ul class="dropdown-list" v-if="filteredLaboratories.length > 0">
+                <li 
+                  v-for="laboratory in filteredLaboratories" 
+                  :key="laboratory.id" 
+                  @click="addLaboratory(laboratory)" 
+                  class="dropdown-item"
+                >
+                  {{ laboratory.name }}
+                </li>
+              </ul>
+            </div>
+            <div class="selected-tags">
+              <div 
+                class="tag" 
+                v-for="(lab, index) in selectedLaboratories" 
+                :key="lab.id"
+              >
+                {{ lab.name }}
+                <button class="remove-btn" @click="removeLaboratory(index)">✖</button>
+              </div>
+            </div>
           </div>
           <div class="modal-actions">
             <button type="submit" class="btn-submit">
               <i class="fas fa-check"></i> Guardar
             </button>
-            <button type="button" class="btn-cancel" @click="closeAddLaboratoryModal">
+            <button type="button" class="btn-cancel" @click="closeAddProviderModal">
               <i class="fas fa-times"></i> Cancelar
             </button>
           </div>
         </form>
       </div>
     </div>
-  </div> 
+  </div>
+  
 </div>
