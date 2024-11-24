@@ -169,6 +169,19 @@
   flex-grow: 1; 
 }
 
+.product-laboratory {
+  font-size: 1.3rem; 
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  line-height: 1.4; 
+  text-transform: capitalize; 
+}
+.product-laboratory::before {
+  content: "Laboratorio: "; 
+  font-weight: bold;
+}
+
 .product-actions {
   position: absolute;
   top: 10px;
