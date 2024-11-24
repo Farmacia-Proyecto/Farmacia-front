@@ -56,18 +56,11 @@ export default {
     };
   },
   watch: {
-    'newProduct.laboratory': function (newLaboratory) {
-      const matchesProduct = this.products.some(
-        (product) => product.laboratory === newLaboratory
-      );
-      if (matchesProduct) {
-        this.toast.info(
-          'El código del producto no se puede editar porque el laboratorio ya está vinculado a un producto existente.'
-        );
-        this.isCodeEditable = false;
-      } else {
-        this.isCodeEditable = true; 
-      }
+    'newProduct.laboratory': function () {
+      this.checkProductAndLaboratory();
+    },
+    'newProduct.nameProduct': function () {
+      this.checkProductAndLaboratory();
     },
   },
   computed: {
@@ -86,6 +79,53 @@ export default {
     this.toast = useToast();
   },
   methods: {
+    checkProductAndLaboratory() {
+      const hasMatch = this.products.some(
+        (product) =>
+          product.nameProduct === this.newProduct.nameProduct &&
+          product.laboratory === this.newProduct.laboratory
+      );
+  
+      if (hasMatch) {
+        this.toast.info(
+          'Este producto ya existe con el mismo nombre y laboratorio. Edición bloqueada.'
+        );
+        this.isCodeEditable = false;
+      } else {
+        this.isCodeEditable = true;
+      }
+    },
+    hideSuggestions() {
+      this.filteredSuggestions = [];
+      this.highlightedIndex = -1;
+    },
+    onBlur() {
+      setTimeout(() => {
+        if (!this.isSelectingSuggestion) {
+          this.hideSuggestions();
+        }
+        this.isSelectingSuggestion = false;
+      }, 100);
+    },
+    highlightNext() {
+      if (this.highlightedIndex < this.filteredSuggestions.length - 1) {
+        this.highlightedIndex++;
+      } else {
+        this.highlightedIndex = 0; 
+      }
+    },
+    highlightPrev() {
+      if (this.highlightedIndex > 0) {
+        this.highlightedIndex--;
+      } else {
+        this.highlightedIndex = this.filteredSuggestions.length - 1; 
+      }
+    },
+    selectHighlightedSuggestion() {
+      if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredSuggestions.length) {
+        this.selectSuggestion(this.filteredSuggestions[this.highlightedIndex]);
+      }
+    },
     fetchSuggestions() {
       const query = this.newProduct.nameProduct.trim().toLowerCase(); 
       if (!query) {
@@ -116,19 +156,6 @@ export default {
       }
     
       this.filteredSuggestions = [];
-    },
-    highlightNext() {
-      if (this.filteredSuggestions.length > 0) {
-        this.highlightedIndex =
-          (this.highlightedIndex + 1) % this.filteredSuggestions.length;
-      }
-    },
-    highlightPrev() {
-      if (this.filteredSuggestions.length > 0) {
-        this.highlightedIndex =
-          (this.highlightedIndex - 1 + this.filteredSuggestions.length) %
-          this.filteredSuggestions.length;
-      }
     },
     getProductImage(product) {
       return product.image ? product.image : this.defaultImageUrl;
@@ -198,7 +225,6 @@ export default {
     
         if (response.data && response.data.laboratory) {
           this.laboratory = response.data.laboratory;
-          this.toast.success('Laboratorios cargados correctamente.');
         } else {
           this.toast.info('No se encontraron laboratorios.');
         }
@@ -266,7 +292,6 @@ export default {
         console.log(response.data)
         if (response.data && response.data.length > 0) {
           this.Lot = response.data;
-          this.toast.success(`Lotes del producto ${nameProduct} cargados correctamente.`);
         } else {
           this.toast.info(`No se encontraron lotes para el producto ${nameProduct}.`);
         }
@@ -295,7 +320,6 @@ export default {
     
         if (response.data.products && response.data.products.length > 0) {
           this.products = response.data.products;
-          this.toast.success('Productos cargados correctamente.');
         } else {
           this.toast.info('No se encontraron productos. Mostrando productos de ejemplo.');
         }
@@ -377,8 +401,8 @@ export default {
           },
           withCredentials:true,
         });
-        if (response.data.length > 0) {
-          this.products = response.data;
+        if (response.data.products && response.data.products.length > 0) {
+          this.products = response.data.products;
           this.toast.success("Búsqueda completada.");
         } else {
           this.products = [];

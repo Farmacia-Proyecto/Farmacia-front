@@ -27,4 +27,38 @@
       </ul>
     </nav>
   </aside>
+  <div class="main-content">
+    <div class="actions-container">
+      <div class="search-container">
+        <button @click="toggleSearchBar"><i class="fas fa-search"></i></button>
+        <input type="text" class="search-bar" v-bind:class="{ active: isSearchBarVisible }" v-model="search"
+          @keyup.enter="searchProduct" placeholder="Buscar producto..." />
+      </div>
+    </div>
+
+    <div class="products-grid">
+      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
+        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+        <div class="product-info">
+          <p class="product-name">{{ product.nameProduct }}</p>
+          <p class="product-laboratory">{{ product.laboratory }}</p>
+          <p class="product-description">
+            {{ product.describeProduct }}
+          </p>
+          <p class="product-quantity">{{ product.quantity}}</p>
+          <p class="product-expiration">
+          {{ product.priceSell}}
+          </p>
+        </div>
+        <button class="add-lot-btn" @click="openProductDetailsModal(product)">
+          <i class="fas fa-plus-circle"></i> Agregar a factura
+        </button>
+      </div>
+    </div>
+    <div class="pagination">
+      <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{'active': currentPage === page}">
+        {{ page }}
+      </button>
+    </div>   
+  </div>
 </div>

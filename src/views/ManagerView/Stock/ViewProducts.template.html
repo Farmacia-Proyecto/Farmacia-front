@@ -136,7 +136,8 @@
                 @input="fetchSuggestions"
                 @keydown.down.prevent="highlightNext"
                 @keydown.up.prevent="highlightPrev"
-                @keydown.enter.prevent="selectSuggestion()"
+                @keydown.enter.prevent="selectHighlightedSuggestion"
+                @blur="onBlur"
               />
               <ul v-if="filteredSuggestions.length" class="suggestions-list">
                 <li
@@ -149,7 +150,7 @@
                   {{ suggestion }}
                 </li>
               </ul>
-            </div>            
+            </div>             
             <div class="form-group">
               <label for="product-description">Descripción:</label>
               <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"

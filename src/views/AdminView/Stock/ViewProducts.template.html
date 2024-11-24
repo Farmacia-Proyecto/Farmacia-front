@@ -17,7 +17,7 @@
   <aside class="sidebar">
     <nav class="menu">
       <ul>
-        <li><i class="fa-solid fa-cart-shopping"></i>Vender</li>
+        <li @click="viewSell"><i class="fa-solid fa-cart-shopping"></i>Vender</li>
         <li class="active" @click="viewStock"><i class="fas fa-box"></i> Stock</li>
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
@@ -139,7 +139,8 @@
                 @input="fetchSuggestions"
                 @keydown.down.prevent="highlightNext"
                 @keydown.up.prevent="highlightPrev"
-                @keydown.enter.prevent="selectSuggestion()"
+                @keydown.enter.prevent="selectHighlightedSuggestion"
+                @blur="onBlur"
               />
               <ul v-if="filteredSuggestions.length" class="suggestions-list">
                 <li
