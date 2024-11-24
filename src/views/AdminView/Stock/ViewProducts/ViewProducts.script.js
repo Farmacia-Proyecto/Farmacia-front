@@ -415,6 +415,7 @@ export default {
           },
           withCredentials:true,
         });
+        console.log(response.data)
         if (response.data.length > 0) {
           this.products = response.data;
           this.toast.success("Búsqueda completada.");
