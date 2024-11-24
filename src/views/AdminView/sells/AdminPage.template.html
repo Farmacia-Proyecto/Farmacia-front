@@ -34,31 +34,118 @@
         <input type="text" class="search-bar" v-bind:class="{ active: isSearchBarVisible }" v-model="search"
           @keyup.enter="searchProduct" placeholder="Buscar producto..." />
       </div>
+      <button class="cart-btn" @click="toggleCart">
+        <i class="fas fa-shopping-cart"></i> Carrito ({{ cart.length }})
+      </button>
     </div>
 
     <div class="products-grid">
-      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
-        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+      <div v-for="(product, index) in paginatedProducts" :key="product.id" class="product-card">
+        <img :src="newProduct.image" :alt="`Imagen de ${product.nameProduct}`" class="product-image" />
         <div class="product-info">
           <p class="product-name">{{ product.nameProduct }}</p>
           <p class="product-laboratory">{{ product.laboratory }}</p>
-          <p class="product-description">
-            {{ product.describeProduct }}
-          </p>
-          <p class="product-quantity">{{ product.quantity}}</p>
-          <p class="product-expiration">
-          {{ product.priceSell}}
-          </p>
+          <p class="product-description">{{ product.describeProduct }}</p>
+          <p class="product-quantity">{{ product.quantity }}</p>
+          <p class="product-price" > {{ product.priceSell }}</p>
         </div>
-        <button class="add-lot-btn" @click="openProductDetailsModal(product)">
+    
+        <div class="quantity-controls">
+          <p style="font-weight: bold;">Vender: </p>
+         <input 
+            type="number" 
+            v-model.number="product.selectedQuantity" 
+            class="quantity-input" 
+            :max="product.quantity" 
+            min="1" 
+            @blur="setDefaultQuantity(index)"
+          />
+        </div>
+    
+        <button class="add-lot-btn" @click="addProductToCart(product)">
           <i class="fas fa-plus-circle"></i> Agregar a factura
         </button>
       </div>
-    </div>
+    </div>    
     <div class="pagination">
       <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{'active': currentPage === page}">
         {{ page }}
       </button>
     </div>   
+    <div v-if="isCartVisible" class="cart-modal">
+      <div class="cart-content">
+        <h2><i class="fas fa-shopping-cart"></i> Carrito de Compras</h2>
+        <ul>
+          <li v-for="item in cart" :key="item.id">
+            <span><i class="fas fa-box"></i> {{ item.nameProduct }}</span>
+            <span><i class="fas fa-cogs"></i> Cantidad: {{ item.selectedQuantity }}</span>
+            <span><i class="fas fa-dollar-sign"></i> Total: ${{ (item.selectedQuantity * item.priceSell).toFixed(2) }}</span>
+            <button @click="removeFromCart(item)" class="remove-btn"><i class="fas fa-trash-alt"></i> Eliminar</button>
+          </li>
+        </ul>
+        <p><strong><i class="fas fa-calculator"></i> Total del carrito:</strong> ${{ cartTotal.toFixed(2) }}</p>
+        <div class="modal-buttons">
+          <button @click="showCheckoutModal" class="checkout-btn"><i class="fas fa-check-circle"></i> Finalizar Compra</button>
+          <button @click="toggleCart" class="close-cart-btn"><i class="fas fa-times"></i> Cerrar</button>
+        </div>
+      </div>
+    </div>
+    <div v-if="isCheckoutModalVisible" class="checkout-modal">
+      <div class="checkout-content">
+        <h2><i class="fas fa-credit-card"></i> Finalizar Compra</h2>
+        
+        <div class="form-group">
+          <label for="date">Fecha</label>
+          <input type="date" id="date" v-model="checkoutData.date" readonly />
+        </div>
+        
+        <div class="form-group">
+          <label for="clientDocument">Documento Cliente</label>
+          <input type="text" id="clientDocument" v-model="checkoutData.clientDocument" placeholder="Ingrese el documento del cliente" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="products">Productos</label>
+          <ul>
+            <li v-for="item in cart" :key="item.id">
+              {{ item.nameProduct }} - Cantidad: {{ item.selectedQuantity }} - Total: ${{ (item.selectedQuantity * item.priceSell).toFixed(2) }}
+            </li>
+          </ul>
+        </div>
+    
+        <div class="form-group">
+          <label for="paymentType">Tipo de Pago</label>
+          <select id="paymentType" v-model="checkoutData.paymentType">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+        </div>
+    
+        <div class="form-group">
+          <label for="subtotal">Sub Total</label>
+          <input type="text" id="subtotal" :value="cartTotal.toFixed(2)" readonly />
+        </div>
+    
+        <div class="form-group">
+          <label for="iva">IVA ({{ ivaRate }}%)</label>
+          <input type="text" id="iva" :value="iva.toFixed(2)" readonly />
+        </div>
+    
+        <div class="form-group">
+          <label for="total">Total</label>
+          <input type="text" id="total" :value="total.toFixed(2)" readonly />
+        </div>
+    
+        <div class="modal-buttons">
+          <button @click="acceptPurchase" class="accept-btn">
+            <i class="fas fa-check"></i> Aceptar
+          </button>
+          <button @click="closeCheckoutModal" class="close-checkout-btn">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </div>
+    </div>             
   </div>
 </div>

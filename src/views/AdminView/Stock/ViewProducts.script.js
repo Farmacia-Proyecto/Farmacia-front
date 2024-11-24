@@ -106,7 +106,7 @@ export default {
           this.hideSuggestions();
         }
         this.isSelectingSuggestion = false;
-      }, 100);
+      }, 2000);
     },
     fetchSuggestions() {
       const query = this.newProduct.nameProduct.trim().toLowerCase(); 
