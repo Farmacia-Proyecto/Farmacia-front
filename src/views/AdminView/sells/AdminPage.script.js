@@ -173,7 +173,7 @@ mounted() {
           })),
           userName,
         };
-        const response = await axios.post("http://localhost:3000/invoices", invoiceData, {
+        const response = await axios.post("http://localhost:3000/invoice", invoiceData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -262,6 +262,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+        
         if (response.status === 200) {
           this.toast.success('Producto actualizado exitosamente.');
           this.fetchProducts();
