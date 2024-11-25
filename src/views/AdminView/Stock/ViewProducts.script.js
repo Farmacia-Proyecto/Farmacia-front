@@ -92,8 +92,8 @@ export default {
       );
     },
     selectLaboratory(laboratory) {
-      this.newProduct.laboratory = laboratory.name; 
-      this.searchTerm = laboratory.name; 
+      this.newProduct.laboratory = laboratory.nameLaboratory; 
+      this.searchTerm = laboratory.nameLaboratory; 
       this.filteredLaboratories = []; 
     },
     onBlur() {
@@ -213,11 +213,38 @@ export default {
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
-    nextStep() {
-      if (this.currentStep < this.totalSteps) {
-        this.currentStep++;
-      }
-    },
+     validateStep() {
+        if (this.currentStep === 1) {
+          return (
+            this.newProduct.codProduct &&
+            this.newProduct.nameProduct &&
+            this.newProduct.describeProduct &&
+            this.newProduct.nameSupplier
+          );
+        }
+        if (this.currentStep === 2) {
+          return (
+            this.newProduct.expirationDate &&
+            this.searchTerm && // Asegúrate de que se haya seleccionado un laboratorio
+            this.newProduct.codLot &&
+            this.newProduct.quantity
+          );
+        }
+        if (this.currentStep === 3) {
+          return (
+            this.newProduct.priceSell &&
+            this.newProduct.priceBuy
+          );
+        }
+        return true;
+      },
+      nextStep() {
+        if (this.validateStep()) {
+          this.currentStep++;
+        } else {
+          this.toast.error("Por favor, completa todos los campos requeridos antes de continuar.");
+        }
+      },
     openLotDetailsModal() {
       this.fetchLots(this.selectedProduct.nameProduct,this.selectedProduct.codProduct);
       this.isLotDetailsModalVisible = true;
@@ -362,6 +389,7 @@ export default {
     closeAddProductModal() {
       this.isAddProductModalVisible = false;
       this.resetNewProduct();
+      this.currentStep=1;
     },
     resetNewProduct() {
       this.newProduct = {
@@ -404,6 +432,7 @@ export default {
           ...this.newProduct,
           addedDate: new Date().toISOString(),
         };
+        console.log(productWithDate)
         const response = await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -413,12 +442,15 @@ export default {
           this.toast.success('Producto agregado exitosamente.');
           this.fetchProducts();
           this.closeAddProductModal();
+          this.currentStep=1;
         } else {
           this.toast.error('Error al agregar el producto. Inténtalo nuevamente.');
+          this.currentStep=1;
         }
       } catch (error) {
         this.toast.error('Ocurrió un error al agregar el producto.');
         console.error('Error en addProduct:', error);
+        this.currentStep=1;
       }
     },    
     formatExpirationDate(date) {
