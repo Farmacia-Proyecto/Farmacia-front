@@ -313,8 +313,8 @@ export default {
           },
         });
     
-        if (response.data && response.data.provider) {
-          this.provider = response.data.provider;
+        if (response.data && response.data.providers) {
+          this.provider = response.data.providers;
         } else {
           this.toast.info('No se encontraron proveedores.');
         }

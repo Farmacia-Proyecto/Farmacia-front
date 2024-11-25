@@ -201,7 +201,7 @@
               <label for="product-laboratory"><i class="fas fa-flask"></i> Proveedor:</label>
               <select id="product-laboratory" v-model="newProduct.nameSupplier" required>
                 <option value="" disabled>Seleccione un proveedor</option>
-                <option v-for="(prov,index) in provider" :key="index" :value="lab.nameSupplier">
+                <option v-for="(prov,index) in provider" :key="index" :value="prov.nameSupplier">
                   {{ prov.nameSupplier}}
                 </option>
               </select>
