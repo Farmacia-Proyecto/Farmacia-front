@@ -181,12 +181,12 @@ export default {
         nameSupplier: this.newProvider.nameSupplier,
         phoneSupplier: this.newProvider.phoneSupplier,
         emailSupplier: this.newProvider.emailSupplier,
-        laboratories: this.newProvider.laboratories.map(laboratory => ({
+        laboratories: this.selectedLaboratories.map(laboratory => ({
           nameLaboratory: laboratory.name
         }))  
       };
       try {
-        const response = await axios.post('http://localhost:3000/provider',  
+        const response = await axios.post('http://localhost:3000/suppliers',  
           providerData,
           {
             headers: {
@@ -196,12 +196,13 @@ export default {
             withCredentials: true,
           }
         );
-        console.log(response);
+        console.log(providerData)
+        //console.log(response);
         if (response.data.success) {
           toast.success('Proveedor agregado exitosamente');
           this.closeAddProviderModal(); 
           this.fetchProviders(); 
-          this.reloadPage();
+          //this.reloadPage();
         } else {
           toast.error('El proveedor ya existe.');
         }
@@ -222,15 +223,16 @@ export default {
           useToast().error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
-        const response = await axios.get('http://localhost:3000/provider', {  
+        const response = await axios.get('http://localhost:3000/suppliers', {  
           headers: {
             'Authorization': `Bearer ${token}`,
           },
           withCredentials: true,
         });
-        console.log(response.data);
+        
         if (response.data && response.data.providers) {  
           this.provider = response.data.providers;
+          console.log(this.provider);
         } else {
           useToast().warning("No se encontraron proveedores.");
         }
@@ -269,7 +271,7 @@ export default {
         };
     
         const response = await axios.put(
-          `http://localhost:3000/provider/${this.editableProvider.nit}`,
+          `http://localhost:3000/suppliers/${this.editableProvider.nit}`,
           updatedProvider,
           {
             headers: {
@@ -308,7 +310,7 @@ export default {
           toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
           return;
         }
-        const response = await axios.post('http://localhost:3000/provider/search', {  
+        const response = await axios.post('http://localhost:3000/suppliers/search', {  
           nameProvider: this.search,  
         }, {
           headers: {
