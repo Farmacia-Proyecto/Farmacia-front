@@ -196,13 +196,11 @@ export default {
             withCredentials: true,
           }
         );
-        console.log(providerData)
-        //console.log(response);
         if (response.data.success) {
           toast.success('Proveedor agregado exitosamente');
           this.closeAddProviderModal(); 
           this.fetchProviders(); 
-          //this.reloadPage();
+          this.reloadPage();
         } else {
           toast.error('El proveedor ya existe.');
         }
@@ -249,9 +247,9 @@ export default {
     startEdit(provider, index) {  
       this.editIndex = index;
       this.editableProvider = { ...provider };
-      this.selectedLaboratories = provider.laboratories || [];
+      this.editableProvider.laboratories = provider.laboratories.map(lab => lab.nameLaboratory).join(", ");
     },
-    async confirmEdit(index) {
+    async confirmEdit() {
       const toast = useToast();
       const token = this.getTokenFromCookies();
     
@@ -265,11 +263,11 @@ export default {
           nameSupplier: this.editableProvider.nameSupplier,
           phoneSupplier: this.editableProvider.phoneSupplier,
           emailSupplier: this.editableProvider.emailSupplier,
-          laboratories: this.editableProvider.laboratories.map(lab => ({
-            nameLaboratory: lab.name
+          laboratories: this.editableProvider.laboratories.split(",").map(name => ({
+            nameLaboratory: name.trim(),
           })),
         };
-    
+        console.log(updatedProvider)
         const response = await axios.put(
           `http://localhost:3000/suppliers/${this.editableProvider.nit}`,
           updatedProvider,
@@ -284,7 +282,7 @@ export default {
     
         if (response.data.success) {
           toast.success("Proveedor actualizado exitosamente");
-          this.provider[index] = { ...this.editableProvider };
+          this.fetchProviders;
           this.editIndex = null;
         } else {
           toast.error("No se pudo actualizar el proveedor.");
@@ -293,15 +291,25 @@ export default {
         toast.error("Ocurrió un error al actualizar el proveedor.");
         console.error(error);
       }
-    },    
+    },        
     addLaboratoryFromEdit(laboratory) {
-      if (!this.editableProvider.laboratories.includes(laboratory)) {
-        this.editableProvider.laboratories.push(laboratory);
+      const labNames = this.editableProvider.laboratories
+        ? this.editableProvider.laboratories.split(",").map(name => name.trim())
+        : [];
+      if (!labNames.includes(laboratory.name)) {
+        labNames.push(laboratory.name);
+        this.editableProvider.laboratories = labNames.join(", ");
       }
+      this.searchTerm = ""; 
+      this.filteredLaboratories = []; 
     },
+  
     removeLaboratoryFromEdit(index) {
-      this.editableProvider.laboratories.splice(index, 1);
-    },    
+      const labNames = this.editableProvider.laboratories.split(",").map(name => name.trim());
+      labNames.splice(index, 1);
+      this.editableProvider.laboratories = labNames.join(", ");
+    },
+      
     async searchProvider() {
       const toast = useToast(); 
       try {

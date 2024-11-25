@@ -307,7 +307,7 @@ export default {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/provider/namesProvider', {
+        const response = await axios.get('http://localhost:3000/suppliers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

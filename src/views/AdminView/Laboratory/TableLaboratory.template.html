@@ -83,29 +83,34 @@
               </span>
               <div v-if="editIndex === index">
                 <input
-                  v-model="editableProvider.laboratories"
+                  v-model="searchTerm"
                   type="text"
                   class="edit-input"
                   placeholder="Agregar laboratorios"
                   @input="filterLaboratories"
+                  @blur="hideSuggestions"
                 />
                 <ul class="dropdown-list" v-if="filteredLaboratories.length > 0">
                   <li
                     v-for="laboratory in filteredLaboratories"
                     :key="laboratory.id"
-                    @click="addLaboratory(laboratory)"
+                    @mousedown.prevent="addLaboratoryFromEdit(laboratory)"
                     class="dropdown-item"
                   >
                     {{ laboratory.name }}
                   </li>
                 </ul>
                 <div class="selected-tags">
-                  <div class="tag" v-for="(lab, index) in editableProvider.laboratories" :key="lab.id">
-                    {{ lab.name }}
-                    <button class="remove-btn" @click="removeLaboratoryFromEdit(index)">✖</button>
+                  <div
+                    class="tag"
+                    v-for="(lab, labIndex) in editableProvider.laboratories.split(',').map(name => name.trim()).filter(name => name)"
+                    :key="labIndex"
+                  >
+                    {{ lab }}
+                    <button class="remove-btn" @click="removeLaboratoryFromEdit(labIndex)">✖</button>
                   </div>
                 </div>
-              </div>
+              </div>              
             </td>            
             <td>
               <input

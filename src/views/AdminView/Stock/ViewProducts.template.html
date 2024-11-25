@@ -192,11 +192,19 @@
             </div>
           </div>
 
-          <!-- Paso 2 -->
           <div v-if="currentStep === 2">
             <div class="form-group">
               <label for="product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
               <input id="product-expiry" type="date" v-model="newProduct.expirationDate" required />
+            </div>
+            <div class="form-group">
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Proveedor:</label>
+              <select id="product-laboratory" v-model="newProduct.nameSupplier" required>
+                <option value="" disabled>Seleccione un proveedor</option>
+                <option v-for="(prov,index) in provider" :key="index" :value="lab.nameSupplier">
+                  {{ prov.nameSupplier}}
+                </option>
+              </select>
             </div>
             <div class="form-group">
               <label for="product-lot"><i class="fas fa-box"></i> Lote:</label>
