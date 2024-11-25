@@ -526,6 +526,23 @@
     color: #007bff; 
   }
 
+  /* Lista de laboratorios en la tabla (modo visualización) */
+.user-table td ul {
+  list-style-type: none; /* Sin viñetas */
+  padding: 0;
+  margin: 0;
+}
+
+.user-table td ul li {
+  background-color: #f1f1f1; /* Fondo claro */
+  margin: 4px 0; /* Espaciado vertical entre los elementos */
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  display: block; /* Muestra los elementos en bloque para alinearlos verticalmente */
+}
+
 .dropdown-input {
   width: 100%; 
   padding: 8px;
