@@ -22,7 +22,7 @@ export default {
       isDropdownVisible: false,
       isUserHeaderVisible: false,
       isSelectingSuggestion: false,
-      isAddProviderModalVisible: false,  // Cambio de laboratorio a proveedor
+      isAddProviderModalVisible: false, 
       search: '',
       newProvider: {
         nit: '',

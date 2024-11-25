@@ -163,13 +163,32 @@
                 maxlength="200"></textarea>
             </div>
             <div class="form-group">
-              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-              <select id="product-laboratory" v-model="newProduct.laboratory" required>
-                <option value="" disabled>Seleccione un laboratorio</option>
-                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
-                  {{ lab.nameLaboratory }}
-                </option>
-              </select>
+              <label for="laboratories">
+                <i class="fas fa-flask"></i> Laboratorio
+              </label>
+              <div class="dropdown-container">
+                <div class="input-wrapper">
+                  <input 
+                    type="text" 
+                    id="laboratories" 
+                    v-model="searchTerm" 
+                    placeholder="Buscar laboratorio..." 
+                    @input="filterLaboratories"
+                    class="dropdown-input"
+                    @blur="onBlur"
+                  />
+                </div>
+                <ul class="suggestions-list" v-if="filteredLaboratories.length > 0">
+                  <li 
+                    v-for="laboratory in filteredLaboratories" 
+                    :key="laboratory.id" 
+                    @click="selectLaboratory(laboratory)" 
+                    class="dropdown-item"
+                  >
+                    {{ laboratory.name }}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 

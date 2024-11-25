@@ -39,6 +39,7 @@ export default {
         nameProduct: '',
         describeProduct: '',
         expirationDate: '',
+        nameSupplier:'',
         codLot: '', 
         quantity: 0,
         priceSell: 0.0,
@@ -46,9 +47,77 @@ export default {
         laboratory: '', 
         image: 'https://via.placeholder.com/150'
       },
+      laboratories: [
+        { "id": 1, "name": "Pfizer" },
+        { "id": 2, "name": "Bayer" },
+        { "id": 3, "name": "Novartis" },
+        { "id": 4, "name": "Sanofi" },
+        { "id": 5, "name": "Roche" },
+        { "id": 6, "name": "Merck" },
+        { "id": 7, "name": "AstraZeneca" },
+        { "id": 8, "name": "Johnson & Johnson" },
+        { "id": 9, "name": "GSK" },
+        { "id": 10, "name": "AbbVie" },
+        { "id": 11, "name": "Eli Lilly" },
+        { "id": 12, "name": "Amgen" },
+        { "id": 13, "name": "Bristol Myers Squibb" },
+        { "id": 14, "name": "GlaxoSmithKline" },
+        { "id": 15, "name": "Boehringer Ingelheim" },
+        { "id": 16, "name": "Medtronic" },
+        { "id": 17, "name": "Teva Pharmaceuticals" },
+        { "id": 18, "name": "Abbott Laboratories" },
+        { "id": 19, "name": "Cipla" },
+        { "id": 20, "name": "Sandoz" },
+        { "id": 21, "name": "Laboratorios de la Salud" },
+        { "id": 22, "name": "Laboratorios Soremar" },
+        { "id": 23, "name": "Genfar" },
+        { "id": 24, "name": "Lab. Farmacéuticos Actavis" },
+        { "id": 25, "name": "Lab. Medley" },
+        { "id": 26, "name": "Grupo Pisa" },
+        { "id": 27, "name": "Fresenius Kabi" },
+        { "id": 28, "name": "Laboratorios Liomont" },
+        { "id": 29, "name": "Laboratorios Silanes" },
+        { "id": 30, "name": "Mylan" },
+        { "id": 31, "name": "Laboratorios Roc Pharma" },
+        { "id": 32, "name": "Sicor" },
+        { "id": 33, "name": "Emsam" },
+        { "id": 34, "name": "Farmalider" },
+        { "id": 35, "name": "Laboratorio Pasteur" },
+        { "id": 36, "name": "Laboratorios Guadalajara" },
+        { "id": 37, "name": "Laboratorios Calixta" },
+        { "id": 38, "name": "Farmaceutica La Moderna" },
+        { "id": 39, "name": "Laboratorios Marzam" },
+        { "id": 40, "name": "Laboratorios Best Pharma" },
+        { "id": 41, "name": "Laboratorio Turing" },
+        { "id": 42, "name": "Vitalis" },
+        { "id": 43, "name": "Laboratorios ECAR" },
+        { "id": 44, "name": "Zambon" },
+        { "id": 45, "name": "Laboratorios Cifuentes" },
+        { "id": 46, "name": "Servier" },
+        { "id": 47, "name": "Nobel" },
+        { "id": 48, "name": "Schering-Plough" },
+        { "id": 49, "name": "Grünenthal" },
+        { "id": 50, "name": "Almirall" },
+        { "id": 51, "name": "Tecnoquímicas" },
+        { "id": 52, "name": "MK" },
+        { "id": 53, "name": "Laboratorios La Santé" },
+        { "id": 54, "name": "Farmacéutica La Moderna" },
+        { "id": 55, "name": "Laboratorios Bagó" },
+        { "id": 56, "name": "Laboratorios Pasteur" },
+        { "id": 57, "name": "Grupo Mabe" },
+        { "id": 58, "name": "Laboratorios Polifarma" },
+        { "id": 59, "name": "Laboratorios Bioderma" },
+        { "id": 60, "name": "Laboratorios Dr. Esteve" },
+        { "id": 61, "name": "Vademécum" },
+        { "id": 62, "name": "Medley" },
+        { "id": 63, "name": "Lilly" }              
+    ],
+      searchTerm: "",
+      filteredLaboratories: [],  
+      selectedLaboratories: [],
       isAddLotModalVisible: false,
       selectedProduct: null,
-      laboratory: [],  
+      provider: [],  
       suggestions: [], 
       filteredSuggestions: [], 
       Lot: [],
@@ -75,11 +144,30 @@ export default {
     },
   },
   mounted() {
-    this.fetchLaboratories();
+    this.fetchProviders();
     this.fetchProducts();
     this.toast = useToast();
   },
   methods: {
+    filterLaboratories() {
+      this.filteredLaboratories = this.laboratories.filter(laboratory =>
+        laboratory.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+        !this.selectedLaboratories.some(selected => selected.id === laboratory.id)
+      );
+    },
+    selectLaboratory(laboratory) {
+      this.newProduct.laboratory = laboratory.name; 
+      this.searchTerm = laboratory.name; 
+      this.filteredLaboratories = []; 
+    },
+    onBlur() {
+      setTimeout(() => {
+        if (!this.isSelectingSuggestion) {
+          this.filteredLaboratories = [];
+        }
+        this.isSelectingSuggestion = false;
+      }, 2000);
+    },
     checkProductAndLaboratory() {
       const hasMatch = this.products.some(
         (product) =>
@@ -99,14 +187,6 @@ export default {
     hideSuggestions() {
       this.filteredSuggestions = [];
       this.highlightedIndex = -1;
-    },
-    onBlur() {
-      setTimeout(() => {
-        if (!this.isSelectingSuggestion) {
-          this.hideSuggestions();
-        }
-        this.isSelectingSuggestion = false;
-      }, 2000);
     },
     fetchSuggestions() {
       const query = this.newProduct.nameProduct.trim().toLowerCase(); 
@@ -219,7 +299,7 @@ export default {
         this.currentStep--;
       }
     },
-    async fetchLaboratories() {
+    async fetchProviders() {
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
@@ -227,19 +307,19 @@ export default {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/laboratory/namesLaboratory', {
+        const response = await axios.get('http://localhost:3000/provider/namesProvider', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
     
-        if (response.data && response.data.laboratory) {
-          this.laboratory = response.data.laboratory;
+        if (response.data && response.data.provider) {
+          this.provider = response.data.provider;
         } else {
-          this.toast.info('No se encontraron laboratorios.');
+          this.toast.info('No se encontraron proveedores.');
         }
       } catch (error) {
-        this.toast.error('Error al obtener laboratorios del servidor.');
+        this.toast.error('Error al obtener proveedores del servidor.');
         console.error('Error en fetchLaboratories:', error);
       }
     },    
