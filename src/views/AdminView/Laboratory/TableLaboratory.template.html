@@ -50,6 +50,7 @@
     </header>
 
     <div class="user-table-container">
+     <div class="table-container">
       <table class="user-table">
         <thead>
           <tr>
@@ -85,7 +86,7 @@
                 <input
                   v-model="searchTerm"
                   type="text"
-                  class="dropdown-input"
+                  class="edit-input"
                   placeholder="Agregar laboratorios"
                   @input="filterLaboratories"
                   @blur="hideSuggestions"
@@ -143,6 +144,7 @@
       </table>
     </div>
   </div>
+</div>
 
   <div v-if="isAddProviderModalVisible" class="modal">
     <div class="modal">
