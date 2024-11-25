@@ -21,7 +21,8 @@ export default {
     return {
       isSearchBarVisible: false,
       isDropdownVisible:false,
-      isCodeEditable: false,
+      isCodeEditable: true,
+      isSelectingSuggestion: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -66,27 +67,47 @@ export default {
     },
   },
   watch: {
-    'newProduct.laboratory': function (newLaboratory) {
-      const matchesProduct = this.products.some(
-        (product) => product.laboratory === newLaboratory
-      );
-      if (matchesProduct) {
-        this.toast.info(
-          'El código del producto no se puede editar porque el laboratorio ya está vinculado a un producto existente.'
-        );
-        this.isCodeEditable = false;
-      } else {
-        this.isCodeEditable = true; 
-      }
+    'newProduct.laboratory': function () {
+      this.checkProductAndLaboratory();
+    },
+    'newProduct.nameProduct': function () {
+      this.checkProductAndLaboratory();
     },
   },
-  
   mounted() {
     this.fetchLaboratories();
     this.fetchProducts();
     this.toast = useToast();
   },
   methods: {
+    checkProductAndLaboratory() {
+      const hasMatch = this.products.some(
+        (product) =>
+          product.nameProduct === this.newProduct.nameProduct &&
+          product.laboratory === this.newProduct.laboratory
+      );
+  
+      if (hasMatch) {
+        this.toast.info(
+          'Este producto ya existe con el mismo nombre y laboratorio. Edición bloqueada.'
+        );
+        this.isCodeEditable = false;
+      } else {
+        this.isCodeEditable = true;
+      }
+    },
+    hideSuggestions() {
+      this.filteredSuggestions = [];
+      this.highlightedIndex = -1;
+    },
+    onBlur() {
+      setTimeout(() => {
+        if (!this.isSelectingSuggestion) {
+          this.hideSuggestions();
+        }
+        this.isSelectingSuggestion = false;
+      }, 2000);
+    },
     fetchSuggestions() {
       const query = this.newProduct.nameProduct.trim().toLowerCase(); 
       if (!query) {
@@ -119,16 +140,22 @@ export default {
       this.filteredSuggestions = [];
     },
     highlightNext() {
-      if (this.filteredSuggestions.length > 0) {
-        this.highlightedIndex =
-          (this.highlightedIndex + 1) % this.filteredSuggestions.length;
+      if (this.highlightedIndex < this.filteredSuggestions.length - 1) {
+        this.highlightedIndex++;
+      } else {
+        this.highlightedIndex = 0; 
       }
     },
     highlightPrev() {
-      if (this.filteredSuggestions.length > 0) {
-        this.highlightedIndex =
-          (this.highlightedIndex - 1 + this.filteredSuggestions.length) %
-          this.filteredSuggestions.length;
+      if (this.highlightedIndex > 0) {
+        this.highlightedIndex--;
+      } else {
+        this.highlightedIndex = this.filteredSuggestions.length - 1; 
+      }
+    },
+    selectHighlightedSuggestion() {
+      if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredSuggestions.length) {
+        this.selectSuggestion(this.filteredSuggestions[this.highlightedIndex]);
       }
     },
     viewUsers() {
@@ -136,6 +163,9 @@ export default {
     },
     viewLaboratory(){
       this.$router.push("view-laboratory");
+    },
+    viewSell(){
+      this.$router.push("/admin");
     },
     getProductImage(product) {
       return product.image ? product.image : this.defaultImageUrl;
@@ -381,8 +411,8 @@ export default {
           },
           withCredentials:true,
         });
-        if (response.data.length > 0) {
-          this.products = response.data;
+        if (response.data.products && response.data.products.length > 0) {
+          this.products = response.data.products;
           this.toast.success("Búsqueda completada.");
         } else {
           this.products = [];
