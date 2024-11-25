@@ -131,7 +131,7 @@
               <span v-else>{{ provider.phoneSupplier }}</span>
             </td>
             <td>
-              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
+              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit()">
                 <i class="fas fa-check"></i>
               </button>
               <button v-else class="edit-btn" @click="startEdit(provider, index)">

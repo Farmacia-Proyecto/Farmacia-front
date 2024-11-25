@@ -298,7 +298,7 @@ export default {
         : [];
       if (!labNames.includes(laboratory.name)) {
         labNames.push(laboratory.name);
-        this.editableProvider.laboratories = labNames.join(", ");
+        this.editableProvider.laboratories = labNames.join(",");
       }
       this.searchTerm = ""; 
       this.filteredLaboratories = []; 
@@ -307,7 +307,7 @@ export default {
     removeLaboratoryFromEdit(index) {
       const labNames = this.editableProvider.laboratories.split(",").map(name => name.trim());
       labNames.splice(index, 1);
-      this.editableProvider.laboratories = labNames.join(", ");
+      this.editableProvider.laboratories = labNames.join(",");
     },
       
     async searchProvider() {
