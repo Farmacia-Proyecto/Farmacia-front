@@ -87,8 +87,8 @@ export default {
   methods: {
     filterLaboratories() {
       this.filteredLaboratories = this.laboratories.filter(laboratory =>
-        laboratory.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
-        !this.selectedLaboratories.some(selected => selected.id === laboratory.id)
+        laboratory.nameLaboratory.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+        !this.selectedLaboratories.some(selected => selected.codLaboratory === laboratory.codLaboratory)
       );
     },
     selectLaboratory(laboratory) {
@@ -377,14 +377,21 @@ export default {
         image: 'https://via.placeholder.com/150'
       };
     },
-    fetchLaboratoriesForSupplier(supplierName) {
+    async fetchLaboratoriesForSupplier(supplierName) {
+      const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
       if (!supplierName) return;
-      axios.get(`http://localhost:3000/products/${supplierName}`)
-        .then(response => {
-          this.laboratories = response.data;
-        })
-          this.toast.error("Error al obtener laboratorios:");
-          this.Laboratories = []; 
+      const response = await axios.get(`http://localhost:3000/products/change-laboratories/${supplierName}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(response.data.success){
+        this.laboratories = response.data.laboratory
+      }
     },
     async addProduct() {
       try {

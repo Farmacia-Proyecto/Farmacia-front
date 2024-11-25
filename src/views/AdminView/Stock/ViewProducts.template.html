@@ -197,7 +197,7 @@
                 <ul class="suggestions-list" v-if="filteredLaboratories.length > 0">
                   <li 
                     v-for="laboratory in filteredLaboratories" 
-                    :key="laboratory.codLaboratory" 
+                    :key="laboratories.codLaboratory" 
                     @click="selectLaboratory(laboratory)" 
                     class="dropdown-item"
                   >
