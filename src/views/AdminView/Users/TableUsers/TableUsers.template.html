@@ -17,12 +17,12 @@
   <aside class="sidebar">
     <nav class="menu">
       <ul>
-        <li><i class="fa-solid fa-cart-shopping"></i>Vender</li>
+        <li @click="viewSell"><i class="fa-solid fa-cart-shopping"></i>Vender</li>
         <li @click="viewStock"><i class="fas fa-box"></i> Stock</li>
         <li class="active"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li @click="viewLaboratory"><i class="fas fa-tools"></i>Laboratorios</li>
+        <li @click="viewLaboratory"><i class="fa-solid fa-parachute-box"></i>Proveedores</li>
         <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
@@ -40,7 +40,6 @@
       <button class="add-btn"  @click="openAddUserModal">Add New</button>
     </header>
     <div v-if="isUserHeaderVisible" class="user-table-container">
-     <div class="table-container">
       <table class="user-table">
         <thead>
           <tr>
@@ -54,7 +53,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in users" :key="index">
+          <tr v-for="(user, index) in paginatedUsers" :key="index">
             <td>
               <span>{{ user.document }}</span>
             </td>
@@ -100,6 +99,15 @@
           </tr>
         </tbody>
       </table>
+    <div class="pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        :class="{ active: currentPage === page }"
+        @click="currentPage = page"
+      >
+        {{ page }}
+      </button>
     </div>
   </div>
     <div v-if="isModalVisible" class="modal">

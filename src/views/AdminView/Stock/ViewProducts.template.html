@@ -22,7 +22,7 @@
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li @click="viewLaboratory"><i class="fas fa-tools"></i>Laboratorios</li>
+        <li @click="viewLaboratory"><i class="fa-solid fa-parachute-box"></i>Proveedores</li>
         <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
@@ -239,7 +239,6 @@
           <p><strong>Descripción:</strong> {{ selectedProduct.describeProduct }}</p>
           <p><strong>Cantidad:</strong> {{ selectedProduct.quantity }}</p>
           <p><strong>Precio de venta:</strong> ${{ selectedProduct.priceSell }}</p>
-          <p><strong>Proveedor:</strong> ${{ selectedProduct.nameSupplier }}</p>
           <p><strong>Laboratorio:</strong> {{ selectedProduct.laboratory }}</p>
         </div>
         <div class="modal-actions">

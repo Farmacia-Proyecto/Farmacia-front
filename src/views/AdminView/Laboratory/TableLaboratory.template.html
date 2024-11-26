@@ -29,7 +29,7 @@
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li><i class="fas fa-cogs"></i> Control Panel</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li class="active"><i class="fas fa-tools"></i>Proveedores</li>
+        <li @click="viewLaboratory"><i class="fa-solid fa-parachute-box"></i>Proveedores</li>
         <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
@@ -50,7 +50,6 @@
     </header>
 
     <div class="user-table-container">
-     <div class="table-container">
       <table class="user-table">
         <thead>
           <tr>
@@ -75,44 +74,8 @@
               <span v-else>{{ provider.nameSupplier }}</span>
             </td>
             <td>
-              <span v-if="editIndex !== index">
-                <ul>
-                  <li v-for="(lab, labIndex) in provider.laboratories" :key="labIndex">
-                    {{ lab.nameLaboratory }}
-                  </li>
-                </ul>
-              </span>
-              <div v-if="editIndex === index">
-                <input
-                  v-model="searchTerm"
-                  type="text"
-                  class="edit-input"
-                  placeholder="Agregar laboratorios"
-                  @input="filterLaboratories"
-                  @blur="hideSuggestions"
-                />
-                <ul class="dropdown-list" v-if="filteredLaboratories.length > 0">
-                  <li
-                    v-for="laboratory in filteredLaboratories"
-                    :key="laboratory.id"
-                    @mousedown.prevent="addLaboratoryFromEdit(laboratory)"
-                    class="dropdown-item"
-                  >
-                    {{ laboratory.name }}
-                  </li>
-                </ul>
-                <div class="selected-tags">
-                  <div
-                    class="tag"
-                    v-for="(lab, labIndex) in editableProvider.laboratories.split(',').map(name => name.trim()).filter(name => name)"
-                    :key="labIndex"
-                  >
-                    {{ lab }}
-                    <button class="remove-btn" @click="removeLaboratoryFromEdit(labIndex)">✖</button>
-                  </div>
-                </div>
-              </div>              
-            </td>            
+              <button @click="openLaboratoryModal(provider)" class="btn btn-view-labs">Ver Laboratorios</button>
+            </td>          
             <td>
               <input
                 v-if="editIndex === index"
@@ -132,7 +95,7 @@
               <span v-else>{{ provider.phoneSupplier }}</span>
             </td>
             <td>
-              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit()">
+              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
                 <i class="fas fa-check"></i>
               </button>
               <button v-else class="edit-btn" @click="startEdit(provider, index)">
@@ -142,9 +105,66 @@
           </tr>
         </tbody>
       </table>
+    <div class="pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        :class="{ active: currentPage === page }"
+        @click="currentPage = page"
+      >
+        {{ page }}
+      </button>
     </div>
   </div>
 </div>
+
+<div v-if="isModalOpen" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Editar Laboratorios</h3>
+    <div class="modal-body">
+      <!-- Búsqueda de laboratorios -->
+      <input
+        v-model="searchTerm"
+        type="text"
+        class="search-input"
+        placeholder="Buscar laboratorios"
+        @input="filterLaboratories"
+      />
+      <!-- Resultados de búsqueda -->
+      <ul v-if="filteredLaboratories.length > 0" class="dropdown-list-modal">
+        <li
+          v-for="lab in filteredLaboratories"
+          :key="lab.id"
+          class="dropdown-item-modal"
+          @click="addLaboratoryFromModal(lab)"
+        >
+          {{ lab.name }}
+        </li>
+      </ul>
+      <!-- Laboratorios seleccionados -->
+      <div class="selected-laboratories">
+        <ul>
+          <li
+            v-for="(lab, index) in selectedLaboratories"
+            :key="index"
+            class="selected-item"
+          >
+            {{ lab }}
+            <button class="remove-btn" @click="removeLaboratoryFromModal(index)">
+              ✖
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- Acciones del modal -->
+    <div class="modal-actions">
+      <button class="btn btn-primary" @click="updateLaboratories">Actualizar</button>
+      <button class="btn btn-secondary" @click="closeLaboratoryModal">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 
   <div v-if="isAddProviderModalVisible" class="modal">
     <div class="modal">
