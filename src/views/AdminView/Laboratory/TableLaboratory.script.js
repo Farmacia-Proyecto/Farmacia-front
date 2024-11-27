@@ -284,6 +284,7 @@ export default {
           toast.success("Proveedor actualizado exitosamente");
           this.fetchProviders;
           this.editIndex = null;
+          this.reloadPage();
         } else {
           toast.error("No se pudo actualizar el proveedor.");
         }

@@ -155,6 +155,9 @@ mounted() {
         this.isLoading = false;
       }
     },  
+    reloadPage() {
+      window.location.reload();  
+    },
     async acceptPurchase() {
       try {
         const token = this.getTokenFromCookies();
@@ -183,6 +186,7 @@ mounted() {
           this.toast.success("Compra realizada exitosamente.");
           this.cart = []; 
           this.closeCheckoutModal(); 
+          this.reloadPage();
         } else {
           this.toast.error("Hubo un problema al procesar la compra.");
         }
