@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
+import { mapState, mapActions } from 'vuex';
 import axios from 'axios';
 import App from '../../../../App.vue';
 import Toast from 'vue-toastification';
@@ -19,6 +20,8 @@ app.mount('#app');
 export default {
   data() {
     return {
+      notifications: [], 
+      isNotificationsVisible: false,
       currentPage: 1, 
       pageSize: 6, 
       isDropdownVisible: false,
@@ -44,6 +47,7 @@ export default {
     this.fetchUsers();
   },
   computed: {
+    ...mapState(['unreadNotifications']), 
     paginatedUsers() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -57,6 +61,25 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']),
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    viewNotification(index) {
+      alert(`Ver detalles: ${this.unreadNotifications[index].message}`);
+      this.removeNotification(index);
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index);
+    },
+    addNotification(notification) {
+      this.notifications.push(notification);
+      this.unreadNotifications.push(notification);
+      this.toast.info(notification.message); 
+    },
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
     created() {
       this.toast = useToast();
     },    

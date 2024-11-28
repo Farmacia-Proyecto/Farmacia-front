@@ -12,8 +12,26 @@
         </ul>
       </div>
       <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <div class="notifications">
+        <button class="notifications-btn" @click="toggleNotifications">
+          <i class="fas fa-bell"></i>
+          <span v-if="unreadNotifications.length > 0" class="notification-badge">{{ unreadNotifications.length }}</span>
+        </button>
+        <div v-if="isNotificationsVisible" class="notifications-dropdown">
+          <ul>
+            <li v-for="(notification, index) in unreadNotifications" :key="index">
+              <p>{{ notification.message }}</p>
+              <div class="notification-actions">
+                <button @click="viewNotification(index)">Ver</button>
+                <button @click="ignoreNotification(index)">Ignorar</button>
+              </div>
+            </li>
+          </ul>
+          <p v-if="unreadNotifications.length === 0">No hay notificaciones nuevas</p>
+        </div>
+      </div>      
     </div>
-  </header>
+  </header>  
   <aside class="sidebar">
     <nav class="menu">
       <ul>
@@ -90,6 +108,32 @@
         </div>
       </div>
     </div>
+    <div v-if="isLowStockModalVisible" class="low-stock-modal">
+      <div class="modal-content">
+        <h2><i class="fas fa-exclamation-triangle"></i> Productos Bajos en Stock</h2>
+        <table class="low-stock-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Laboratorio</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in lowStockProducts" :key="product.codProduct">
+              <td>{{ product.nameProduct }}</td>
+              <td>{{ product.laboratory }}</td>
+              <td>{{ product.quantity }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button class="generate-order-btn" @click="generateOrder"><i class="fas fa-file-alt"></i> Generar Orden</button>
+          <button class="close-modal-btn" @click="closeLowStockModal"><i class="fas fa-times"></i> Cerrar</button>
+        </div>
+      </div>
+    </div>
+    
     <div v-if="isCheckoutModalVisible" class="checkout-modal">
       <div class="checkout-content">
         <h2><i class="fas fa-credit-card"></i> Finalizar Compra</h2>

@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
+import { mapState, mapActions } from 'vuex';
 import axios from 'axios';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
@@ -19,8 +20,11 @@ app.mount('#app');
 export default {
   data() {
     return {
+      notifications: [], 
+      isNotificationsVisible: false,
       isDropdownVisible: false,
       isModalOpen: false,
+      isButtonVisible: true,
       isUserHeaderVisible: false,
       isSelectingSuggestion: false,
       isAddProviderModalVisible: false, 
@@ -111,6 +115,7 @@ export default {
     this.fetchProviders();  
   },
   computed: {
+    ...mapState(['unreadNotifications']), 
     paginatedProviders() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -125,6 +130,25 @@ export default {
   },
   
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']),
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    viewNotification(index) {
+      alert(`Ver detalles: ${this.unreadNotifications[index].message}`);
+      this.removeNotification(index);
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index);
+    },
+    addNotification(notification) {
+      this.notifications.push(notification);
+      this.unreadNotifications.push(notification);
+      this.toast.info(notification.message); 
+    },
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
     filterLaboratories() {
       this.filteredLaboratories = this.laboratories.filter(laboratory =>
         laboratory.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
@@ -263,6 +287,7 @@ export default {
       return tokenCookie ? tokenCookie.split('=')[1] : null;
     },
     startEdit(provider, index) {  
+      this.isButtonVisible = false;
       this.editIndex = index;
       this.editableProvider = { ...provider };
       this.selectedLaboratories = provider.laboratories.map(
@@ -303,6 +328,7 @@ export default {
           toast.success("Proveedor actualizado exitosamente");
           this.editIndex = null;
           this.provider[index] = { ...this.editableProvider };
+          this.isButtonVisible = true;
         } else {
           toast.error("No se pudo actualizar el proveedor.");
         }

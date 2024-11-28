@@ -59,6 +59,128 @@
   .top-menu button:hover {
     color: #28a745;
   }
+
+  .top-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Añade separación entre los botones */
+  }
+  
+  .notifications {
+    position: relative;
+  }
+  
+  .user-btn {
+    margin-right: 10px; /* Añade un margen para separarlo aún más */
+  }
+  
+
+  .notifications {
+    position: relative;
+    margin-right: 20px;
+  }
+  
+  .notifications-btn {
+    background: none;
+    border: none;
+    color: white; /* Cambiado a blanco para que contraste con la barra superior */
+    font-size: 24px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px; /* Ajusta la posición */
+    right: -10px; /* Ajusta la posición */
+    background: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .notifications-dropdown {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 300px; /* Ajusta el ancho según necesites */
+    background: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1000;
+    padding: 15px;
+    color: #333;
+    font-size: 14px;
+  }
+  
+  .notifications-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .notifications-dropdown li {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido horizontalmente */
+    text-align: center; /* Centra el texto */
+    gap: 10px; /* Espacio entre texto y botones */
+    background: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notifications-dropdown li p {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+    font-weight: bold; /* Opcional, para resaltar */
+  }
+  
+  .notification-actions {
+    display: flex;
+    justify-content: center; /* Centra los botones */
+    gap: 15px; /* Espacio entre los botones */
+  }
+  
+  .notification-actions button {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+  
+  .notification-actions button:hover {
+    background: #0056b3;
+  }
+  
+  .notification-actions button:last-child {
+    background: #dc3545;
+  }
+  
+  .notification-actions button:last-child:hover {
+    background: #a71d2a;
+  }
+  
+  .notifications-dropdown p {
+    margin: 0;
+    padding: 10px;
+    font-size: 14px;
+    color: #888;
+  }
   
   .sidebar {
     width: 250px;

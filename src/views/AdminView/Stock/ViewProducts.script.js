@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
+import { mapState, mapActions } from 'vuex';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import axios from 'axios';
@@ -23,6 +24,8 @@ export default {
       isDropdownVisible:false,
       isCodeEditable: true,
       isSelectingSuggestion: false,
+      notifications: [], 
+      isNotificationsVisible: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -62,6 +65,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(['unreadNotifications']), 
     paginatedProducts() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
@@ -80,11 +84,35 @@ export default {
     },
   },
   mounted() {
+    setTimeout(() => {
+      this.addNotification({
+        message: "Producto en bajo stock",
+      });
+    }, 3000);
     this.fetchProviders();
     this.fetchProducts();
     this.toast = useToast();
   },
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']),
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    viewNotification(index) {
+      alert(`Ver detalles: ${this.unreadNotifications[index].message}`);
+      this.removeNotification(index);
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index);
+    },
+    addNotification(notification) {
+      this.notifications.push(notification);
+      this.unreadNotifications.push(notification);
+      this.toast.info(notification.message); 
+    },
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
     filterLaboratories() {
       this.filteredLaboratories = this.laboratories.filter(laboratory =>
         laboratory.nameLaboratory.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
@@ -225,7 +253,7 @@ export default {
         if (this.currentStep === 2) {
           return (
             this.newProduct.expirationDate &&
-            this.searchTerm && // Asegúrate de que se haya seleccionado un laboratorio
+            this.searchTerm &&
             this.newProduct.codLot &&
             this.newProduct.quantity
           );
