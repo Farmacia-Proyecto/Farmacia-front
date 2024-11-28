@@ -27,6 +27,9 @@ export default {
       isDropdownVisible: false,
       isUserHeaderVisible: false,
       isModalVisible: false,
+      isLowStockModalVisible: false,
+      productsAlert:[],
+      lowStockProducts: [],
       search: '',
       newPassword: '',
       infoPerson: {
@@ -45,6 +48,7 @@ export default {
   },
   mounted() {
     this.fetchUsers();
+    this.fetchAlert();
   },
   computed: {
     ...mapState(['unreadNotifications']), 
@@ -66,9 +70,37 @@ export default {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
     viewNotification(index) {
-      alert(`Ver detalles: ${this.unreadNotifications[index].message}`);
+      this.lowStockProducts = this.productsAlert;
+      console.log(this.lowStockProducts)
+      this.isLowStockModalVisible = true;
       this.removeNotification(index);
+      this.toggleNotifications();
     },
+    closeLowStockModal() {
+      this.isLowStockModalVisible = false;
+    },
+    async fetchAlert() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/products/alert', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          this.productsAlert = response.data.products.map(product => ({
+            ...product,  
+          }));
+        } 
+      } catch (error) {
+        console.error('Error en fetchAlerts:', error);
+      }
+    },  
     ignoreNotification(index) {
       this.removeNotification(index);
     },

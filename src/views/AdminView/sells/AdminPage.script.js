@@ -83,9 +83,11 @@ mounted() {
     },    
 
     addNotification(notification) {
+      if(this.unreadNotifications.length==0){
       this.notifications.push(notification);
       this.unreadNotifications.push(notification);
       this.toast.info(notification.message); 
+      }
     },    
 
     dismissNotification(index) {

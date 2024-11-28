@@ -25,6 +25,7 @@ export default {
       isCodeEditable: true,
       isSelectingSuggestion: false,
       notifications: [], 
+      isLowStockModalVisible: false,
       isNotificationsVisible: false,
       products: [],
       search: '',
@@ -37,6 +38,8 @@ export default {
       isEditProductModalVisible: false,
       isLotDetailsModalVisible: false,
       isProductDetailsModalVisible:false,
+      productsAlert:[],
+      lowStockProducts: [],
       newProduct: {
         codProduct: '',
         nameProduct: '',
@@ -84,11 +87,7 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      this.addNotification({
-        message: "Producto en bajo stock",
-      });
-    }, 3000);
+    this.fetchAlert();
     this.fetchProviders();
     this.fetchProducts();
     this.toast = useToast();
@@ -99,16 +98,24 @@ export default {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
     viewNotification(index) {
-      alert(`Ver detalles: ${this.unreadNotifications[index].message}`);
+      this.lowStockProducts = this.productsAlert;
+      console.log(this.lowStockProducts)
+      this.isLowStockModalVisible = true;
       this.removeNotification(index);
+      this.toggleNotifications();
+    },
+    closeLowStockModal() {
+      this.isLowStockModalVisible = false;
     },
     ignoreNotification(index) {
       this.removeNotification(index);
     },
     addNotification(notification) {
-      this.notifications.push(notification);
-      this.unreadNotifications.push(notification);
-      this.toast.info(notification.message); 
+      if(this.unreadNotifications.length==0){
+        this.notifications.push(notification);
+        this.unreadNotifications.push(notification);
+        this.toast.info(notification.message); 
+        }
     },
     dismissNotification(index) {
       this.notifications.splice(index, 1);
@@ -290,6 +297,33 @@ export default {
         this.currentStep--;
       }
     },
+    async fetchAlert() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/products/alert', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data.products)
+        if (response.data.success) {
+          this.productsAlert = response.data.products.map(product => ({
+            ...product,  
+            alertId: `alert-${product.codProduct}-${Date.now()}`
+          }));
+             this.addNotification({
+              message: `Tiene productos bajos en stock`,  
+            });
+        } 
+      } catch (error) {
+        console.error('Error en fetchAlerts:', error);
+      }
+    }, 
     async fetchProviders() {
       try {
         const token = this.getTokenFromCookies();
