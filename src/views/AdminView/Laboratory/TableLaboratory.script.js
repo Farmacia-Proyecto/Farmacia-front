@@ -20,9 +20,12 @@ export default {
   data() {
     return {
       isDropdownVisible: false,
+      isModalOpen: false,
       isUserHeaderVisible: false,
       isSelectingSuggestion: false,
       isAddProviderModalVisible: false, 
+      currentPage: 1, 
+      pageSize: 6, 
       search: '',
       newProvider: {
         nit: '',
@@ -107,6 +110,20 @@ export default {
   mounted() {
     this.fetchProviders();  
   },
+  computed: {
+    paginatedProviders() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.provider.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.provider.length / this.pageSize);
+    },
+    pageNumbers() {
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    },
+  },
+  
   methods: {
     filterLaboratories() {
       this.filteredLaboratories = this.laboratories.filter(laboratory =>
@@ -114,6 +131,7 @@ export default {
         !this.selectedLaboratories.some(selected => selected.id === laboratory.id)
       );
     },
+
     addLaboratory(laboratory) {
       this.selectedLaboratories.push(laboratory);
       this.searchTerm = ""; 
@@ -247,24 +265,25 @@ export default {
     startEdit(provider, index) {  
       this.editIndex = index;
       this.editableProvider = { ...provider };
-      this.editableProvider.laboratories = provider.laboratories.map(lab => lab.nameLaboratory).join(", ");
+      this.selectedLaboratories = provider.laboratories.map(
+        (lab) => lab.nameLaboratory
+      );
     },
-    async confirmEdit() {
+    async confirmEdit(index) {
       const toast = useToast();
       const token = this.getTokenFromCookies();
     
       if (!token) {
         toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
         return;
-      }
-    
+      }    
       try {
         const updatedProvider = {
           nameSupplier: this.editableProvider.nameSupplier,
           phoneSupplier: this.editableProvider.phoneSupplier,
           emailSupplier: this.editableProvider.emailSupplier,
-          laboratories: this.editableProvider.laboratories.split(",").map(name => ({
-            nameLaboratory: name.trim(),
+          laboratories: this.selectedLaboratories.map((name) => ({
+            nameLaboratory: name,
           })),
         };
         console.log(updatedProvider)
@@ -282,9 +301,8 @@ export default {
     
         if (response.data.success) {
           toast.success("Proveedor actualizado exitosamente");
-          this.fetchProviders;
           this.editIndex = null;
-          this.reloadPage();
+          this.provider[index] = { ...this.editableProvider };
         } else {
           toast.error("No se pudo actualizar el proveedor.");
         }
@@ -293,24 +311,73 @@ export default {
         console.error(error);
       }
     },        
-    addLaboratoryFromEdit(laboratory) {
-      const labNames = this.editableProvider.laboratories
-        ? this.editableProvider.laboratories.split(",").map(name => name.trim())
-        : [];
-      if (!labNames.includes(laboratory.name)) {
-        labNames.push(laboratory.name);
-        this.editableProvider.laboratories = labNames.join(",");
+    openLaboratoryModal(provider) {
+      this.selectedProvider = provider;
+      this.selectedLaboratories = provider.laboratories.map(
+        (lab) => lab.nameLaboratory
+      );
+      this.isModalOpen = true;
+    },
+    closeLaboratoryModal() {
+      this.isModalOpen = false;
+      this.selectedProvider = null;
+      this.selectedLaboratories = [];
+    },
+    addLaboratoryFromModal(lab) {
+      if (!this.selectedLaboratories.includes(lab.name)) {
+        this.selectedLaboratories.push(lab.name);
       }
-      this.searchTerm = ""; 
-      this.filteredLaboratories = []; 
+      this.searchTerm = "";
+      this.filteredLaboratories = [];
     },
+    removeLaboratoryFromModal(index) {
+      this.selectedLaboratories.splice(index, 1);
+    },
+    async updateLaboratories() {
+      const toast = useToast();
+      const token = this.getTokenFromCookies();
   
-    removeLaboratoryFromEdit(index) {
-      const labNames = this.editableProvider.laboratories.split(",").map(name => name.trim());
-      labNames.splice(index, 1);
-      this.editableProvider.laboratories = labNames.join(",");
+      if (!token) {
+        toast.error("Token no encontrado. Por favor, inicia sesión de nuevo.");
+        return;
+      }
+  
+      try {
+        const updatedProvider = {
+          ...this.selectedProvider,
+          laboratories: this.selectedLaboratories.map((name) => ({
+            nameLaboratory: name,
+          })),
+        };
+  
+        const response = await axios.put(
+          `http://localhost:3000/suppliers/${this.selectedProvider.nit}`,
+          updatedProvider,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+  
+        if (response.data.success) {
+          toast.success("Laboratorios actualizados exitosamente");
+          this.closeLaboratoryModal();
+          await this.sleep(2000); 
+          this.reloadPage();
+        } else {
+          toast.error("No se pudo actualizar el proveedor.");
+        }
+      } catch (error) {
+        toast.error("Ocurrió un error al actualizar los laboratorios.");
+        console.error(error);
+      }
     },
-      
+    sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
     async searchProvider() {
       const toast = useToast(); 
       try {
