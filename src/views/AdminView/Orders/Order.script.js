@@ -47,6 +47,7 @@ export default {
     this.fetchProducts();
     this.fetchOrders();
     this.fetchAlert();
+    this.toast = useToast();
   },
   computed: {
     ...mapState(['unreadNotifications']), 
@@ -171,39 +172,46 @@ export default {
       async sendOrder() {
         try {
           const token = this.getTokenFromCookies();
+    
           if (this.order.length === 0) {
             this.toast.error("Debe agregar productos a la orden antes de crearla.");
             return;
           }
+      
+          // Preparar datos para enviar al backend
           const orders = this.order.map(product => ({
             nameProduct: product.nameProduct,
             nameSupplier: product.selectedSupplier,
             laboratory: product.laboratory,
             quantity: product.newQuantity,
-            state: "Enviada",
-            dateRegister: new Date().toISOString(),
+            state: "Enviada", // Estado inicial por defecto
+            dateRegister: new Date().toISOString(), // Fecha actual
           }));
-         const response = await axios.post(
+      
+          // Mostrar datos que se enviarán en consola (para debug)
+          console.log("Datos enviados:", { orders });
+      
+          // Enviar solicitud al backend
+          const response = await axios.post(
             "http://localhost:3000/purchaseorder",
-            { orders },
+            { orders }, // Encapsular en un objeto
             {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }
-          );
-          if(response.data.success){
-          this.order = [];
-          this.closeOrderModal();
-          this.toast.success("Órdenes enviadas con éxito.");
-          }else{
-            this.toast.error("Orden no enviada");
+          );   
+          if (response.data.success) {
+            this.closeOrderModal();
+            this.toast.success("Órdenes enviadas con éxito.");
+          } else {
+            this.toast.error("Orden no enviada. Verifique los datos.");
           }
         } catch (error) {
           console.error("Error al enviar las órdenes:", error);
           this.toast.error("Ocurrió un error al enviar las órdenes.");
         }
-      },         
+      },              
     async fetchAlert() {
         try {
           const token = this.getTokenFromCookies();
