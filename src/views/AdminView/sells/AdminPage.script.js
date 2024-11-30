@@ -78,6 +78,13 @@ mounted() {
     toggleNotifications() {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/admin/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
     ignoreNotification(index) {
       this.removeNotification(index); 
     },    
@@ -262,6 +269,37 @@ mounted() {
       } catch (error) {
         console.error('Error al decodificar el token:', error);
         return null;
+      }
+    },
+    async searchProduct() {
+      this.isLoading = true;
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          this.isLoading = false;
+          return;
+        }
+
+        const response = await axios.post('http://localhost:3000/products/search', {
+          nameProduct: this.search,},{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials:true,
+        });
+        if (response.data.products && response.data.products.length > 0) {
+          this.products = response.data.products;
+          this.toast.success("Búsqueda completada.");
+        } else {
+          this.products = [];
+          this.toast.info("No se encontraron productos con ese criterio de búsqueda.");
+        }
+      } catch (error) {
+        this.toast.error('Error al realizar la búsqueda en el servidor.');
+        console.error(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     getTokenFromCookies() {

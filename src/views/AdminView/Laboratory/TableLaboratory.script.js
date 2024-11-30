@@ -198,6 +198,9 @@ export default {
     viewSell() {
       this.$router.push("/admin");
     },
+    viewOrders(){
+      this.$router.push("view-orders");
+    },
     reloadPage() {
       window.location.reload();  
     },

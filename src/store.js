@@ -27,6 +27,9 @@ export default createStore({
       commit('ADD_NOTIFICATION', notification);
       }
     },
+    addLowStockProducts({ commit }, products) {
+      commit('setLowStockProducts', products);
+    },
     removeNotification({ commit }, index) {
       commit('REMOVE_NOTIFICATION', index);
     },

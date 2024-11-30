@@ -58,6 +58,9 @@ export default {
     viewLaboratory(){
       this.$router.push("view-laboratory");
     },
+    viewSells(){
+      this.$router.push("/admin");
+    },
     viewStock(){
       this.$router.push("view-product");
     },
