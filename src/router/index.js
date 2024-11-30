@@ -8,20 +8,20 @@ import ChangePaswordAdmin from '../views/AdminView/Users/ChangePasword/ChangePas
 import RecoveryPassword from '../views/RecoveryView/RecoveryEmail.vue';
 import ViewProductAdmin from '../views/AdminView/Stock/ViewProducts.vue';
 import TableLaboratory from '@/views/AdminView/Laboratory/TableLaboratory.vue';
-import ChangePaswordManager from  '@/views/ManagerView/changePassword/ChangePasword.vue';
-import ViewProductManager from  '../views/ManagerView/Stock/ViewProducts.vue';
-import ViewSellsManager from  '../views/ManagerView/sells/SellsPage.vue';
+import TableOrders from '../views/AdminView/Orders/OrderView.vue';
+import ChangePaswordManager from '@/views/ManagerView/changePassword/ChangePasword.vue';
+import ViewProductManager from '../views/ManagerView/Stock/ViewProducts.vue';
+import ViewSellsManager from '../views/ManagerView/sells/SellsPage.vue';
 
 function getTokenFromCookies() {
   const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
   return cookie ? cookie.split('=')[1] : null;
 }
 
-
 function getRoleFromToken(token) {
   try {
     const decodedToken = jwtDecode(token);
-    return decodedToken.typeUser; 
+    return decodedToken.typeUser;
   } catch (error) {
     console.error('Error al decodificar el token:', error);
     return null;
@@ -36,6 +36,7 @@ const routes = [
   { path: '/admin/pasword', component: ChangePaswordAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-product', component: ViewProductAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-laboratory', component: TableLaboratory, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/view-orders', component: TableOrders, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/manager/password', component: ChangePaswordManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
   { path: '/manager/view-product', component: ViewProductManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
   { path: '/manager/sell', component: ViewSellsManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
@@ -49,19 +50,20 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = getTokenFromCookies();
+
   if (to.meta.requiresAuth) {
     if (!token) {
-      next('/');
+      next('/'); 
       return;
     }
     const userRole = getRoleFromToken(token);
     if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(userRole)) {
-      next('/');
+      next('/'); 
       return;
     }
   }
-
-  next(); 
+  next();
 });
+
 
 export default router;

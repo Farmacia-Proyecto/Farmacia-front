@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { mapState, mapActions } from 'vuex';
 import { useToast } from 'vue-toastification';
 import { jwtDecode } from 'jwt-decode';
 import App from '../../../App.vue';
@@ -22,6 +23,10 @@ export default {
   return {
     isCartVisible: false,
     isCheckoutModalVisible:false,
+    isLowStockModalVisible: false,
+    lowStockProducts: [],
+    notifications: [], 
+    isNotificationsVisible: false, 
     cart: [], 
     isDropdownVisible: false,
     isSearchBarVisible: false,
@@ -33,6 +38,7 @@ export default {
     },
     ivaRate: 19, 
     products: [],
+    productsAlert:[],
     newProduct: {
       quantity: 1,
       image: 'https://via.placeholder.com/150'
@@ -43,6 +49,7 @@ export default {
   };
 },
 computed: {
+  ...mapState(['unreadNotifications']), 
   paginatedProducts() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -63,9 +70,45 @@ computed: {
 },
 mounted() {
   this.fetchProducts();
+  this.fetchAlert();
   this.toast = useToast();
 },
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']), 
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/admin/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index); 
+    },    
+
+    addNotification(notification) {
+      if(this.unreadNotifications.length==0){
+      this.notifications.push(notification);
+      this.unreadNotifications.push(notification);
+      this.toast.info(notification.message); 
+      }
+    },    
+
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
+    viewNotification(index) {
+      this.lowStockProducts = this.productsAlert;
+      this.isLowStockModalVisible = true;
+      this.removeNotification(index);
+      this.toggleNotifications();
+    },
+    closeLowStockModal() {
+      this.isLowStockModalVisible = false;
+    },
     logOut() {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
       this.$router.push("/");
@@ -125,6 +168,33 @@ mounted() {
       this.cart = this.cart.filter((item) => item.codProduct !== product.codProduct);
       this.toast.info(`Eliminado ${product.nameProduct} del carrito.`);
     },
+    async fetchAlert() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/products/alert', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data.products)
+        if (response.data.success) {
+          this.productsAlert = response.data.products.map(product => ({
+            ...product,  
+            alertId: `alert-${product.codProduct}-${Date.now()}`
+          }));
+             this.addNotification({
+              message: `Tiene productos bajos en stock`,  
+            });
+        } 
+      } catch (error) {
+        console.error('Error en fetchAlerts:', error);
+      }
+    },  
     async fetchProducts() {
       this.isLoading = true;
       try {
@@ -155,9 +225,6 @@ mounted() {
         this.isLoading = false;
       }
     },  
-    reloadPage() {
-      window.location.reload();  
-    },
     async acceptPurchase() {
       try {
         const token = this.getTokenFromCookies();
@@ -186,7 +253,7 @@ mounted() {
           this.toast.success("Compra realizada exitosamente.");
           this.cart = []; 
           this.closeCheckoutModal(); 
-          this.reloadPage();
+          this.fetchAlert();
         } else {
           this.toast.error("Hubo un problema al procesar la compra.");
         }
@@ -202,6 +269,37 @@ mounted() {
       } catch (error) {
         console.error('Error al decodificar el token:', error);
         return null;
+      }
+    },
+    async searchProduct() {
+      this.isLoading = true;
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          this.isLoading = false;
+          return;
+        }
+
+        const response = await axios.post('http://localhost:3000/products/search', {
+          nameProduct: this.search,},{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials:true,
+        });
+        if (response.data.products && response.data.products.length > 0) {
+          this.products = response.data.products;
+          this.toast.success("Búsqueda completada.");
+        } else {
+          this.products = [];
+          this.toast.info("No se encontraron productos con ese criterio de búsqueda.");
+        }
+      } catch (error) {
+        this.toast.error('Error al realizar la búsqueda en el servidor.');
+        console.error(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     getTokenFromCookies() {

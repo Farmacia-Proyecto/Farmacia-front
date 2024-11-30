@@ -12,6 +12,24 @@
         </ul>
       </div>
       <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <div class="notifications">
+        <button class="notifications-btn" @click="toggleNotifications">
+          <i class="fas fa-bell"></i>
+          <span v-if="unreadNotifications.length > 0" class="notification-badge">{{ unreadNotifications.length }}</span>
+        </button>
+        <div v-if="isNotificationsVisible" class="notifications-dropdown">
+          <ul>
+            <li v-for="(notification, index) in unreadNotifications" :key="index">
+              <p>{{ notification.message }}</p>
+              <div class="notification-actions">
+                <button @click="viewNotification(index)">Ver</button>
+                <button @click="ignoreNotification(index)">Ignorar</button>
+              </div>
+            </li>
+          </ul>
+          <p v-if="unreadNotifications.length === 0">No hay notificaciones nuevas</p>
+        </div>
+      </div> 
     </div>
   </header>
   <aside class="sidebar">
@@ -20,7 +38,7 @@
         <li @click="viewSell"><i class="fa-solid fa-cart-shopping"></i>Vender</li>
         <li @click="viewStock"><i class="fas fa-box"></i> Stock</li>
         <li class="active"><i class="fas fa-users"></i> Users</li>
-        <li><i class="fas fa-cogs"></i> Control Panel</li>
+        <li><i class="fa-solid fa-file-invoice"></i>Ordenes</li>
         <li><i class="fas fa-chart-bar"></i> Reports</li>
         <li @click="viewLaboratory"><i class="fa-solid fa-parachute-box"></i>Proveedores</li>
         <li><i class="fas fa-cog"></i> Config</li>
@@ -110,6 +128,29 @@
       </button>
     </div>
   </div>
+  <div v-if="isLowStockModalVisible" class="low-stock-modal">
+    <h2><i class="fas fa-exclamation-triangle"></i> Productos Bajos en Stock</h2>
+    <table class="low-stock-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Laboratorio</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="product in lowStockProducts" :key="product.codProduct">
+          <td>{{ product.nameProduct }}</td>
+          <td>{{ product.laboratory }}</td>
+          <td>{{ product.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="modal-actions">
+      <button class="generate-order-btn" @click="generateOrder"><i class="fas fa-file-alt"></i> Generar Orden</button>
+      <button class="close-modal-btn" @click="closeLowStockModal"><i class="fas fa-times"></i> Cerrar</button>
+    </div>
+</div>
     <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <h3><i class="fas fa-user"></i> Agregar Nuevo Usuario</h3>
