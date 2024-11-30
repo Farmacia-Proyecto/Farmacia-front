@@ -27,8 +27,9 @@ export default {
       order: [],
       orders: [],
       isNotificationsVisible: false,
+      isProductsModalVisible: false,
       currentPage: 1, 
-      pageSize: 6, 
+      pageSize: 5, 
       isDropdownVisible: false,
       isUserHeaderVisible: false,
       isLowStockModalVisible: false,
@@ -41,7 +42,6 @@ export default {
     };
   },
   mounted() {
-    console.log("Query al montar:", this.$route.query);
     if (this.$route.query.fromLowStockModal) {
         this.openLowStockModal();
         this.$router.replace({ path: this.$route.path });
@@ -53,13 +53,13 @@ export default {
   },
   computed: {
     ...mapState(['unreadNotifications']), 
-    paginatedUsers() {
+    paginatedOrers() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.users.slice(start, end);
+      return this.orders.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.users.length / this.pageSize);
+      return Math.ceil(this.orders.length / this.pageSize);
     },
     pageNumbers() {
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);
@@ -79,6 +79,14 @@ export default {
     closeOrderModal() {
         this.isOrderModalVisible = false;
         this.selectedProducts = [];
+      },
+      openProductsModal(products) {
+        this.selectedProducts = products; 
+        this.isProductsModalVisible = true; 
+      },
+      closeProductsModal() {
+        this.isProductsModalVisible = false;
+        this.selectedProducts = []; 
       },
     viewNotification(index) {
       this.lowStockProducts = this.productsAlert;

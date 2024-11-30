@@ -731,40 +731,6 @@ display: block;
     transform: scale(1.05); 
   }
 
-.table-container {
-  max-height: 600px; 
-  overflow-y: auto; 
-  overflow-x: auto; 
-  border: 1px solid #ddd; 
-  border-radius: 8px; 
-  background-color: #fff; 
-  scrollbar-width: thin;
-  scrollbar-color: #bbb #f1f1f1; 
-}
-
-.table-container::-webkit-scrollbar {
-  width: 6px; 
-  height: 6px; 
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2); 
-  border-radius: 4px; 
-  transition: background 0.3s ease-in-out; 
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4); 
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: #f1f1f1; 
-  border-radius: 4px;
-}
-
-.table-container {
-  scroll-behavior: smooth;
-}
 .btn-view-labs {
   background-color: #28a745; /* Verde */
   color: white;
