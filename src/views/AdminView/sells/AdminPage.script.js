@@ -88,7 +88,6 @@ mounted() {
     ignoreNotification(index) {
       this.removeNotification(index); 
     },    
-
     addNotification(notification) {
       if(this.unreadNotifications.length==0){
       this.notifications.push(notification);
@@ -96,7 +95,6 @@ mounted() {
       this.toast.info(notification.message); 
       }
     },    
-
     dismissNotification(index) {
       this.notifications.splice(index, 1);
     },
@@ -130,6 +128,9 @@ mounted() {
     },
     viewUsers(){
       this.$router.push("admin/table-user");
+    },
+    viewOrders(){
+      this.$router.push("admin/view-orders");
     },
     showCheckoutModal() {
       this.isCheckoutModalVisible = true;
@@ -176,7 +177,7 @@ mounted() {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/products/alert', {
+        const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

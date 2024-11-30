@@ -79,6 +79,13 @@ export default {
     closeLowStockModal() {
       this.isLowStockModalVisible = false;
     },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/admin/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
     async fetchAlert() {
       try {
         const token = this.getTokenFromCookies();
@@ -87,7 +94,7 @@ export default {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/products/alert', {
+        const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,8 +102,12 @@ export default {
         if (response.data.success) {
           this.productsAlert = response.data.products.map(product => ({
             ...product,  
+            alertId: `alert-${product.codProduct}-${Date.now()}`
           }));
-        } 
+             this.addNotification({
+              message: `Tiene productos bajos en stock`,  
+            });
+        }
       } catch (error) {
         console.error('Error en fetchAlerts:', error);
       }
@@ -105,9 +116,11 @@ export default {
       this.removeNotification(index);
     },
     addNotification(notification) {
-      this.notifications.push(notification);
-      this.unreadNotifications.push(notification);
-      this.toast.info(notification.message); 
+      if(this.unreadNotifications.length==0){
+        this.notifications.push(notification);
+        this.unreadNotifications.push(notification);
+        this.toast.info(notification.message); 
+        }
     },
     dismissNotification(index) {
       this.notifications.splice(index, 1);
@@ -127,6 +140,9 @@ export default {
     },
     viewLaboratory(){
       this.$router.push("view-laboratory");
+    },
+    viewOrders(){
+      this.$router.push("view-orders");
     },
     openAddUserModal() {
       this.isModalVisible = true;

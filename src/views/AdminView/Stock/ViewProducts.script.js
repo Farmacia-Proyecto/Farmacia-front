@@ -97,6 +97,13 @@ export default {
     toggleNotifications() {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/admin/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
     viewNotification(index) {
       this.lowStockProducts = this.productsAlert;
       console.log(this.lowStockProducts)
@@ -215,6 +222,9 @@ export default {
     viewLaboratory(){
       this.$router.push("view-laboratory");
     },
+    viewOrders(){
+      this.$router.push("view-orders");
+    },
     viewSell(){
       this.$router.push("/admin");
     },
@@ -305,7 +315,7 @@ export default {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/products/alert', {
+        const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

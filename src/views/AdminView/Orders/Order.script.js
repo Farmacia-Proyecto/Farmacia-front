@@ -26,6 +26,10 @@ export default {
       selectedProducts: [],
       order: [],
       orders: [],
+      isOrderEditModalVisible: false, 
+      selectedOrder: null, 
+      temporaryState: null, 
+      originalState:null,
       isNotificationsVisible: false,
       isProductsModalVisible: false,
       currentPage: 1, 
@@ -51,6 +55,17 @@ export default {
     this.fetchAlert();
     this.toast = useToast();
   },
+  watch: {
+    orders: {
+      deep: true,
+      handler(newOrders) {
+        const orderWithInProgress = newOrders.find(order => order.state === "En progreso" && order !== this.selectedOrder);
+        if (orderWithInProgress) {
+          this.handleStateChange(orderWithInProgress);
+        }
+      },
+    },
+  },
   computed: {
     ...mapState(['unreadNotifications']), 
     paginatedOrers() {
@@ -70,6 +85,13 @@ export default {
     toggleNotifications() {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/admin/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
     openLowStockModal() {
         const products = this.$store.getters.lowStockProducts;
         if (products.length > 0) {
@@ -88,6 +110,64 @@ export default {
         this.isProductsModalVisible = false;
         this.selectedProducts = []; 
       },
+      handleStateChange(order, index) {
+        if (this.temporaryState === "En progreso") {
+          this.selectedOrder = { ...order, products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) };
+          this.editIndex = index;
+          this.isOrderEditModalVisible = true;
+        }
+      },
+      saveOrderChanges() {
+        if (this.editableOrder.state === "En progreso") {
+          const allPricesValid = this.selectedOrder.products.every(
+            product => product.price > 0 && product.newQuantity > 0
+          );
+
+          if (!allPricesValid) {
+            this.toast.error("Todos los productos deben tener precio y cantidad válidos.");
+            return; 
+          }
+      
+          this.orders[this.editIndex].state = "En progreso";
+          this.orders[this.editIndex].products = this.selectedOrder.products;
+          this.isOrderEditModalVisible = false;
+      
+          this.updateOrder(this.orders[this.editIndex]);
+        } else {
+          this.orders[this.editIndex].state = this.editableOrder.state;
+          this.isOrderEditModalVisible = false;
+          this.updateOrder(this.orders[this.editIndex]);
+        }
+      },
+            
+      async updateOrder(order) {
+        try {
+          const token = this.getTokenFromCookies();
+          const response = await axios.put(`http://localhost:3000/purchaseorder/${order.codOrder}`, {
+            state: order.state, 
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.data.success) {
+            this.toast.success("Estado de la orden actualizado con éxito.");
+          } else {
+            this.toast.error("Error al actualizar el estado de la orden.");
+          }
+        } catch (error) {
+          console.error("Error al enviar la actualización del estado:", error);
+          this.toast.error("Ocurrió un error al actualizar el estado.");
+        }
+      },
+      closeOrderEditModal() {
+        if (this.editableOrder && this.editableOrder.state) {
+          this.isOrderEditModalVisible = false;
+        } else {
+          console.error("No se puede acceder al estado de la orden, datos no definidos.");
+          this.isOrderEditModalVisible = false;
+        }
+      },      
     viewNotification(index) {
       this.lowStockProducts = this.productsAlert;
       console.log(this.lowStockProducts)
@@ -102,9 +182,11 @@ export default {
       this.removeNotification(index);
     },
     addNotification(notification) {
-      this.notifications.push(notification);
-      this.unreadNotifications.push(notification);
-      this.toast.info(notification.message); 
+      if(this.unreadNotifications.length==0){
+        this.notifications.push(notification);
+        this.unreadNotifications.push(notification);
+        this.toast.info(notification.message); 
+        }
     },
     dismissNotification(index) {
       this.notifications.splice(index, 1);
@@ -125,6 +207,9 @@ export default {
     viewLaboratory(){
       this.$router.push("view-laboratory");
     },
+    viewUsers() {
+      this.$router.push("table-user");
+    },
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
@@ -137,6 +222,9 @@ export default {
     viewSell(){
       this.$router.push("/admin");
     },
+    viewOrders(){
+      this.$router.push("view-orders");
+    },
     async fetchProducts() {
         try {
           const token = this.getTokenFromCookies();
@@ -145,7 +233,7 @@ export default {
             return;
           }
       
-          const response = await axios.get('http://localhost:3000/products/acceptOrder', {
+          const response = await axios.get('http://localhost:3000/purchaseorder/acceptOrder', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -226,8 +314,7 @@ export default {
             this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
             return;
           }
-      
-          const response = await axios.get('http://localhost:3000/products/alert', {
+          const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -235,8 +322,12 @@ export default {
           if (response.data.success) {
             this.productsAlert = response.data.products.map(product => ({
               ...product,  
+              alertId: `alert-${product.codProduct}-${Date.now()}`
             }));
-          } 
+               this.addNotification({
+                message: `Tiene productos bajos en stock`,  
+              });
+          }
         } catch (error) {
           console.error('Error en fetchAlerts:', error);
         }
@@ -258,6 +349,7 @@ export default {
       startEdit(order, index) {
         this.editIndex = index;
         this.editableOrder = { ...order }; 
+        this.originalState = order.state;  
       },
       async confirmEdit(index) {
         try {
