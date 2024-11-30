@@ -181,9 +181,9 @@ export default {
           // Preparar datos para enviar al backend
           const orders = this.order.map(product => ({
             nameProduct: product.nameProduct,
-            nameSupplier: product.selectedSupplier,
+            nameSupplier: product.nameSupplier,
             laboratory: product.laboratory,
-            quantity: product.newQuantity,
+            quantity: product.quantity,
             state: "Enviada", // Estado inicial por defecto
             dateRegister: new Date().toISOString(), // Fecha actual
           }));
@@ -194,7 +194,7 @@ export default {
           // Enviar solicitud al backend
           const response = await axios.post(
             "http://localhost:3000/purchaseorder",
-            { orders }, // Encapsular en un objeto
+             orders , // Encapsular en un objeto
             {
               headers: {
                 Authorization: `Bearer ${token}`,
