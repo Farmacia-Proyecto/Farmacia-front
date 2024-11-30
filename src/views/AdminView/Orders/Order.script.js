@@ -169,23 +169,22 @@ export default {
         product.addedToOrder = !product.addedToOrder;
       },           
       async sendOrder() {
-        if (this.order.length === 0) {
-          alert("Debe agregar productos a la orden antes de crearla.");
-          return;
-        }
-        const orders = this.order.map(product => ({
-          nameProduct: product.nameProduct,
-          nameSupplier: product.selectedSupplier,
-          laboratory: product.laboratory,
-          quantity: product.newQuantity,
-          state: "Enviada",
-          dateRegister: new Date().toISOString(),
-        }));
-      
         try {
           const token = this.getTokenFromCookies();
-          const response = await axios.post(
-            "http://localhost:3000/orders",
+          if (this.order.length === 0) {
+            this.toast.error("Debe agregar productos a la orden antes de crearla.");
+            return;
+          }
+          const orders = this.order.map(product => ({
+            nameProduct: product.nameProduct,
+            nameSupplier: product.selectedSupplier,
+            laboratory: product.laboratory,
+            quantity: product.newQuantity,
+            state: "Enviada",
+            dateRegister: new Date().toISOString(),
+          }));
+           axios.post(
+            "http://localhost:3000/purchaseorder",
             { orders },
             {
               headers: {
@@ -193,16 +192,15 @@ export default {
               },
             }
           );
-          console.log("Órdenes enviadas:", response.data);
+          console.log("Órdenes enviadas:", orders);
           this.order = [];
-          this.selectedProducts.forEach(product => (product.addedToOrder = false));
 
           this.closeOrderModal();
       
-          alert("Órdenes enviadas con éxito.");
+          this.toast.success("Órdenes enviadas con éxito.");
         } catch (error) {
           console.error("Error al enviar las órdenes:", error);
-          alert("Ocurrió un error al enviar las órdenes.");
+          this.toast.error("Ocurrió un error al enviar las órdenes.");
         }
       },         
     async fetchAlert() {
