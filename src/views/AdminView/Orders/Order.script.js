@@ -183,7 +183,7 @@ export default {
             state: "Enviada",
             dateRegister: new Date().toISOString(),
           }));
-           axios.post(
+         const response = await axios.post(
             "http://localhost:3000/purchaseorder",
             { orders },
             {
@@ -192,12 +192,13 @@ export default {
               },
             }
           );
-          console.log("Órdenes enviadas:", orders);
+          if(response.data.success){
           this.order = [];
-
           this.closeOrderModal();
-      
           this.toast.success("Órdenes enviadas con éxito.");
+          }else{
+            this.toast.error("Orden no enviada");
+          }
         } catch (error) {
           console.error("Error al enviar las órdenes:", error);
           this.toast.error("Ocurrió un error al enviar las órdenes.");
