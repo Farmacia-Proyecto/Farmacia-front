@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
 import { mapState, mapActions } from 'vuex';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
@@ -172,29 +173,26 @@ export default {
       async sendOrder() {
         try {
           const token = this.getTokenFromCookies();
-    
+          const userName = this.getUserFromToken(token);
+          console.log(userName);
           if (this.order.length === 0) {
             this.toast.error("Debe agregar productos a la orden antes de crearla.");
             return;
           }
-      
-          // Preparar datos para enviar al backend
           const orders = this.order.map(product => ({
             nameProduct: product.nameProduct,
             nameSupplier: product.nameSupplier,
             laboratory: product.laboratory,
             quantity: product.quantity,
-            state: "Enviada", // Estado inicial por defecto
-            dateRegister: new Date().toISOString(), // Fecha actual
+            state: "Enviada", 
+            dateRegister: new Date().toISOString(),
+            userName: userName,
           }));
+          console.log("Datos enviados:", orders);
       
-          // Mostrar datos que se enviarán en consola (para debug)
-          console.log("Datos enviados:", { orders });
-      
-          // Enviar solicitud al backend
           const response = await axios.post(
             "http://localhost:3000/purchaseorder",
-             orders , // Encapsular en un objeto
+            orders , 
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -237,7 +235,7 @@ export default {
       async fetchOrders() {
         try {
           const token = this.getTokenFromCookies();
-          const response = await axios.get('http://localhost:3000/orders', {
+          const response = await axios.get('http://localhost:3000/purchaseorder', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -265,6 +263,15 @@ export default {
           this.editIndex = null; 
         } catch (error) {
           console.error('Error al actualizar la orden:', error);
+        }
+      },
+      getUserFromToken(token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          return decodedToken.userName;
+        } catch (error) {
+          console.error('Error al decodificar el token:', error);
+          return null;
         }
       },      
     getTokenFromCookies() {
