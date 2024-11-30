@@ -199,7 +199,7 @@ export default {
               },
             }
           );   
-          if (response.data.success) {
+          if (!response.data.success) {
             this.closeOrderModal();
             this.toast.success("Órdenes enviadas con éxito.");
           } else {
@@ -240,7 +240,8 @@ export default {
               Authorization: `Bearer ${token}`,
             },
           });
-          this.orders = response.data.orders;
+          this.order = response.data.orders;
+          console.log(this.order)
         } catch (error) {
           console.error('Error al cargar órdenes:', error);
         }

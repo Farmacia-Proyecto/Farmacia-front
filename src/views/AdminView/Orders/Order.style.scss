@@ -468,22 +468,28 @@
   .order-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 16px;
-    font-size: 0.85em; /* Fuente más pequeña */
+    border-radius: 8px;
+    overflow: hidden;
   }
   
   .order-table th, 
   .order-table td {
-    padding: 6px 8px; /* Espaciado reducido */
+    padding: 0.75rem;
     text-align: left;
-    border: 1px solid #e0e0e0;
+    border-bottom: 1px solid #ddd;
   }
   
   .order-table th {
-    background-color: #f7f7f7;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #555;
+    background-color: #444;
+    color: white;
+  }
+
+  .order-table td {
+    color: #333;
+  }
+  
+  .order-table tr:hover {
+    background-color: #f1f1f1;
   }
   
   .order-table input[type="number"] {
