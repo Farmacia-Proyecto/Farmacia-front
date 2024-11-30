@@ -25,6 +25,7 @@ export default {
       isOrderModalVisible: false,
       selectedProducts: [],
       order: [],
+      orders: [],
       isNotificationsVisible: false,
       currentPage: 1, 
       pageSize: 6, 
@@ -199,7 +200,7 @@ export default {
               },
             }
           );   
-          if (!response.data.success) {
+          if (response.data.success) {
             this.closeOrderModal();
             this.toast.success("Órdenes enviadas con éxito.");
           } else {
@@ -240,8 +241,8 @@ export default {
               Authorization: `Bearer ${token}`,
             },
           });
-          this.order = response.data.orders;
-          console.log(this.order)
+          this.orders = response.data.orders;
+          console.log(this.orders)
         } catch (error) {
           console.error('Error al cargar órdenes:', error);
         }

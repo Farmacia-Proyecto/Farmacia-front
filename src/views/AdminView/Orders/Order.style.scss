@@ -580,7 +580,38 @@
     cursor: not-allowed;
   }
 
-  
+  .order-table .confirm-btn {
+    background-color: #f8f8f8; 
+    border: 1px solid #ddd; 
+    color: #007bff; 
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+    }
+    
+    .order-table .confirm-btn:hover {
+      background-color: #e0e0e0; 
+      transform: scale(1.05); 
+    }
+    .order-table .edit-btn {
+      background-color: #f8f8f8; 
+      border: 1px solid #ddd; 
+      color: #007bff; 
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+      }
+      
+      .order-table .edit-btn:hover {
+        background-color: #e0e0e0; 
+        transform: scale(1.05); 
+      }
+      
+      .orderr-table .edit-btn i {
+        color: #007bff; 
+      }
   .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -675,54 +706,6 @@
     font-weight: bold;
     cursor: default;
   }
-  
-  .user-table .edit-btn i,
-  .user-table .deactivate-btn i,
-  .user-table .activate-btn i {
-    color: #007bff; 
-  }
-  
-  .user-table .deactivate-btn i {
-    color: #dc3545;
-  }
-  
-  .user-table .activate-btn i {
-    color: #28a745;
-  }
-  .table-container {
-    max-height: 600px; 
-    overflow-y: auto; 
-    overflow-x: auto; 
-    border: 1px solid #ddd; 
-    border-radius: 8px; 
-    background-color: #fff; 
-    scrollbar-width: thin;
-    scrollbar-color: #bbb #f1f1f1; 
-  }
-  
-  .table-container::-webkit-scrollbar {
-    width: 6px; 
-    height: 6px; 
-  }
-  
-  .table-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2); 
-    border-radius: 4px; 
-    transition: background 0.3s ease-in-out; 
-  }
-  
-  .table-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4); 
-  }
-  
-  .table-container::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-    border-radius: 4px;
-  }
-  
-  .table-container {
-    scroll-behavior: smooth;
-  }
-
+ 
   
   
