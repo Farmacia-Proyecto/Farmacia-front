@@ -76,7 +76,6 @@ export default {
     closeOrderModal() {
         this.isOrderModalVisible = false;
         this.selectedProducts = [];
-        this.$store.dispatch('addLowStockProducts', []);
       },
     viewNotification(index) {
       this.lowStockProducts = this.productsAlert;
