@@ -120,11 +120,6 @@ export default {
         this.reloadPage();
       },
       handleStateChange(order, index) {
-        if (!order || !order.products) {
-          console.error("La orden no tiene productos definidos:", order);
-          return; 
-        }
-      
         if (this.temporaryState === "En progreso") {
           this.selectedOrder = { 
             ...order, 
@@ -136,7 +131,7 @@ export default {
         if (this.temporaryState === "Recibida") {
           this.selectedOrder = { 
             ...order, 
-            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) 
+            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })),
           };
           this.editIndex = index;
           this.isLotModalVisible = true;
@@ -160,11 +155,13 @@ export default {
               expirationDate: product.expirationDate
             };
           });
-      
+          const token = this.getTokenFromCookies();
+          const userName = this.getUserFromToken(token);
           this.orders[this.editIndex] = {
             ...this.orders[this.editIndex],
             state: "Recibida",
-            products: updatedProducts
+            products: updatedProducts,
+            userName: userName
           };
       
           this.isLotModalVisible = false;
@@ -174,12 +171,12 @@ export default {
       async addLotProduct(order) {
         try {
           const token = this.getTokenFromCookies();
+          console.log(order)
           const response = await axios.put(`http://localhost:3000/purchaseorder/receive/${order.codOrder}`, order, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log(order);
           if (response.data.success) {
             this.toast.success("Estado de la orden actualizado con éxito.");
             this.isLotModalVisible = false;
