@@ -814,6 +814,30 @@
       .orderr-table .edit-btn i {
         color: #007bff; 
       }
+
+      .cancel-product-btn {
+        background-color: #ff4d4f; /* Rojo suave para indicar acción destructiva */
+        color: white; /* Texto blanco */
+        border: none; /* Sin bordes */
+        border-radius: 4px; /* Bordes redondeados */
+        padding: 5px 10px; /* Espaciado interno */
+        cursor: pointer; /* Mostrar el cursor de mano */
+        font-size: 14px;
+        transition: background-color 0.3s ease; 
+      }
+      
+      .cancel-product-btn:hover {
+        background-color: #d9363e; 
+      }
+      
+      .cancel-product-btn:active {
+        background-color: #b52a31; 
+      }
+      
+      .cancel-product-btn i {
+        margin-right: 5px; 
+      }
+      
   .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -874,6 +898,139 @@
     transform: scale(0.98); /* Efecto al presionar el botón */
   }
   
+
+  /* Fondo oscuro detrás del modal para bloquear la interacción con el resto de la interfaz */
+.lot-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+  z-index: 1000; /* Asegura que el fondo esté por debajo del modal */
+}
+
+/* Modal de Lote Específico */
+.lot-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 80%;
+  max-width: 700px;
+  z-index: 1100; /* Asegura que esté por encima del fondo */
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.modal-lot h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.modal-lot i {
+  margin-right: 10px;
+  color: #ffffff; 
+  font-size: 24px;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.products-table th,
+.products-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.products-table th {
+  background-color: #f4f4f4;
+}
+
+.lot-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+.lot-input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+.modal-actions-lot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-btn-lot,
+.close-btn-lot {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.save-btn-lot {
+  background-color: #4caf50;
+  color: white;
+}
+
+.save-btn-lot:hover {
+  background-color: #45a049;
+}
+
+.save-btn-lot i {
+  margin-right: 5px;
+}
+
+.close-btn-lot {
+  background-color: #f44336;
+  color: white;
+}
+
+.close-btn-lot:hover {
+  background-color: #e53935;
+}
+
+.close-btn-lot i {
+  margin-right: 5px;
+}
+
   
   body.modal-open {
     overflow: hidden;

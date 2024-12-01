@@ -23,6 +23,7 @@ export default {
     return {
       notifications: [], 
       isOrderModalVisible: false,
+      isLotModalVisible: false,
       selectedProducts: [],
       order: [],
       orders: [],
@@ -62,6 +63,10 @@ export default {
         const orderWithInProgress = newOrders.find(order => order.state === "En progreso" && order !== this.selectedOrder);
         if (orderWithInProgress) {
           this.handleStateChange(orderWithInProgress);
+        }
+        const orderWithInSend = newOrders.find(order => order.state === "Recibida" && order !== this.selectedOrder);
+        if (orderWithInProgress) {
+          this.handleStateChange(orderWithInSend);
         }
       },
     },
@@ -110,50 +115,129 @@ export default {
         this.isProductsModalVisible = false;
         this.selectedProducts = []; 
       },
+      closeLotModal(){
+        this.isLotModalVisible = false;
+        this.reloadPage();
+      },
       handleStateChange(order, index) {
+        if (!order || !order.products) {
+          console.error("La orden no tiene productos definidos:", order);
+          return; // Detenemos la ejecución si no hay productos en la orden
+        }
+      
         if (this.temporaryState === "En progreso") {
-          this.selectedOrder = { ...order, products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) };
+          this.selectedOrder = { 
+            ...order, 
+            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) 
+          };
           this.editIndex = index;
           this.isOrderEditModalVisible = true;
         }
+        if (this.temporaryState === "Recibida") {
+          this.selectedOrder = { 
+            ...order, 
+            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) 
+          };
+          this.editIndex = index;
+          this.isLotModalVisible = true;
+        }
+      },      
+      removeProduct(index) {
+        this.selectedOrder.products.splice(index, 1);
+        if (this.selectedOrder.products.length === 0) {
+          this.toast.warning("No quedan productos en la orden. Cambia el estado a 'Cancelada'.");
+        }
+      },
+      saveLotChanges(){
+        if (this.temporaryState==="Recibida") {
+          const updatedProducts = this.selectedOrder.products.map(product => {
+            return {
+              nameProduct: product.nameProduct,
+              laboratory: product.laboratory,
+              quantity: product.newQuantity, 
+              price: product.price, 
+              lot : product.lot
+            };
+          });
+      
+          this.orders[this.editIndex] = {
+            ...this.orders[this.editIndex],
+            state: "Recibida",
+            products: updatedProducts
+          };
+      
+          this.isLotModalVisible = false;
+          this.addLotProduct(this.orders[this.editIndex]);
+        }
+      },
+      async addLotProduct(order) {
+        try {
+          const token = this.getTokenFromCookies();
+          const response = await axios.put(`http://localhost:3000/purchaseorder/inProgrees/${order.codOrder}`, order, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log(order);
+          if (response.data.success) {
+            this.toast.success("Estado de la orden actualizado con éxito.");
+            this.isOrderEditModalVisible = false;
+          } else {
+            this.toast.error("Error al actualizar el estado de la orden.");
+            this.isOrderEditModalVisible = false;
+          }
+        } catch (error) {
+          console.error("Error al enviar la actualización del estado:", error);
+          this.toast.error("Ocurrió un error al actualizar el estado.");
+        }
       },
       saveOrderChanges() {
-        if (this.editableOrder.state === "En progreso") {
+        if (this.temporaryState==="En progreso") {
           const allPricesValid = this.selectedOrder.products.every(
             product => product.price > 0 && product.newQuantity > 0
           );
-
           if (!allPricesValid) {
             this.toast.error("Todos los productos deben tener precio y cantidad válidos.");
-            return; 
+            return;
           }
+          const updatedProducts = this.selectedOrder.products.map(product => {
+            return {
+              nameProduct: product.nameProduct,
+              laboratory: product.laboratory,
+              quantity: product.newQuantity, 
+              price: product.price 
+            };
+          });
       
-          this.orders[this.editIndex].state = "En progreso";
-          this.orders[this.editIndex].products = this.selectedOrder.products;
+          this.orders[this.editIndex] = {
+            ...this.orders[this.editIndex],
+            state: "En progreso",
+            products: updatedProducts
+          };
+      
           this.isOrderEditModalVisible = false;
-      
           this.updateOrder(this.orders[this.editIndex]);
         } else {
           this.orders[this.editIndex].state = this.editableOrder.state;
           this.isOrderEditModalVisible = false;
           this.updateOrder(this.orders[this.editIndex]);
         }
-      },
-            
+      },                
       async updateOrder(order) {
         try {
           const token = this.getTokenFromCookies();
-          const response = await axios.put(`http://localhost:3000/purchaseorder/${order.codOrder}`, {
-            state: order.state, 
-          }, {
+          const response = await axios.put(`http://localhost:3000/purchaseorder/inProgrees/${order.codOrder}`, order, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
+          console.log(order);
           if (response.data.success) {
             this.toast.success("Estado de la orden actualizado con éxito.");
+            this.isOrderEditModalVisible = false;
           } else {
             this.toast.error("Error al actualizar el estado de la orden.");
+            this.isOrderEditModalVisible = false;
           }
         } catch (error) {
           console.error("Error al enviar la actualización del estado:", error);
@@ -341,7 +425,6 @@ export default {
             },
           });
           this.orders = response.data.orders;
-          console.log(this.orders)
         } catch (error) {
           console.error('Error al cargar órdenes:', error);
         }
@@ -354,15 +437,20 @@ export default {
       async confirmEdit(index) {
         try {
           const token = this.getTokenFromCookies();
-          await axios.put(`http://localhost:3000/orders/${this.orders[index].codOrder}`, {
-            state: this.editableOrder.state,
+       const response =  await axios.put(`http://localhost:3000/purchaseorder/inProgrees/${this.editableOrder.codOrder}`, {
+            state: this.temporaryState
           }, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          this.orders[index].state = this.editableOrder.state; 
+          if(response.data.success){
+          this.orders[index].state = this.temporaryState; 
           this.editIndex = null; 
+          this.toast.success("Estado cambiado correctamente")
+          }else{
+            this.toast.error("No se puede cambiar el estado")
+          }
         } catch (error) {
           console.error('Error al actualizar la orden:', error);
         }

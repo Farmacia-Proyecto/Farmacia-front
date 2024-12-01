@@ -87,11 +87,12 @@
                 <option value="En progreso">En progreso</option>
                 <option value="Rechazado">Rechazado</option>
                 <option value="Cancelado">Cancelado</option>
+                <option value="Recibida">Recibida</option>
               </select>
               <span v-else>{{ order.state }}</span>
             </td>    
             <td class="action-buttons">
-              <button v-if="editIndex === index" class="confirm-btn" @click="saveOrderChanges">
+              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
                 <i class="fas fa-check"></i>
               </button>
               <button v-else class="edit-btn" @click="startEdit(order, index)">
@@ -140,10 +141,11 @@
             <th>Laboratorio</th>
             <th>Cantidad</th>
             <th>Precio de compra</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in selectedOrder.products" :key="product.nameProduct">
+          <tr v-for="(product, index) in selectedOrder.products" :key="product.nameProduct">
             <td>{{ product.nameProduct }}</td>
             <td>{{ product.laboratory }}</td>
             <td>
@@ -151,6 +153,11 @@
             </td>
             <td>
               <input type="number" v-model.number="product.price" step="0.01" min="0.01" class="edit-input" />
+            </td>
+            <td>
+              <button class="cancel-product-btn" @click="removeProduct(index)">
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -164,7 +171,49 @@
         </button>
       </div>
     </div>
-  </div>
+  </div>  
+  <div v-if="isLotModalVisible" class="lot-modal-overlay" @click="closeLotModal"></div>
+  <div v-if="isLotModalVisible" class="lot-modal">
+    <div class="modal-lot">
+      <h2>
+        <i class="fas fa-box"></i> Editar Lotes [{{ selectedOrder.codOrder }}]
+      </h2>
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Laboratorio</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Lote</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in selectedOrder.products" :key="product.nameProduct">
+            <td>{{ product.nameProduct }}</td>
+            <td>{{ product.laboratory }}</td>
+            <td>{{ product.quantity }}</td>
+            <td>
+              <input
+                type="text"
+                v-model="product.lot"
+                placeholder="Ingrese el lote"
+                class="lot-input"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="modal-actions-lot">
+        <button @click="saveLotChanges" class="save-btn-lot">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+        <button @click="closeLotModal" class="close-btn-lot">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>  
 
   <div v-if="isLowStockModalVisible" class="low-stock-modal">
     <h2><i class="fas fa-exclamation-triangle"></i> Productos Bajos en Stock</h2>
