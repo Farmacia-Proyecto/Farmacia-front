@@ -122,7 +122,7 @@ export default {
       handleStateChange(order, index) {
         if (!order || !order.products) {
           console.error("La orden no tiene productos definidos:", order);
-          return; // Detenemos la ejecución si no hay productos en la orden
+          return; 
         }
       
         if (this.temporaryState === "En progreso") {
@@ -156,7 +156,7 @@ export default {
               laboratory: product.laboratory,
               quantity: product.newQuantity, 
               price: product.price, 
-              lot : product.lot,
+              codLot : product.lot,
               expirationDate: product.expirationDate
             };
           });

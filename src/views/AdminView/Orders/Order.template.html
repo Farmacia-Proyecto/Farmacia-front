@@ -83,7 +83,8 @@
               <span>{{ new Date(order.dateRegister).toLocaleDateString() }}</span>
             </td>
             <td>
-              <select v-if="editIndex === index" v-model="temporaryState" @change="handleStateChange(order, index)" class="edit-input">
+              <select v-if="editIndex === index" v-model="temporaryState" @change="handleStateChange(order, index)" class="edit-input" 
+              :disabled="order.state==='Recibida'">
                 <option value="En progreso">En progreso</option>
                 <option value="Rechazado">Rechazado</option>
                 <option value="Cancelado">Cancelado</option>
@@ -140,7 +141,6 @@
     </div>
   </div>
   
-
   <div v-if="isOrderEditModalVisible" class="order-edit-modal">
     <div class="order-modal-content">
       <h2>
@@ -216,6 +216,8 @@
             </td>
             <td>
               <input
+                step="0.01" 
+                min="0.01" 
                 type="text"
                 v-model="product.price"
                 placeholder="Ingrese el precio"
