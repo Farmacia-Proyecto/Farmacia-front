@@ -116,18 +116,30 @@
       <h2>
         <i class="fas fa-box-open"></i> Productos de la Orden
       </h2>
-      <ul class="products-list">
-        <li v-for="product in selectedProducts" :key="product.nameProduct" class="product-item">
-          <i class="fas fa-pills product-icon"></i>
-          <span class="product-name">{{ product.nameProduct }}</span> - 
-          <span class="product-laboratory">{{ product.laboratory }}</span>
-        </li>
-      </ul>
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Laboratorio</th>
+            <th>Cantidad</th>
+            <th>Precio Compra</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="product in selectedProducts" :key="product.nameProduct">
+            <td>{{ product.nameProduct }}</td>
+            <td>{{ product.laboratory }}</td>
+            <td>{{ product.quantity }}</td>
+            <td>{{product.price}}</td>
+          </tr>
+        </tbody>
+      </table>
       <button class="close-products-btn" @click="closeProductsModal">
         <i class="fas fa-times"></i> Cerrar
       </button>
     </div>
   </div>
+  
 
   <div v-if="isOrderEditModalVisible" class="order-edit-modal">
     <div class="order-modal-content">

@@ -174,7 +174,7 @@ export default {
       async addLotProduct(order) {
         try {
           const token = this.getTokenFromCookies();
-          const response = await axios.put(`http://localhost:3000/purchaseorder/inProgrees/${order.codOrder}`, order, {
+          const response = await axios.put(`http://localhost:3000/purchaseorder/receive/${order.codOrder}`, order, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -182,10 +182,12 @@ export default {
           console.log(order);
           if (response.data.success) {
             this.toast.success("Estado de la orden actualizado con éxito.");
-            this.isOrderEditModalVisible = false;
+            this.isLotModalVisible = false;
+            this.reloadPage();
           } else {
             this.toast.error("Error al actualizar el estado de la orden.");
-            this.isOrderEditModalVisible = false;
+            this.isLotModalVisible = false;
+            this.reloadPage();
           }
         } catch (error) {
           console.error("Error al enviar la actualización del estado:", error);
@@ -232,7 +234,6 @@ export default {
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log(order);
           if (response.data.success) {
             this.toast.success("Estado de la orden actualizado con éxito.");
             this.isOrderEditModalVisible = false;
