@@ -132,6 +132,9 @@ mounted() {
     viewOrders(){
       this.$router.push("admin/view-orders");
     },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
     showCheckoutModal() {
       this.isCheckoutModalVisible = true;
       this.isCartVisible = false;

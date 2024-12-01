@@ -204,6 +204,9 @@ export default {
         this.highlightedIndex = 0; 
       }
     },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
     highlightPrev() {
       if (this.highlightedIndex > 0) {
         this.highlightedIndex--;

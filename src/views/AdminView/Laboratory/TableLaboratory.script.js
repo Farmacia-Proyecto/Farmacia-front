@@ -210,6 +210,9 @@ export default {
     viewOrders(){
       this.$router.push("view-orders");
     },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
     reloadPage() {
       window.location.reload();  
     },

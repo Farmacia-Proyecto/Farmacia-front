@@ -39,9 +39,8 @@
         <li @click="viewStock"><i class="fas fa-box"></i> Stock</li>
         <li @click="viewUsers"><i class="fas fa-users"></i> Users</li>
         <li class="active"><i class="fa-solid fa-file-invoice"></i>Ordenes</li>
-        <li><i class="fas fa-chart-bar"></i> Reports</li>
+        <li @click="viewReports"><i class="fas fa-chart-bar"></i> Reports</li>
         <li @click="viewLaboratory"><i class="fa-solid fa-parachute-box"></i>Proveedores</li>
-        <li><i class="fas fa-cog"></i> Config</li>
       </ul>
     </nav>
   </aside>
@@ -93,7 +92,7 @@
               <span v-else>{{ order.state }}</span>
             </td>    
             <td class="action-buttons">
-              <button v-if="editIndex === index" class="confirm-btn" @click="confirmEdit(index)">
+              <button v-if="editIndex === index" class="confirm-btn" @click="reloadPage">
                 <i class="fas fa-check"></i>
               </button>
               <button v-else class="edit-btn" @click="startEdit(order, index)">

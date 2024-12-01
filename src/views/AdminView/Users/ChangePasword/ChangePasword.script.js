@@ -121,6 +121,9 @@ export default {
     viewOrders(){
       this.$router.push("view-orders");
     },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
     generateOrder() {
       this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
       this.$router.push({

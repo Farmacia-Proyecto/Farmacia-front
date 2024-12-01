@@ -12,6 +12,7 @@ import TableOrders from '../views/AdminView/Orders/OrderView.vue';
 import ChangePaswordManager from '@/views/ManagerView/changePassword/ChangePasword.vue';
 import ViewProductManager from '../views/ManagerView/Stock/ViewProducts.vue';
 import ViewSellsManager from '../views/ManagerView/sells/SellsPage.vue';
+import ViewReports  from '../views/AdminView/Reportes/ReportsView.vue';
 
 function getTokenFromCookies() {
   const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt='));
@@ -37,6 +38,7 @@ const routes = [
   { path: '/admin/view-product', component: ViewProductAdmin, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-laboratory', component: TableLaboratory, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/admin/view-orders', component: TableOrders, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
+  { path: '/admin/view-reports', component: ViewReports, meta: { requiresAuth: true, allowedRoles: ['Administrador'] } },
   { path: '/manager/password', component: ChangePaswordManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
   { path: '/manager/view-product', component: ViewProductManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },
   { path: '/manager/sell', component: ViewSellsManager, meta: { requiresAuth: true, allowedRoles: ['Gerente'] } },

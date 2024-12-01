@@ -119,6 +119,9 @@ export default {
         this.isLotModalVisible = false;
         this.reloadPage();
       },
+      viewReports(){
+        this.$router.push("view-reports");
+      },
       handleStateChange(order, index) {
         if (this.temporaryState === "En progreso") {
           this.selectedOrder = { 
@@ -180,11 +183,9 @@ export default {
           if (response.data.success) {
             this.toast.success("Estado de la orden actualizado con éxito.");
             this.isLotModalVisible = false;
-            this.reloadPage();
           } else {
             this.toast.error("Error al actualizar el estado de la orden.");
             this.isLotModalVisible = false;
-            this.reloadPage();
           }
         } catch (error) {
           console.error("Error al enviar la actualización del estado:", error);
@@ -432,27 +433,6 @@ export default {
         this.editIndex = index;
         this.editableOrder = { ...order }; 
         this.originalState = order.state;  
-      },
-      async confirmEdit(index) {
-        try {
-          const token = this.getTokenFromCookies();
-       const response =  await axios.put(`http://localhost:3000/purchaseorder/inProgrees/${this.editableOrder.codOrder}`, {
-            state: this.temporaryState
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if(response.data.success){
-          this.orders[index].state = this.temporaryState; 
-          this.editIndex = null; 
-          this.toast.success("Estado cambiado correctamente")
-          }else{
-            this.toast.error("No se puede cambiar el estado")
-          }
-        } catch (error) {
-          console.error('Error al actualizar la orden:', error);
-        }
       },
       getUserFromToken(token) {
         try {
