@@ -892,151 +892,152 @@
     background-color: #45a049;
   }
   
-  /* Efecto de clic */
   .modal-actions .close-modal-btn:active,
   .modal-actions .create-order-btn:active {
     transform: scale(0.98); /* Efecto al presionar el botón */
   }
   
 
-  /* Fondo oscuro detrás del modal para bloquear la interacción con el resto de la interfaz */
+  body.modal-open {
+    overflow: hidden;
+  }
+/* Capa de fondo (overlay) */
 .lot-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
-  z-index: 1000; /* Asegura que el fondo esté por debajo del modal */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  z-index: 9999; /* Asegura que el overlay esté encima del contenido */
 }
 
-/* Modal de Lote Específico */
+/* Contenedor principal del modal */
 .lot-modal {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 700px;
-  z-index: 1100; /* Asegura que esté por encima del fondo */
-  padding: 30px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 10000; /* Asegura que el modal esté encima del overlay */
+  max-width: 900px;
+  width: 90%;
+  max-height: 90%;
   display: flex;
-  flex-direction: column;
-  animation: fadeIn 0.3s ease-out;
+  flex-direction: column; /* Permite apilar elementos verticalmente */
+  justify-content: space-between;
 }
 
-/* Animación de entrada */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -40%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
-
+/* Cabecera del modal */
 .modal-lot h2 {
+  font-size: 1.8em;
   margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #333;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.modal-lot i {
-  margin-right: 10px;
-  color: #ffffff; 
-  font-size: 24px;
+.modal-lot h2 i {
+  font-size: 1.6em;
+  color: #007bff; /* Color azul para el ícono */
 }
 
+/* Tabla de productos */
 .products-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  font-size: 0.95em;
+  overflow-y: auto; /* Permite scroll si el contenido es demasiado grande */
 }
 
-.products-table th,
-.products-table td {
-  padding: 12px;
+.products-table th, .products-table td {
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
 .products-table th {
-  background-color: #f4f4f4;
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.products-table input {
+  width: 100%;
+  padding: 5px;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .lot-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  margin-top: 5px;
+  background-color: #f9f9f9;
 }
 
-.lot-input:focus {
-  border-color: #4caf50;
-  outline: none;
+.price-input {
+  background-color: #f9f9f9;
 }
 
+/* Botones de acciones */
 .modal-actions-lot {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  justify-content: center; /* Centra los botones horizontalmente */
+  gap: 30px; /* Espaciado entre los botones */
+  margin-top: auto; /* Empuja los botones al final del modal */
 }
 
-.save-btn-lot,
-.close-btn-lot {
-  display: inline-flex;
-  align-items: center;
+.save-btn-lot, .close-btn-lot {
   padding: 10px 20px;
-  border: none;
+  font-size: 1em;
   border-radius: 5px;
+  border: none;
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
 .save-btn-lot {
-  background-color: #4caf50;
+  background-color: #28a745; /* Verde */
   color: white;
 }
 
 .save-btn-lot:hover {
-  background-color: #45a049;
-}
-
-.save-btn-lot i {
-  margin-right: 5px;
+  background-color: #218838;
 }
 
 .close-btn-lot {
-  background-color: #f44336;
+  background-color: #dc3545; /* Rojo */
   color: white;
 }
 
 .close-btn-lot:hover {
-  background-color: #e53935;
+  background-color: #c82333;
 }
 
-.close-btn-lot i {
-  margin-right: 5px;
+/* Scroll interno */
+.lot-modal {
+  overflow-y: auto; /* Permite que el contenido del modal sea desplazable */
 }
 
-  
-  body.modal-open {
-    overflow: hidden;
-  }
-  
+.lot-modal::-webkit-scrollbar {
+  width: 8px;
+}
 
+.lot-modal::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.lot-modal::-webkit-scrollbar-thumb:hover {
+  background-color: #bbb;
+}
+
+/* Deshabilitar scroll del fondo cuando el modal está abierto */
+body.modal-open {
+  overflow: hidden;
+}
   .pagination {
     display: flex;
     justify-content: center;

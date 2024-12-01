@@ -156,7 +156,8 @@ export default {
               laboratory: product.laboratory,
               quantity: product.newQuantity, 
               price: product.price, 
-              lot : product.lot
+              lot : product.lot,
+              expirationDate: product.expirationDate
             };
           });
       
