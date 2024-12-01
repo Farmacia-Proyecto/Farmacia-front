@@ -133,7 +133,7 @@ mounted() {
       this.$router.push("admin/view-orders");
     },
     viewReports(){
-      this.$router.push("view-reports");
+      this.$router.push("admin/view-reports");
     },
     showCheckoutModal() {
       this.isCheckoutModalVisible = true;

@@ -12,15 +12,33 @@
         </ul>
       </div>
       <button class="logout-btn" @click="logOut"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <div class="notifications">
+        <button class="notifications-btn" @click="toggleNotifications">
+          <i class="fas fa-bell"></i>
+          <span v-if="unreadNotifications.length > 0" class="notification-badge">{{ unreadNotifications.length }}</span>
+        </button>
+        <div v-if="isNotificationsVisible" class="notifications-dropdown">
+          <ul>
+            <li v-for="(notification, index) in unreadNotifications" :key="index">
+              <p>{{ notification.message }}</p>
+              <div class="notification-actions">
+                <button @click="viewNotification(index)">Ver</button>
+                <button @click="ignoreNotification(index)">Ignorar</button>
+              </div>
+            </li>
+          </ul>
+          <p v-if="unreadNotifications.length === 0">No hay notificaciones nuevas</p>
+        </div>
+      </div>  
     </div>
   </header>
   <aside class="sidebar">
     <nav class="menu">
       <ul>
-        <li><i class="fa-solid fa-cart-shopping"></i>Vender</li>
-        <li class="active" @click="viewStock"><i class="fas fa-box"></i> Stock</li>
-        <li><i class="fas fa-chart-bar"></i> Reports</li>
-        <li><i class="fas fa-cog"></i> Config</li>
+        <li @click="viewSell"><i class="fa-solid fa-cart-shopping"></i>Vender</li>
+        <li  class="active" @click="viewStock"><i class="fas fa-box"></i> Stock</li>
+        <li @click="viewOrders"><i class="fa-solid fa-file-invoice"></i>Ordenes</li>
+        <li @click="viewReports"><i class="fas fa-chart-bar"></i> Reportes</li>
       </ul>
     </nav>
   </aside>
@@ -42,6 +60,9 @@
           <p class="product-description">
             {{ product.describeProduct }}
           </p>
+          <p class="product-laboratory">
+            {{ product.laboratory }}
+          </p>
           <p class="product-expiration">
           {{ product.priceSell}}
           </p>
@@ -55,6 +76,30 @@
           <i class="fas fa-plus-circle"></i> Ver Detalles
         </button>
       </div>
+    </div>
+
+    <div v-if="isLowStockModalVisible" class="low-stock-modal">
+        <h2><i class="fas fa-exclamation-triangle"></i> Productos Bajos en Stock</h2>
+        <table class="low-stock-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Laboratorio</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in lowStockProducts" :key="product.codProduct">
+              <td>{{ product.nameProduct }}</td>
+              <td>{{ product.laboratory }}</td>
+              <td>{{ product.quantity }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button class="generate-order-btn" @click="generateOrder"><i class="fas fa-file-alt"></i> Generar Orden</button>
+          <button class="close-modal-btn" @click="closeLowStockModal"><i class="fas fa-times"></i> Cerrar</button>
+        </div>
     </div>
 
     <div v-if="isEditProductModalVisible" class="modal">
@@ -76,16 +121,6 @@
             <textarea id="product-description" v-model="selectedProduct.describeProduct"
               placeholder="Descripción del Producto" maxlength="100"></textarea>
           </div>
-          <div class="form-group">
-            <label for="edit-product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-            <select id="product-laboratory" v-model="selectedProduct.laboratory" required>
-              <option value="" disabled>Seleccione un laboratorio</option>
-              <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
-                {{ lab.nameLaboratory }}
-              </option>
-            </select>
-          </div>
-
           <div class="form-group">
             <label for="edit-product-quantity"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
             <input id="edit-product-quantity" type="number" v-model="selectedProduct.quantity" placeholder="Cantidad" readonly/>
@@ -113,7 +148,6 @@
       </button>
     </div>
 
-    <!-- Add Product Modal -->
     <div class="modal" v-if="isAddProductModalVisible">
       <div class="modal-content">
         <h3>Agregar Producto - Paso {{ currentStep }} de {{ totalSteps }}</h3>
@@ -150,28 +184,55 @@
                   {{ suggestion }}
                 </li>
               </ul>
-            </div>             
+            </div>            
             <div class="form-group">
               <label for="product-description">Descripción:</label>
               <textarea id="product-description" v-model="newProduct.describeProduct" placeholder="Descripción del Producto"
                 maxlength="200"></textarea>
             </div>
             <div class="form-group">
-              <label for="product-laboratory"><i class="fas fa-flask"></i> Laboratorio:</label>
-              <select id="product-laboratory" v-model="newProduct.laboratory" required>
-                <option value="" disabled>Seleccione un laboratorio</option>
-                <option v-for="(lab,index) in laboratory" :key="index" :value="lab.nameLaboratory">
-                  {{ lab.nameLaboratory }}
+              <label for="product-laboratory"><i class="fas fa-flask"></i> Proveedor:</label>
+              <select id="product-laboratory" v-model="newProduct.nameSupplier" @change="fetchLaboratoriesForSupplier(newProduct.nameSupplier)" required>
+                <option value="" disabled>Seleccione un proveedor</option>
+                <option v-for="(prov,index) in provider" :key="index" :value="prov.nameSupplier">
+                  {{ prov.nameSupplier }}
                 </option>
               </select>
             </div>
           </div>
 
-          <!-- Paso 2 -->
           <div v-if="currentStep === 2">
             <div class="form-group">
               <label for="product-expiry"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento:</label>
               <input id="product-expiry" type="date" v-model="newProduct.expirationDate" required />
+            </div>
+            <div class="form-group">
+              <label for="laboratories">
+                <i class="fas fa-flask"></i> Laboratorio
+              </label>
+              <div class="dropdown-container">
+                <div class="input-wrapper">
+                  <input 
+                    type="text" 
+                    id="laboratories" 
+                    v-model="searchTerm" 
+                    placeholder="Buscar laboratorio..." 
+                    @input="filterLaboratories"
+                    class="dropdown-input"
+                    @blur="onBlur"
+                  />
+                </div>
+                <ul class="suggestions-list" v-if="filteredLaboratories.length > 0">
+                  <li 
+                    v-for="laboratory in filteredLaboratories" 
+                    :key="laboratories.codLaboratory" 
+                    @click="selectLaboratory(laboratory)" 
+                    class="dropdown-item"
+                  >
+                    {{ laboratory.nameLaboratory }}
+                  </li>
+                </ul>
+              </div>
             </div>
             <div class="form-group">
               <label for="product-lot"><i class="fas fa-box"></i> Lote:</label>
@@ -223,8 +284,7 @@
           <button @click="openLotDetailsModal">Ver Lotes</button>
         </div>
       </div>
-    </div>
-    
+    </div>   
     <div class="modal modal-lot-details" v-if="isLotDetailsModalVisible">
       <div class="modal-content">
         <h3>Lotes del Producto: {{ selectedProduct.nameProduct }}</h3>
@@ -251,6 +311,6 @@
           <button @click="closeLotDetailsModal">Cerrar</button>
         </div>
       </div>
-    </div> 
+    </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
+import { mapState, mapActions } from 'vuex';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import axios from 'axios';
@@ -8,7 +9,7 @@ import 'vue-toastification/dist/index.css';
 const app = createApp(App);
 const options = {
   position: 'top-right',
-  timeout: 2000,
+  timeout: 3000,
   closeOnClick: true,
   pauseOnHover: true,
 };
@@ -21,7 +22,11 @@ export default {
     return {
       isSearchBarVisible: false,
       isDropdownVisible:false,
-      isCodeEditable: false,
+      isCodeEditable: true,
+      isSelectingSuggestion: false,
+      notifications: [], 
+      isLowStockModalVisible: false,
+      isNotificationsVisible: false,
       products: [],
       search: '',
       itemsPerPage: 10,
@@ -33,11 +38,14 @@ export default {
       isEditProductModalVisible: false,
       isLotDetailsModalVisible: false,
       isProductDetailsModalVisible:false,
+      productsAlert:[],
+      lowStockProducts: [],
       newProduct: {
         codProduct: '',
         nameProduct: '',
         describeProduct: '',
         expirationDate: '',
+        nameSupplier:'',
         codLot: '', 
         quantity: 0,
         priceSell: 0.0,
@@ -45,9 +53,13 @@ export default {
         laboratory: '', 
         image: 'https://via.placeholder.com/150'
       },
+      laboratories: [],
+      searchTerm: "",
+      filteredLaboratories: [],  
+      selectedLaboratories: [],
       isAddLotModalVisible: false,
       selectedProduct: null,
-      laboratory: [],  
+      provider: [],  
       suggestions: [], 
       filteredSuggestions: [], 
       Lot: [],
@@ -55,15 +67,8 @@ export default {
       defaultImageUrl: 'https://via.placeholder.com/150', 
     };
   },
-  watch: {
-    'newProduct.laboratory': function () {
-      this.checkProductAndLaboratory();
-    },
-    'newProduct.nameProduct': function () {
-      this.checkProductAndLaboratory();
-    },
-  },
   computed: {
+    ...mapState(['unreadNotifications']), 
     paginatedProducts() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
@@ -73,12 +78,74 @@ export default {
       return Math.ceil(this.products.length / this.itemsPerPage);
     },
   },
+  watch: {
+    'newProduct.laboratory': function () {
+      this.checkProductAndLaboratory();
+    },
+    'newProduct.nameProduct': function () {
+      this.checkProductAndLaboratory();
+    },
+  },
   mounted() {
-    this.fetchLaboratories();
+    this.fetchAlert();
+    this.fetchProviders();
     this.fetchProducts();
     this.toast = useToast();
   },
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']),
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: '/manager/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
+    viewNotification(index) {
+      this.lowStockProducts = this.productsAlert;
+      console.log(this.lowStockProducts)
+      this.isLowStockModalVisible = true;
+      this.removeNotification(index);
+      this.toggleNotifications();
+    },
+    closeLowStockModal() {
+      this.isLowStockModalVisible = false;
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index);
+    },
+    addNotification(notification) {
+      if(this.unreadNotifications.length==0){
+        this.notifications.push(notification);
+        this.unreadNotifications.push(notification);
+        this.toast.info(notification.message); 
+        }
+    },
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
+    filterLaboratories() {
+      this.filteredLaboratories = this.laboratories.filter(laboratory =>
+        laboratory.nameLaboratory.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+        !this.selectedLaboratories.some(selected => selected.codLaboratory === laboratory.codLaboratory)
+      );
+    },
+    selectLaboratory(laboratory) {
+      this.newProduct.laboratory = laboratory.nameLaboratory; 
+      this.searchTerm = laboratory.nameLaboratory; 
+      this.filteredLaboratories = []; 
+    },
+    onBlur() {
+      setTimeout(() => {
+        if (!this.isSelectingSuggestion) {
+          this.filteredLaboratories = [];
+        }
+        this.isSelectingSuggestion = false;
+      }, 2000);
+    },
     checkProductAndLaboratory() {
       const hasMatch = this.products.some(
         (product) =>
@@ -99,40 +166,13 @@ export default {
       this.filteredSuggestions = [];
       this.highlightedIndex = -1;
     },
-    onBlur() {
-      setTimeout(() => {
-        if (!this.isSelectingSuggestion) {
-          this.hideSuggestions();
-        }
-        this.isSelectingSuggestion = false;
-      }, 100);
-    },
-    highlightNext() {
-      if (this.highlightedIndex < this.filteredSuggestions.length - 1) {
-        this.highlightedIndex++;
-      } else {
-        this.highlightedIndex = 0; 
-      }
-    },
-    highlightPrev() {
-      if (this.highlightedIndex > 0) {
-        this.highlightedIndex--;
-      } else {
-        this.highlightedIndex = this.filteredSuggestions.length - 1; 
-      }
-    },
-    selectHighlightedSuggestion() {
-      if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredSuggestions.length) {
-        this.selectSuggestion(this.filteredSuggestions[this.highlightedIndex]);
-      }
-    },
     fetchSuggestions() {
       const query = this.newProduct.nameProduct.trim().toLowerCase(); 
       if (!query) {
         this.filteredSuggestions = [];
         return;
       }
-    
+
       this.filteredSuggestions = this.products
         .filter((product) =>
           product.nameProduct && product.nameProduct.toLowerCase().includes(query)
@@ -157,6 +197,34 @@ export default {
     
       this.filteredSuggestions = [];
     },
+    highlightNext() {
+      if (this.highlightedIndex < this.filteredSuggestions.length - 1) {
+        this.highlightedIndex++;
+      } else {
+        this.highlightedIndex = 0; 
+      }
+    },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
+    highlightPrev() {
+      if (this.highlightedIndex > 0) {
+        this.highlightedIndex--;
+      } else {
+        this.highlightedIndex = this.filteredSuggestions.length - 1; 
+      }
+    },
+    selectHighlightedSuggestion() {
+      if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredSuggestions.length) {
+        this.selectSuggestion(this.filteredSuggestions[this.highlightedIndex]);
+      }
+    },
+    viewOrders(){
+      this.$router.push("view-orders");
+    },
+    viewSell(){
+      this.$router.push("sell");
+    },
     getProductImage(product) {
       return product.image ? product.image : this.defaultImageUrl;
     },
@@ -175,7 +243,7 @@ export default {
       }
     },
     showChangePasswordForm(){
-      this.$router.push("password")
+      this.$router.push("pasword")
     },
     logOut() {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
@@ -187,11 +255,38 @@ export default {
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
-    nextStep() {
-      if (this.currentStep < this.totalSteps) {
-        this.currentStep++;
-      }
-    },
+     validateStep() {
+        if (this.currentStep === 1) {
+          return (
+            this.newProduct.codProduct &&
+            this.newProduct.nameProduct &&
+            this.newProduct.describeProduct &&
+            this.newProduct.nameSupplier
+          );
+        }
+        if (this.currentStep === 2) {
+          return (
+            this.newProduct.expirationDate &&
+            this.searchTerm &&
+            this.newProduct.codLot &&
+            this.newProduct.quantity
+          );
+        }
+        if (this.currentStep === 3) {
+          return (
+            this.newProduct.priceSell &&
+            this.newProduct.priceBuy
+          );
+        }
+        return true;
+      },
+      nextStep() {
+        if (this.validateStep()) {
+          this.currentStep++;
+        } else {
+          this.toast.error("Por favor, completa todos los campos requeridos antes de continuar.");
+        }
+      },
     openLotDetailsModal() {
       this.fetchLots(this.selectedProduct.nameProduct,this.selectedProduct.codProduct);
       this.isLotDetailsModalVisible = true;
@@ -209,7 +304,7 @@ export default {
         this.currentStep--;
       }
     },
-    async fetchLaboratories() {
+    async fetchAlert() {
       try {
         const token = this.getTokenFromCookies();
         if (!token) {
@@ -217,19 +312,46 @@ export default {
           return;
         }
     
-        const response = await axios.get('http://localhost:3000/laboratory/namesLaboratory', {
+        const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data.products)
+        if (response.data.success) {
+          this.productsAlert = response.data.products.map(product => ({
+            ...product,  
+            alertId: `alert-${product.codProduct}-${Date.now()}`
+          }));
+             this.addNotification({
+              message: `Tiene productos bajos en stock`,  
+            });
+        } 
+      } catch (error) {
+        console.error('Error en fetchAlerts:', error);
+      }
+    }, 
+    async fetchProviders() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/suppliers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
     
-        if (response.data && response.data.laboratory) {
-          this.laboratory = response.data.laboratory;
+        if (response.data && response.data.providers) {
+          this.provider = response.data.providers;
         } else {
-          this.toast.info('No se encontraron laboratorios.');
+          this.toast.info('No se encontraron proveedores.');
         }
       } catch (error) {
-        this.toast.error('Error al obtener laboratorios del servidor.');
+        this.toast.error('Error al obtener proveedores del servidor.');
         console.error('Error en fetchLaboratories:', error);
       }
     },    
@@ -262,7 +384,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        
         if (response.status === 200) {
           this.toast.success('Producto actualizado exitosamente.');
           this.fetchProducts();
@@ -337,20 +458,24 @@ export default {
     closeAddProductModal() {
       this.isAddProductModalVisible = false;
       this.resetNewProduct();
+      this.currentStep=1;
     },
-    resetNewProduct() {
-      this.newProduct = {
-        codProduct: '',
-        nameProduct: '',
-        describeProduct: '',
-        expirationDate: '',
-        codLot: '', 
-        quantity: 0,
-        priceSell: 0.0,
-        priceBuy: 0.0, 
-        nameLaboratory: '', 
-        image: 'https://via.placeholder.com/150'
-      };
+
+    async fetchLaboratoriesForSupplier(supplierName) {
+      const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+      if (!supplierName) return;
+      const response = await axios.get(`http://localhost:3000/products/change-laboratories/${supplierName}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(response.data.success){
+        this.laboratories = response.data.laboratory
+      }
     },
     async addProduct() {
       try {
@@ -363,6 +488,7 @@ export default {
           ...this.newProduct,
           addedDate: new Date().toISOString(),
         };
+        console.log(productWithDate)
         const response = await axios.post('http://localhost:3000/products', productWithDate, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -372,12 +498,15 @@ export default {
           this.toast.success('Producto agregado exitosamente.');
           this.fetchProducts();
           this.closeAddProductModal();
+          this.currentStep=1;
         } else {
           this.toast.error('Error al agregar el producto. Inténtalo nuevamente.');
+          this.currentStep=1;
         }
       } catch (error) {
         this.toast.error('Ocurrió un error al agregar el producto.');
         console.error('Error en addProduct:', error);
+        this.currentStep=1;
       }
     },    
     formatExpirationDate(date) {

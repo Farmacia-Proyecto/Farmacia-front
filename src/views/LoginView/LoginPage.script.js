@@ -49,7 +49,7 @@ export default {
         } else if (role === 'Gerente') {
           this.$router.push('/manager/sell');
         } else if (role ==='Vendedor'){
-          this.$router.push('/user-dashboard');
+          this.$router.push('/user/sell');
         }
          else {
           toast.error("Ingresa con un usario valido");

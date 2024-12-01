@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
+import { mapState, mapActions } from 'vuex';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
@@ -32,25 +33,93 @@ export default {
     return {
       isDropdownVisible: false,
       currentPassword: '',
+      notifications: [], 
+      isNotificationsVisible: false,
+      isLowStockModalVisible: false,
       newPassword: '',
-      infoPerson: {
-        typeDocument: '',
-        document: '',
-        namePerson: '',
-        lastNamePerson: '',
-        typeUser: '',
-        phone: '',
-        email: '',
-      },
       users: [],
-      editIndex: null, 
-      editableUser: {}, 
     };
   },
+  computed: {
+    ...mapState(['unreadNotifications']), 
+  },
+  mounted(){
+    this.fetchAlert();
+  },
   methods: {
+    ...mapActions(['addNotification', 'removeNotification']),
+    toggleNotifications() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    viewNotification(index) {
+      this.lowStockProducts = this.productsAlert;
+      console.log(this.lowStockProducts)
+      this.isLowStockModalVisible = true;
+      this.removeNotification(index);
+      this.toggleNotifications();
+    },
+    
+    closeLowStockModal() {
+      this.isLowStockModalVisible = false;
+    },
+    ignoreNotification(index) {
+      this.removeNotification(index);
+    },
+    addNotification(notification) {
+      if(this.unreadNotifications.length==0){
+        this.notifications.push(notification);
+        this.unreadNotifications.push(notification);
+        this.toast.info(notification.message); 
+        }
+    },
+    dismissNotification(index) {
+      this.notifications.splice(index, 1);
+    },
+    async fetchAlert() {
+      try {
+        const token = this.getTokenFromCookies();
+        if (!token) {
+          this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
+          return;
+        }
+    
+        const response = await axios.get('http://localhost:3000/purchaseorder/alert', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          this.productsAlert = response.data.products.map(product => ({
+            ...product,  
+            alertId: `alert-${product.codProduct}-${Date.now()}`
+          }));
+             this.addNotification({
+              message: `Tiene productos bajos en stock`,  
+            });
+        }
+      } catch (error) {
+        console.error('Error en fetchAlerts:', error);
+      }
+    },
     logOut() {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
       this.$router.push("/");
+    },
+    viewOrders(){
+      this.$router.push("view-orders");
+    },
+    viewReports(){
+      this.$router.push("view-reports");
+    },
+    generateOrder() {
+      this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
+      this.$router.push({
+        path: 'manager/view-orders',
+        query: { fromLowStockModal: true }
+      });
+    },
+    viewSells(){
+      this.$router.push("sell");
     },
     viewStock(){
       this.$router.push("view-product");

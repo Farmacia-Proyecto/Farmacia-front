@@ -82,58 +82,49 @@ export default {
       });
     },
     generatePDF() {
-        const doc = new jsPDF();
+      const doc = new jsPDF();
 
-        doc.setFontSize(18);
-        doc.text("Reporte de Ventas", 10, 20);
-        doc.setFontSize(12);
-        doc.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 10, 30);
-      
-        const totalSales = this.reportData.reduce((sum, item) => sum + item.totalPrice, 0);
-        const totalQuantity = this.reportData.reduce((sum, item) => sum + item.quantity, 0);
-        doc.text(`Total Ventas: $${totalSales.toFixed(2)}`, 10, 40);
-        doc.text(`Cantidad Total Vendida: ${totalQuantity}`, 10, 50);
-        doc.autoTable({
+      const title = "Reporte de Ventas";
+      const pageWidth = doc.internal.pageSize.width; 
+      const titleWidth = doc.getTextWidth(title); 
+      const titleX = (pageWidth - titleWidth) / 2;
+  
+      doc.setFontSize(18);
+      doc.text(title, titleX, 20); 
+  
+      doc.setFontSize(12);
+      doc.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 10, 30);
+  
+      const totalSales = this.reportData.reduce((sum, item) => sum + item.totalPrice, 0);
+      const totalQuantity = this.reportData.reduce((sum, item) => sum + item.quantity, 0);
+      doc.text(`Total Ventas: $${totalSales.toFixed(2)}`, 10, 40);
+      doc.text(`Cantidad Total Vendida: ${totalQuantity}`, 10, 50);
+      doc.autoTable({
           head: [["Cod Factura", "Producto", "Laboratorio", "Precio Total", "Cantidad", "Fecha de Venta", "Vendedor"]],
           body: this.reportData.map(detail => [
-            detail.codInvoice,
-            detail.nameProduct,
-            detail.laboratory,
-            detail.totalPrice,
-            detail.quantity,
-            detail.date,
-            detail.namePerson,
+              detail.codInvoice,
+              detail.nameProduct,
+              detail.laboratory,
+              detail.totalPrice,
+              detail.quantity,
+              detail.date,
+              detail.namePerson,
           ]),
           startY: 60,
           headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255] },
           alternateRowStyles: { fillColor: [240, 240, 240] },
           pageBreak: 'auto',
-        });
-      
-        doc.text("Observaciones:", 10, doc.lastAutoTable.finalY + 10);
-        doc.setFontSize(10);
-        doc.text("Los datos presentados corresponden a las ventas realizadas durante el mes de noviembre.", 10, doc.lastAutoTable.finalY + 20);
-        doc.setFontSize(8);
-        doc.text("Farmaceutica S.A - Calle 123, Ciudad - info@farmaceutica.com", 10, 290);
-        doc.save("reporteVentas.pdf");
-    },
-    viewNotification(index) {
-      this.lowStockProducts = this.productsAlert;
-      console.log(this.lowStockProducts)
-      this.isLowStockModalVisible = true;
-      this.removeNotification(index);
-      this.toggleNotifications();
-    },
-    filterLaboratories() {
-        const selectedProduct = this.products.find(product => product.nameProduct === this.selectedProduct);
-        if (selectedProduct) {
-            console.log("selectedProduct:", this.selectedProduct);
-            this.filteredLaboratories = selectedProduct.laboratories;
-            this.selectedLaboratory = ""; 
-        } else {
-            this.filteredLaboratories = [];
-        }
-    },
+      });
+  
+      doc.text("Observaciones:", 10, doc.lastAutoTable.finalY + 10);
+      doc.setFontSize(10);
+      doc.text("Los datos presentados corresponden a las ventas realizadas durante el mes de noviembre.", 10, doc.lastAutoTable.finalY + 20);
+  
+      doc.setFontSize(8);
+      doc.text("Farmaceutica S.A - Calle 123, Ciudad - info@farmaceutica.com", 10, 290);
+  
+      doc.save("reporteVentas.pdf");
+  },  
     async fetchProducts() {
         try {
             const token = this.getTokenFromCookies();
@@ -169,6 +160,9 @@ export default {
     },
     viewUsers() {
       this.$router.push("table-user");
+    },
+    viewStock(){
+      this.$router.push("view-product");
     },
     viewLaboratory(){
       this.$router.push("view-laboratory");

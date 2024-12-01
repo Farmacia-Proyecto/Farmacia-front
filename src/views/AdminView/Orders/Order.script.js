@@ -123,23 +123,37 @@ export default {
         this.$router.push("view-reports");
       },
       handleStateChange(order, index) {
+        if (!order || !order.products) {
+          console.error("La orden o los productos no están definidos:", order);
+          return;
+        }
+      
         if (this.temporaryState === "En progreso") {
           this.selectedOrder = { 
             ...order, 
-            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })) 
+            products: order.products.map(product => ({
+              ...product,
+              newQuantity: product.quantity || 0,
+              price: 0
+            }))
           };
           this.editIndex = index;
           this.isOrderEditModalVisible = true;
         }
+      
         if (this.temporaryState === "Recibida") {
           this.selectedOrder = { 
             ...order, 
-            products: order.products.map(product => ({ ...product, newQuantity: product.quantity, price: 0 })),
+            products: order.products.map(product => ({
+              ...product,
+              newQuantity: product.quantity || 0,
+              price: 0
+            }))
           };
           this.editIndex = index;
           this.isLotModalVisible = true;
         }
-      },      
+      },     
       removeProduct(index) {
         this.selectedOrder.products.splice(index, 1);
         if (this.selectedOrder.products.length === 0) {
