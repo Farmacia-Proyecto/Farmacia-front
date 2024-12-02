@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { useToast } from 'vue-toastification';
 import { mapState, mapActions } from 'vuex';
+import { jwtDecode } from 'jwt-decode';
 import App from '../../../App.vue';
 import Toast from 'vue-toastification';
 import axios from 'axios';
@@ -34,6 +35,7 @@ export default {
       currentPage: 1,
       currentStep: 1,
       totalSteps: 3,
+      loadingImages: [],
       isAddProductModalVisible: false,
       isEditProductModalVisible: false,
       isLotDetailsModalVisible: false,
@@ -51,7 +53,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         laboratory: '', 
-        image: 'https://via.placeholder.com/150'
+        image: ''
       },
       laboratories: [],
       searchTerm: "",
@@ -64,7 +66,6 @@ export default {
       filteredSuggestions: [], 
       Lot: [],
       highlightedIndex: -1, 
-      defaultImageUrl: 'https://via.placeholder.com/150', 
     };
   },
   computed: {
@@ -87,6 +88,7 @@ export default {
     },
   },
   mounted() {
+    this.loadingImages = this.paginatedProducts.map(() => true);
     this.fetchAlert();
     this.fetchProviders();
     this.fetchProducts();
@@ -97,12 +99,28 @@ export default {
     toggleNotifications() {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
+    handleImageLoad(index) {
+      this.loadingImages[index] = false; // Actualiza directamente el estado
+    },
+    handleImageError(index) {
+      this.loadingImages[index] = true; // Mantiene el placeholder si hay un error
+    },
     generateOrder() {
       this.$store.dispatch('addLowStockProducts', this.lowStockProducts);
       this.$router.push({
         path: '/admin/view-orders',
         query: { fromLowStockModal: true }
       });
+    },
+    validateUrl() {
+      const urlRegex =
+        /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
+
+      if (this.newProduct.codLot && !urlRegex.test(this.newProduct.codLot)) {
+        this.urlError = "Por favor, ingresa una URL válida.";
+      } else {
+        this.urlError = null;
+      }
     },
     viewNotification(index) {
       this.lowStockProducts = this.productsAlert;
@@ -416,7 +434,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-    
         console.log(response.data)
         if (response.data && response.data.length > 0) {
           this.Lot = response.data;
@@ -477,7 +494,7 @@ export default {
         priceSell: 0.0,
         priceBuy: 0.0, 
         nameLaboratory: '', 
-        image: 'https://via.placeholder.com/150'
+        image: ''
       };
     },
     async fetchLaboratoriesForSupplier(supplierName) {
@@ -503,9 +520,11 @@ export default {
           this.toast.error('Token no encontrado. Por favor, inicia sesión de nuevo.');
           return;
         }
+        const userName  = this.getUserFromToken(token);
         const productWithDate = {
           ...this.newProduct,
           addedDate: new Date().toISOString(),
+          userName: userName
         };
         console.log(productWithDate)
         const response = await axios.post('http://localhost:3000/products', productWithDate, {
@@ -573,5 +592,14 @@ export default {
       const tokenCookie = cookies.find((cookie) => cookie.startsWith(cookieName));
       return tokenCookie ? tokenCookie.split('=')[1] : null;
     },
+    getUserFromToken(token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        return decodedToken.userName; 
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+      }
+    }
   },
 };

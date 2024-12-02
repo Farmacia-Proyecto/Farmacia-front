@@ -26,6 +26,7 @@ export default {
     isLowStockModalVisible: false,
     lowStockProducts: [],
     notifications: [], 
+    loadingImages: [], 
     isNotificationsVisible: false, 
     cart: [], 
     isDropdownVisible: false,
@@ -41,7 +42,7 @@ export default {
     productsAlert:[],
     newProduct: {
       quantity: 1,
-      image: 'https://via.placeholder.com/150'
+      image: ''
     },
     search: '',
     itemsPerPage: 10,
@@ -69,6 +70,7 @@ computed: {
   },
 },
 mounted() {
+  this.loadingImages = this.paginatedProducts.map(() => true);
   this.fetchProducts();
   this.fetchAlert();
   this.toast = useToast();
@@ -84,6 +86,12 @@ mounted() {
         path: '/admin/view-orders',
         query: { fromLowStockModal: true }
       });
+    },
+    handleImageLoad(index) {
+      this.loadingImages[index] = false; // Actualiza directamente el estado
+    },
+    handleImageError(index) {
+      this.loadingImages[index] = true; // Mantiene el placeholder si hay un error
     },
     ignoreNotification(index) {
       this.removeNotification(index); 

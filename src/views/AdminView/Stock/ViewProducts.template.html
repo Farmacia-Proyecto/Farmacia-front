@@ -55,8 +55,20 @@
     </div>
 
     <div class="products-grid">
-      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
-        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+      <div v-for="(product, index) in paginatedProducts":key="product.id" class="product-card">
+        <div class="image-container">
+          <img
+            v-if="product?.image && !loadingImages[index]"
+            :src="product.image"
+            :alt="`Imagen de ${product?.nameProduct || 'Producto'}`"
+            class="product-image"
+            @load="handleImageLoad(index)"
+            @error="handleImageError(index)"
+          />
+          <div v-else class="image-placeholder">
+            <div class="spinner"></div> 
+          </div>
+        </div>
         <div class="product-info">
           <p class="product-name">{{ product.nameProduct }}</p>
           <p class="product-description">
@@ -258,6 +270,15 @@
               <label for="product-purchase-price"><i class="fas fa-dollar-sign"></i> Precio de Compra:</label>
               <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.priceBuy"
                 placeholder="Precio de Compra" />
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-box"></i> URL imagen:</label>
+              <input
+                type="text"
+                v-model="newProduct.image"
+                @input="validateUrl"
+                placeholder="URL imagen"
+              />
             </div>
           </div>
           <!-- Botones de navegación -->

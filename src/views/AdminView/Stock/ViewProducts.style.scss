@@ -59,11 +59,37 @@
   .top-menu button:hover {
     color: #28a745;
   }
+  .image-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #3498db; 
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
   .top-menu {
     display: flex;
     align-items: center;
-    gap: 15px; /* Añade separación entre los botones */
+    gap: 15px; 
   }
   
   .notifications {
@@ -132,9 +158,9 @@
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra el contenido horizontalmente */
-    text-align: center; /* Centra el texto */
-    gap: 10px; /* Espacio entre texto y botones */
+    align-items: center; 
+    text-align: center; 
+    gap: 10px;
     background: #f9f9f9;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
