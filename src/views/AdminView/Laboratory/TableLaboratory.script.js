@@ -269,7 +269,7 @@ export default {
           this.fetchProviders(); 
           this.reloadPage();
         } else {
-          toast.error('El proveedor ya existe.');
+          toast.error('El nit ingresado no es valido.');
         }
       } catch (error) {
         if (error.response) {
