@@ -223,7 +223,6 @@ export default {
               price: product.price 
             };
           });
-      
           this.orders[this.editIndex] = {
             ...this.orders[this.editIndex],
             state: "En progreso",
@@ -233,9 +232,10 @@ export default {
           this.isOrderEditModalVisible = false;
           this.updateOrder(this.orders[this.editIndex]);
         } else {
-          this.orders[this.editIndex].state = this.editableOrder.state;
+          this.orders[this.editIndex].state = this.temporaryState;
           this.isOrderEditModalVisible = false;
           this.updateOrder(this.orders[this.editIndex]);
+          this.reloadPage();
         }
       },                
       async updateOrder(order) {
