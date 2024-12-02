@@ -146,6 +146,12 @@
               placeholder="Precio de Venta" />
           </div>
 
+          <div class="form-group">
+            <label for="edit-product-image">URL imagen: </label>
+            <input id="edit-product-image" type="text"  v-model="selectedProduct.image"
+              placeholder="URL imagen" />
+          </div>
+
           <div class="modal-actions">
             <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Actualizar</button>
             <button type="button" class="btn-cancel" @click="closeEditProductModal"><i class="fas fa-times"></i>
