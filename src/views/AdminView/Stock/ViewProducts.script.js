@@ -100,10 +100,10 @@ export default {
       this.isNotificationsVisible = !this.isNotificationsVisible;
     },
     handleImageLoad(index) {
-      this.loadingImages[index] = false; // Actualiza directamente el estado
+      this.loadingImages[index] = false; 
     },
     handleImageError(index) {
-      this.loadingImages[index] = true; // Mantiene el placeholder si hay un error
+      this.loadingImages[index] = true; 
     },
     generateOrder() {
       this.$store.dispatch('addLowStockProducts', this.lowStockProducts);

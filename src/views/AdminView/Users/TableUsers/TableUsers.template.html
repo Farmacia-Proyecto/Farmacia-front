@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in paginatedUsers" :key="index">
+          <tr v-for="(user, index) in getPaginatedUsers" :key="index">
             <td>
               <span>{{ user.document }}</span>
             </td>

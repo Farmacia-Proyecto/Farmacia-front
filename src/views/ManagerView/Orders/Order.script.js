@@ -76,6 +76,11 @@ export default {
       const end = start + this.pageSize;
       return this.orders.slice(start, end);
     },
+    getPaginatedOrders() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.orders.slice(start, end);
+    },
     totalPages() {
       return Math.ceil(this.orders.length / this.pageSize);
     },
@@ -221,7 +226,6 @@ export default {
               price: product.price 
             };
           });
-      
           this.orders[this.editIndex] = {
             ...this.orders[this.editIndex],
             state: "En progreso",
@@ -231,11 +235,12 @@ export default {
           this.isOrderEditModalVisible = false;
           this.updateOrder(this.orders[this.editIndex]);
         } else {
-          this.orders[this.editIndex].state = this.editableOrder.state;
+          this.orders[this.editIndex].state = this.temporaryState;
           this.isOrderEditModalVisible = false;
           this.updateOrder(this.orders[this.editIndex]);
+          this.reloadPage();
         }
-      },                
+      },               
       async updateOrder(order) {
         try {
           const token = this.getTokenFromCookies();

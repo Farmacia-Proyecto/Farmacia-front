@@ -78,7 +78,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(provider, index) in provider" :key="index">
+          <tr v-for="(provider, index) in getPaginatedData" :key="index">
             <td>{{ provider.nit }}</td>
             <td>
               <input v-if="editIndex === index" v-model="editableProvider.nameSupplier" type="text"

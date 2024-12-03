@@ -290,6 +290,11 @@ export default {
                     },
                 },
                 scales: {
+                  x: {
+                    ticks: {
+                        display: false,
+                    },
+                },
                     y: {
                         beginAtZero: true,
                     },
@@ -318,6 +323,11 @@ export default {
                     },
                 },
                 scales: {
+                  x: {
+                    ticks: {
+                        display: false, // Oculta las etiquetas del eje X
+                    },
+                },
                     y: {
                         beginAtZero: true,
                     },

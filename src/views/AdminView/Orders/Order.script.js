@@ -29,7 +29,7 @@ export default {
       orders: [],
       isOrderEditModalVisible: false, 
       selectedOrder: null, 
-      temporaryState: null, 
+      temporaryState: '', 
       originalState:null,
       isNotificationsVisible: false,
       isProductsModalVisible: false,
@@ -65,7 +65,7 @@ export default {
           this.handleStateChange(orderWithInProgress);
         }
         const orderWithInSend = newOrders.find(order => order.state === "Recibida" && order !== this.selectedOrder);
-        if (orderWithInProgress) {
+        if (orderWithInSend) {
           this.handleStateChange(orderWithInSend);
         }
       },
@@ -74,6 +74,11 @@ export default {
   computed: {
     ...mapState(['unreadNotifications']), 
     paginatedOrers() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.orders.slice(start, end);
+    },
+    getPaginatedOrders() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       return this.orders.slice(start, end);

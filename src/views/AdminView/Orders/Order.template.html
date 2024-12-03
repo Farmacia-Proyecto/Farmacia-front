@@ -62,7 +62,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(order, index) in orders" :key="order.codOrder">
+          <tr v-for="(order, index) in getPaginatedOrders" :key="order.codOrder">
             <td>
               <span>{{ order.codOrder }}</span>
             </td>

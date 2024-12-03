@@ -30,6 +30,7 @@ export default {
       isAddProviderModalVisible: false, 
       currentPage: 1, 
       pageSize: 6, 
+      itemsPerPage: 6,
       search: '',
       newProvider: {
         nit: '',
@@ -121,6 +122,11 @@ export default {
   computed: {
     ...mapState(['unreadNotifications']), 
     paginatedProviders() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.provider.slice(start, end);
+    },
+    getPaginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       return this.provider.slice(start, end);

@@ -283,6 +283,19 @@
     flex: 1;
     padding: 1rem;
     padding-top: 80px;
+    overflow-y: auto; 
+  }
+  .main-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .main-content ::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+  
+  .main-content ::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
   }
   .filters-card {
     background-color: #ffffff;

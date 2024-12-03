@@ -28,6 +28,7 @@ export default {
       isLowStockModalVisible: false,
       isNotificationsVisible: false,
       products: [],
+      loadingImages: [],
       search: '',
       itemsPerPage: 10,
       isLoading: false,
@@ -87,6 +88,7 @@ export default {
     },
   },
   mounted() {
+    this.loadingImages = this.paginatedProducts.map(() => true);
     this.fetchAlert();
     this.fetchProviders();
     this.fetchProducts();
@@ -111,6 +113,12 @@ export default {
       this.removeNotification(index);
       this.toggleNotifications();
     },
+    handleImageLoad(index) {
+      this.loadingImages[index] = false; 
+    },
+    handleImageError(index) {
+      this.loadingImages[index] = true; 
+    },
     closeLowStockModal() {
       this.isLowStockModalVisible = false;
     },
@@ -132,6 +140,20 @@ export default {
         laboratory.nameLaboratory.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
         !this.selectedLaboratories.some(selected => selected.codLaboratory === laboratory.codLaboratory)
       );
+    },
+    resetNewProduct() {
+      this.newProduct = {
+        codProduct: '',
+        nameProduct: '',
+        describeProduct: '',
+        expirationDate: '',
+        codLot: '', 
+        quantity: 0,
+        priceSell: 0.0,
+        priceBuy: 0.0, 
+        nameLaboratory: '', 
+        image: ''
+      };
     },
     selectLaboratory(laboratory) {
       this.newProduct.laboratory = laboratory.nameLaboratory; 

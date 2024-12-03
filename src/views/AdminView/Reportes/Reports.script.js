@@ -33,8 +33,8 @@ export default {
       laboratories: [], 
       filteredLaboratories: [], 
       priceChart: null,
-      itemsPerPage: 4,
-      pageSize: 4,
+      itemsPerPage: 3,
+      pageSize: 3,
       isLoading: false,
       currentPage: 1,
       productsAlert:[],
@@ -280,6 +280,11 @@ export default {
                     y: {
                         beginAtZero: true,
                     },
+                    x: {
+                      ticks: {
+                          display: false, 
+                      },
+                  },
                 },
             },
         });
@@ -305,6 +310,11 @@ export default {
                     },
                 },
                 scales: {
+                  x: {
+                    ticks: {
+                        display: false, 
+                    },
+                },
                     y: {
                         beginAtZero: true,
                     },

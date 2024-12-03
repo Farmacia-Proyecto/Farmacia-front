@@ -66,7 +66,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(order, index) in orders" :key="order.codOrder">
+          <tr v-for="(order, index) in getPaginatedOrders" :key="order.codOrder">
             <td>
               <span>{{ order.codOrder }}</span>
             </td>
@@ -90,7 +90,7 @@
               <span v-else>{{ order.state }}</span>
             </td>    
             <td class="action-buttons">
-              <button v-if="editIndex === index" class="confirm-btn" @click="reloadPage">
+              <button v-if="editIndex === index" class="confirm-btn" @click="saveOrderChanges">
                 <i class="fas fa-check"></i>
               </button>
               <button v-else class="edit-btn" @click="startEdit(order, index)">

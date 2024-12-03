@@ -25,6 +25,7 @@ export default {
     isCheckoutModalVisible:false,
     isLowStockModalVisible: false,
     lowStockProducts: [],
+    loadingImages: [], 
     notifications: [], 
     isNotificationsVisible: false, 
     cart: [], 
@@ -33,7 +34,7 @@ export default {
     checkoutData: {
       clientDocument: '',
       paymentType: 'efectivo',
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toLocaleDateString('en-CA'),
     },
     ivaRate: 19, 
     products: [],
@@ -68,6 +69,7 @@ computed: {
   },
 },
 mounted() {
+  this.loadingImages = this.paginatedProducts.map(() => true);
   this.fetchProducts();
   this.toast = useToast();
 },
@@ -86,6 +88,9 @@ mounted() {
       this.isCheckoutModalVisible = true;
       this.isCartVisible = false;
     },
+    goToPage(page) {
+      this.currentPage = page;
+    },
     closeCheckoutModal() {
       this.isCheckoutModalVisible = false;
     },
@@ -94,6 +99,12 @@ mounted() {
       if (!this.isSearchBarVisible) {
         this.search = '';
       }
+    },
+    handleImageLoad(index) {
+      this.loadingImages[index] = false; // Actualiza directamente el estado
+    },
+    handleImageError(index) {
+      this.loadingImages[index] = true; // Mantiene el placeholder si hay un error
     },
     showChangePasswordForm(){
       this.$router.push("pasword")
@@ -108,16 +119,21 @@ mounted() {
       this.isCartVisible = !this.isCartVisible;
     },
     addProductToCart(product) {
-    const existingProductIndex = this.cart.findIndex((item) => item.codProduct === product.codProduct);
-
-    if (existingProductIndex !== -1) {  
-      this.cart[existingProductIndex].selectedQuantity += product.selectedQuantity;
-    } else {
-      this.cart.push({ ...product });
-    }
-
-  this.toast.success(`${product.nameProduct} añadido al carrito`);
-    },
+      const existingProductIndex = this.cart.findIndex((item) => item.codProduct === product.codProduct);
+      if(product.selectedQuantity>product.quantity){
+        this.toast.error(
+          "No se puede añadir mas de los productos disponibles al carrito"
+        )
+      }else{
+        console.log(product.quantity)
+      if (existingProductIndex !== -1) {  
+        this.cart[existingProductIndex].selectedQuantity += product.selectedQuantity;
+      } else {
+        this.cart.push({ ...product });
+      }
+    this.toast.success(`${product.nameProduct} añadido al carrito`);
+      }
+      },
     removeFromCart(product) {
       this.cart = this.cart.filter((item) => item.codProduct !== product.codProduct);
       this.toast.info(`Eliminado ${product.nameProduct} del carrito.`);

@@ -56,7 +56,19 @@
 
     <div class="products-grid">
       <div v-for="(product, index) in paginatedProducts" :key="product.id" class="product-card">
-        <img :src="newProduct.image" :alt="`Imagen de ${product.nameProduct}`" class="product-image" />
+        <div class="image-container">
+          <img
+            v-if="product?.image && !loadingImages[index]"
+            :src="product.image"
+            :alt="`Imagen de ${product?.nameProduct || 'Producto'}`"
+            class="product-image"
+            @load="handleImageLoad(index)"
+            @error="handleImageError(index)"
+          />
+          <div v-else class="image-placeholder">
+            <div class="spinner"></div> 
+          </div>
+        </div>
         <div class="product-info">
           <p class="product-name">{{ product.nameProduct }}</p>
           <p class="product-laboratory">{{ product.laboratory }}</p>

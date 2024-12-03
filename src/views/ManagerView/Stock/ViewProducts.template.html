@@ -53,8 +53,20 @@
     </div>
 
     <div class="products-grid">
-      <div v-for="product in paginatedProducts" :key="product.id" class="product-card">
-        <img :src="newProduct.image" :alt="`Imagen de ${product.name}`" class="product-image" />
+      <div v-for="(product, index) in paginatedProducts":key="product.id" class="product-card">
+        <div class="image-container">
+          <img
+            v-if="product?.image && !loadingImages[index]"
+            :src="product.image"
+            :alt="`Imagen de ${product?.nameProduct || 'Producto'}`"
+            class="product-image"
+            @load="handleImageLoad(index)"
+            @error="handleImageError(index)"
+          />
+          <div v-else class="image-placeholder">
+            <div class="spinner"></div> 
+          </div>
+        </div>
         <div class="product-info">
           <p class="product-name">{{ product.nameProduct }}</p>
           <p class="product-description">
@@ -130,6 +142,12 @@
             <label for="edit-product-price"><i class="fas fa-dollar-sign"></i> Precio de Venta:</label>
             <input id="edit-product-price" type="number" step="0.01" v-model="selectedProduct.priceSell"
               placeholder="Precio de Venta" />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-product-image">URL imagen: </label>
+            <input id="edit-product-image" type="text"  v-model="selectedProduct.image"
+              placeholder="URL imagen" />
           </div>
 
           <div class="modal-actions">
@@ -256,7 +274,17 @@
               <input id="product-purchase-price" type="number" step="0.01" v-model="newProduct.priceBuy"
                 placeholder="Precio de Compra" />
             </div>
+            <div class="form-group">
+              <label><i class="fas fa-box"></i> URL imagen:</label>
+              <input
+                type="text"
+                v-model="newProduct.image"
+                @input="validateUrl"
+                placeholder="URL imagen"
+              />
+            </div>
           </div>
+
           <!-- Botones de navegación -->
           <div class="form-navigation">
             <button class="navigation" type="button" @click="prevStep" v-if="currentStep > 1">Anterior</button>

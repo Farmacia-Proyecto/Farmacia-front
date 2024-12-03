@@ -35,7 +35,7 @@ export default {
     checkoutData: {
       clientDocument: '',
       paymentType: 'efectivo',
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toLocaleDateString('en-CA'),
     },
     ivaRate: 19, 
     products: [],
@@ -86,6 +86,9 @@ mounted() {
         path: '/admin/view-orders',
         query: { fromLowStockModal: true }
       });
+    },
+    goToPage(page) {
+      this.currentPage = page;
     },
     handleImageLoad(index) {
       this.loadingImages[index] = false; // Actualiza directamente el estado
@@ -167,15 +170,21 @@ mounted() {
     },
     addProductToCart(product) {
     const existingProductIndex = this.cart.findIndex((item) => item.codProduct === product.codProduct);
-
+    if(product.selectedQuantity>product.quantity){
+      this.toast.error(
+        "No se puede añadir mas de los productos disponibles al carrito"
+      )
+    }else{
+      console.log(product.quantity)
     if (existingProductIndex !== -1) {  
       this.cart[existingProductIndex].selectedQuantity += product.selectedQuantity;
     } else {
       this.cart.push({ ...product });
     }
-
   this.toast.success(`${product.nameProduct} añadido al carrito`);
+    }
     },
+    
     removeFromCart(product) {
       this.cart = this.cart.filter((item) => item.codProduct !== product.codProduct);
       this.toast.info(`Eliminado ${product.nameProduct} del carrito.`);
